@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ChoiceBox?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            minHeight="550.0" minWidth="850.0"
+            fx:controller="agh.ics.oop.presenter.ConfigurationPresenter"
+            stylesheets="@configuration.css">
+    <top>
+        <VBox alignment="CENTER">
+            <Label fx:id="title" text="Choose simulation parameters:" textAlignment="CENTER" styleClass="title"/>
+        </VBox>
+    </top>
+    <center>
+        <HBox spacing = "140" alignment="TOP_CENTER">
+            <VBox spacing = "7">
+                <HBox>
+                    <Label fx:id="heightDescr" text="Height of the map: " styleClass="text"/>
+                    <TextField fx:id="height" styleClass="textField"/>
+                </HBox>
+                <HBox><Label fx:id="initialNumberOfGrassesDescr" text="Initial number of grasses: " styleClass="text"/>
+                <TextField fx:id="initialNumberOfGrasses" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                <Label fx:id="numberOfNewGrassesEachDayDescr" text="Number of new grasses growing each day: " styleClass="text"/>
+                <TextField fx:id="numberOfNewGrassesEachDay" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                <Label fx:id="energyGivenByOneGrassDescr" text="Energy given by eating one grass: " styleClass="text"/>
+                <TextField fx:id="energyGivenByOneGrass" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                <Label fx:id="initialNumberOfAnimalsDescr" text="Initial number of animals: " styleClass="text"/>
+                <TextField fx:id="initialNumberOfAnimals" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                <Label fx:id="initialEnergyOfAnimalsDescr" text="Initial energy of an animal: " styleClass="text"/>
+                <TextField fx:id="initialEnergyOfAnimals" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                <Label fx:id="energyToReproduceDescr" text="Energy needed for an animal to be able to reproduce: " styleClass="text"/>
+                <TextField fx:id="energyToReproduce" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                <Label fx:id="energyUsedForReproductionDescr" text="Energy used for reproduction: " styleClass="text"/>
+                <TextField fx:id="energyUsedForReproduction" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                <Label fx:id="minNumberOfMutationsDescr" text="Minimal number of mutations in descendants' genome: " styleClass="text"/>
+                <TextField fx:id="minNumberOfMutations" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                <Label fx:id="maxNumberOfMutationsDescr" text="Maximal number of mutations in descendants' genome: " styleClass="text"/>
+                <TextField fx:id="maxNumberOfMutations" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                <Label fx:id="genomeLengthDescr" text="Length of animal's genome: " styleClass="text"/>
+                <TextField fx:id="genomeLength" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                <Label fx:id="typeOfBehaviourDescr" text="Type of animals' behaviour: " styleClass="text"/>
+                <ChoiceBox fx:id="typeOfBehaviour" styleClass="textField"/>
+                </HBox>
+            </VBox>
+            <Button fx:id="saveConfig" text="Save configuration" textAlignment="CENTER" styleClass="config-button" alignment="TOP_CENTER"/>
+        </HBox>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER" spacing="20">
+            <Button fx:id="back" text="Back" textAlignment="CENTER" styleClass="back-button" onAction="#onBackButtonClicked"/>
+            <Button fx:id="start" text="Start simulation" textAlignment="CENTER" styleClass="start-button"/>
+        </HBox>
+    </bottom>
+</BorderPane>
