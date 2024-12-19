@@ -24,48 +24,52 @@
                     <Label fx:id="heightDescr" text="Height of the map: " styleClass="text"/>
                     <TextField fx:id="height" styleClass="textField"/>
                 </HBox>
+                <HBox>
+                    <Label fx:id="widthDescr" text="Width of the map: " styleClass="text"/>
+                    <TextField fx:id="width" styleClass="textField"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="mapTypeDescr" text="Type of map: " styleClass="text"/>
+                    <ChoiceBox fx:id="mapType" styleClass="textField"/>
+                </HBox>
                 <HBox><Label fx:id="initialNumberOfGrassesDescr" text="Initial number of grasses: " styleClass="text"/>
-                <TextField fx:id="initialNumberOfGrasses" styleClass="textField"/>
+                    <TextField fx:id="initialNumberOfGrasses" styleClass="textField"/>
                 </HBox>
                 <HBox>
-                <Label fx:id="numberOfNewGrassesEachDayDescr" text="Number of new grasses growing each day: " styleClass="text"/>
-                <TextField fx:id="numberOfNewGrassesEachDay" styleClass="textField"/>
+                    <Label fx:id="numberOfNewGrassesEachDayDescr" text="Number of new grasses growing each day: " styleClass="text"/>
+                    <TextField fx:id="numberOfNewGrassesEachDay" styleClass="textField"/>
                 </HBox>
                 <HBox>
-                <Label fx:id="energyGivenByOneGrassDescr" text="Energy given by eating one grass: " styleClass="text"/>
-                <TextField fx:id="energyGivenByOneGrass" styleClass="textField"/>
+                    <Label fx:id="energyGivenByOneGrassDescr" text="Energy given by eating one grass: " styleClass="text"/>
+                    <TextField fx:id="energyGivenByOneGrass" styleClass="textField"/>
                 </HBox>
                 <HBox>
-                <Label fx:id="initialNumberOfAnimalsDescr" text="Initial number of animals: " styleClass="text"/>
-                <TextField fx:id="initialNumberOfAnimals" styleClass="textField"/>
+                    <Label fx:id="initialNumberOfAnimalsDescr" text="Initial number of animals: " styleClass="text"/>
+                    <TextField fx:id="initialNumberOfAnimals" styleClass="textField"/>
                 </HBox>
                 <HBox>
-                <Label fx:id="initialEnergyOfAnimalsDescr" text="Initial energy of an animal: " styleClass="text"/>
-                <TextField fx:id="initialEnergyOfAnimals" styleClass="textField"/>
+                    <Label fx:id="initialEnergyOfAnimalsDescr" text="Initial energy of an animal: " styleClass="text"/>
+                    <TextField fx:id="initialEnergyOfAnimals" styleClass="textField"/>
                 </HBox>
                 <HBox>
-                <Label fx:id="energyToReproduceDescr" text="Energy needed for an animal to be able to reproduce: " styleClass="text"/>
-                <TextField fx:id="energyToReproduce" styleClass="textField"/>
+                    <Label fx:id="energyToReproduceDescr" text="Energy needed for an animal to be able to reproduce: " styleClass="text"/>
+                    <TextField fx:id="energyToReproduce" styleClass="textField"/>
                 </HBox>
                 <HBox>
-                <Label fx:id="energyUsedForReproductionDescr" text="Energy used for reproduction: " styleClass="text"/>
-                <TextField fx:id="energyUsedForReproduction" styleClass="textField"/>
+                    <Label fx:id="minNumberOfMutationsDescr" text="Minimal number of mutations in descendants' genome: " styleClass="text"/>
+                    <TextField fx:id="minNumberOfMutations" styleClass="textField"/>
                 </HBox>
                 <HBox>
-                <Label fx:id="minNumberOfMutationsDescr" text="Minimal number of mutations in descendants' genome: " styleClass="text"/>
-                <TextField fx:id="minNumberOfMutations" styleClass="textField"/>
+                    <Label fx:id="maxNumberOfMutationsDescr" text="Maximal number of mutations in descendants' genome: " styleClass="text"/>
+                    <TextField fx:id="maxNumberOfMutations" styleClass="textField"/>
                 </HBox>
                 <HBox>
-                <Label fx:id="maxNumberOfMutationsDescr" text="Maximal number of mutations in descendants' genome: " styleClass="text"/>
-                <TextField fx:id="maxNumberOfMutations" styleClass="textField"/>
+                    <Label fx:id="genomeLengthDescr" text="Length of animal's genome: " styleClass="text"/>
+                    <TextField fx:id="genomeLength" styleClass="textField"/>
                 </HBox>
                 <HBox>
-                <Label fx:id="genomeLengthDescr" text="Length of animal's genome: " styleClass="text"/>
-                <TextField fx:id="genomeLength" styleClass="textField"/>
-                </HBox>
-                <HBox>
-                <Label fx:id="typeOfBehaviourDescr" text="Type of animals' behaviour: " styleClass="text"/>
-                <ChoiceBox fx:id="typeOfBehaviour" styleClass="textField"/>
+                    <Label fx:id="typeOfBehaviourDescr" text="Type of animals' behaviour: " styleClass="text"/>
+                    <ChoiceBox fx:id="typeOfBehaviour" styleClass="textField"/>
                 </HBox>
             </VBox>
             <Button fx:id="saveConfig" text="Save configuration" textAlignment="CENTER" styleClass="config-button" alignment="TOP_CENTER"/>
