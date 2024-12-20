@@ -1,3 +1,9 @@
+
+*{
+    -fx-font-family: sans-serif;
+    -fx-font-size: 14px;
+}
+
 .border-pane {
     -fx-background-color: #E8ECD7;
     -fx-padding: 20;
@@ -26,7 +32,9 @@
     -fx-text-fill: #1F4529;
     -fx-alignment: center;
 }
-
+.spinner{
+    -fx-alignment: center;
+}
 .config-button {
     -fx-font-family: sans-serif;
     -fx-font-size: 18px;
