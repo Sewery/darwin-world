@@ -25,7 +25,8 @@ public class GrassField implements WorldMap {
     protected final List<MapChangeListener> observers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
 
-    private ArrayList<Vector2d> emptyGrassPositions = new ArrayList<>();
+    private ArrayList<Vector2d> emptyEquatorGrassPositions = new ArrayList<>();
+    private ArrayList<Vector2d> emptyOtherGrassPositions = new ArrayList<>();
 
 
     public GrassField(int initialGrassCount, int width, int height, int newGrassesEachDay) {
@@ -36,15 +37,30 @@ public class GrassField implements WorldMap {
         synchronized (this) {this.mapID = mapsCount++;}
 
         this.newGrassesEachDay = newGrassesEachDay;
-        this.emptyGrassPositions = generateEmptyGrassPositions(width, height);
+        int equatorWidth = height/5;
+        this.emptyEquatorGrassPositions = generateEmptyEquatorGrassPositions(width, height, equatorWidth);
+        this.emptyOtherGrassPositions = generateOtherEmptyGrassPositions(width, height, equatorWidth);
         growPlants(initialGrassCount);
 
     }
 
-    private ArrayList<Vector2d> generateEmptyGrassPositions(int width, int height) {
+    private ArrayList<Vector2d> generateOtherEmptyGrassPositions(int width, int height, int equator) {
         ArrayList<Vector2d> all_possible_positions = new ArrayList<>();
         for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) all_possible_positions.add(new Vector2d(x, y));
+            for (int y = 0; y < height/2-equator+1; y++) all_possible_positions.add(new Vector2d(x, y));
+        }
+        for (int x = 0; x < width; x++) {
+            for (int y = height/2+equator; y < height; y++) all_possible_positions.add(new Vector2d(x, y));
+        }
+
+        Collections.shuffle(all_possible_positions, new Random());
+        return all_possible_positions;
+    }
+
+    private ArrayList<Vector2d> generateEmptyEquatorGrassPositions(int width, int height, int equator) {
+        ArrayList<Vector2d> all_possible_positions = new ArrayList<>();
+        for (int x = 0; x < width; x++) {
+            for (int y = height/2-equator+1; y < height/2+equator; y++) all_possible_positions.add(new Vector2d(x, y));
         }
 
         Collections.shuffle(all_possible_positions, new Random());
@@ -56,14 +72,36 @@ public class GrassField implements WorldMap {
     }
 
     public void growPlants(int grassCount) {
-        Random random = new Random();
-        grassCount = min(grassCount, emptyGrassPositions.size());
-        for (int i = 0; i < grassCount; i++) {
-            Vector2d randomGrassPosition = emptyGrassPositions.get(random.nextInt(grassCount-i));
+
+        grassCount = min(grassCount, emptyOtherGrassPositions.size() + emptyEquatorGrassPositions.size());
+
+        for (int i = 0; i < grassCount; i++){
+
+            ArrayList<Vector2d> selectedArea = randomSelect(emptyEquatorGrassPositions, emptyOtherGrassPositions);
+
+            Random random = new Random();
+            Vector2d randomGrassPosition = selectedArea.get(random.nextInt(selectedArea.size()));
             grasses.put(randomGrassPosition, new Grass(randomGrassPosition));
-            emptyGrassPositions.remove(randomGrassPosition);
+            selectedArea.remove(randomGrassPosition);
         }
 
+    }
+
+    private ArrayList<Vector2d> randomSelect(ArrayList<Vector2d> areaOne, ArrayList<Vector2d> areaTwo) {
+
+        if (areaOne.isEmpty()) return areaTwo;
+        if (areaTwo.isEmpty()) return areaOne;
+
+        Random random = new Random();
+        double randomValue = random.nextDouble();
+        return randomValue < 0.8 ? areaOne : areaTwo;
+    }
+
+    private void growPlantOnASpecificArea(ArrayList<Vector2d> area) {
+        Random random = new Random();
+        Vector2d randomGrassPosition = area.get(random.nextInt(area.size()));
+        grasses.put(randomGrassPosition, new Grass(randomGrassPosition));
+        area.remove(randomGrassPosition);
     }
 
     @Override
