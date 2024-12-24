@@ -108,8 +108,8 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML
     public void onSimulationStartClicked() throws IllegalArgumentException {
 
-            WorldMap map = new GrassField(10, 5, 5);
-            Simulation simulation = new Simulation(map, 2, 10, 5, 4, 4);
+            WorldMap map = new GrassField(2, 5, 5, 3);
+            Simulation simulation = new Simulation(map, 1, 3, 5, 4, 4);
             map.addObserver(this);
             SimulationEngine engine = new SimulationEngine(List.of(simulation));
             engine.runAsync();

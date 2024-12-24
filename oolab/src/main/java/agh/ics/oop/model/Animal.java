@@ -17,6 +17,8 @@ public class Animal implements WorldElement {
     private static int MIN_ENERGY_TO_REPRODUCE;
     private static int AGE_OF_BURDEN;
 
+
+
     public Animal(Vector2d position, int energy ) {
 
         this.position = position;
@@ -72,13 +74,17 @@ public class Animal implements WorldElement {
     }
 
     public void move(MoveValidator validator) {
+        energy -= 1;
         direction = direction.changeDirection(genotype[currentGene]);
         Vector2d newPosition = validator.canMoveTo(position.add(direction.toUnitVector()));
-        if (newPosition != null) position = newPosition;
+        if (newPosition != null) {
+            position = newPosition;
+        }
         currentGene = (currentGene + 1)%genotype.length;
     }
 
     public int[] getGenotype() {return genotype;}
     public int getCurrentGene() {return currentGene;}
     public Vector2d getDirection() {return this.direction.toUnitVector();}
+    public int getEnergy(){return energy;}
 }

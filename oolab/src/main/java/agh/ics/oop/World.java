@@ -12,7 +12,7 @@ public class World {
     public static void main(String[] args) {
 
         try {
-            WorldMap map = new GrassField(10, 5, 5);
+            WorldMap map = new GrassField(10, 5, 5, 5);
             Simulation simulation = new Simulation(map, 1, 10, 5, 4, 4);
             map.addObserver(new ConsoleMapDisplay());
             SimulationEngine engine = new SimulationEngine(List.of(simulation));

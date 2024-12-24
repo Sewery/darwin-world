@@ -21,6 +21,7 @@ public interface WorldMap extends MoveValidator {
      * @return True if the animal was placed. The animal cannot be placed if the move is not valid.
      */
     boolean place(Animal animal) throws IncorrectPositionException;
+    void remove(Animal animal);
 
     /**
      * Moves an animal (if it is present on the map) according to specified direction.
@@ -54,4 +55,6 @@ public interface WorldMap extends MoveValidator {
     void removeObserver(MapChangeListener mapChangeListener);
     public void notifyObservers(String message);
     int getID();
+    public void growPlants(int grassCount);
+    public int getNumberOfNewGrassesEachDay();
 }

@@ -6,10 +6,14 @@ import agh.ics.oop.model.util.MapVisualizer;
 
 import java.util.*;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 public class GrassField implements WorldMap {
 
     private final Map<Vector2d, Grass> grasses = new HashMap<>();
     private final Map<Vector2d, Animal> animals = new HashMap<>();
+    private final int newGrassesEachDay;
 
     private final Vector2d lowerLeft;
     private final Vector2d upperRight;
@@ -21,17 +25,43 @@ public class GrassField implements WorldMap {
     protected final List<MapChangeListener> observers = new ArrayList<>();
     protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
 
+    private ArrayList<Vector2d> emptyGrassPositions = new ArrayList<>();
 
-    public GrassField(int grassCount, int width, int height) {
+
+    public GrassField(int initialGrassCount, int width, int height, int newGrassesEachDay) {
         this.lowerLeft = new Vector2d(0, 0);
         this.upperRight = new Vector2d(width-1, height-1);
         this.boundary = new Boundary(lowerLeft, upperRight);
 
         synchronized (this) {this.mapID = mapsCount++;}
 
-        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, grassCount);
-        for(Vector2d grassPosition : randomPositionGenerator) {
-            grasses.put(grassPosition, new Grass(grassPosition));
+        this.newGrassesEachDay = newGrassesEachDay;
+        this.emptyGrassPositions = generateEmptyGrassPositions(width, height);
+        growPlants(initialGrassCount);
+
+    }
+
+    private ArrayList<Vector2d> generateEmptyGrassPositions(int width, int height) {
+        ArrayList<Vector2d> all_possible_positions = new ArrayList<>();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) all_possible_positions.add(new Vector2d(x, y));
+        }
+
+        Collections.shuffle(all_possible_positions, new Random());
+        return all_possible_positions;
+    }
+
+    public int getNumberOfNewGrassesEachDay(){
+        return newGrassesEachDay;
+    }
+
+    public void growPlants(int grassCount) {
+        Random random = new Random();
+        grassCount = min(grassCount, emptyGrassPositions.size());
+        for (int i = 0; i < grassCount; i++) {
+            Vector2d randomGrassPosition = emptyGrassPositions.get(random.nextInt(grassCount-i));
+            grasses.put(randomGrassPosition, new Grass(randomGrassPosition));
+            emptyGrassPositions.remove(randomGrassPosition);
         }
 
     }
@@ -66,6 +96,14 @@ public class GrassField implements WorldMap {
             return true;
         }
         throw new IncorrectPositionException(animal.getPosition());
+    }
+
+    @Override
+    public void remove(Animal animal) {
+
+        if (objectAt(animal.getPosition()) == animal) {
+            animals.remove(animal.getPosition());
+        }
     }
 
     @Override

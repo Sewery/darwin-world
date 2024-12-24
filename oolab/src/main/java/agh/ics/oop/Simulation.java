@@ -11,12 +11,15 @@ public class Simulation implements Runnable {
 
     private final List<Animal> animals;
     private final WorldMap map;
+    private int daysCount;
 
 
     public Simulation(WorldMap map, int initialNumberOfAnimals, int initialEnergy, int GENOTYPE_LENGTH, int AGE_OF_BURDEN, int MIN_ENERGY_TO_REPRODUCE) {
 
         this.map = map;
+
         this.animals = new ArrayList<>();
+        this.daysCount = 0;
 
         Boundary boundary = map.getCurrentBounds();
         int width = boundary.upperRight().getX() - boundary.lowerLeft().getX();
@@ -53,23 +56,63 @@ public class Simulation implements Runnable {
 
         System.out.println();
 
-        int i = 0;
-        while (i < 100) {
+        while (daysCount < 10) {
 
-            for (Animal animal : animals) {
-                try {
-                    Thread.sleep(500);
-                    map.move(animal);
-                } catch (InterruptedException e) {
-                    System.out.println("Exception: " + e.getMessage());
-                }
+            System.out.printf("Day %s%n", daysCount);
+            System.out.println(map);
 
-            }
+            sleep();
+            removeDeadAnimals();
 
-            map.notifyObservers("Dzień %s".formatted(i));
-            i += 1;
+            sleep();
+            moveAnimals();
+
+            sleep();
+            // consumePlants();
+
+            sleep();
+            // reproduce();
+
+            sleep();
+            growPlants();
+
+            daysCount += 1;
         }
 
 
+    }
+
+    private void removeDeadAnimals(){
+        ArrayList<Animal> deadAnimals = new ArrayList<>();
+        for (Animal animal : animals) {
+            if (animal.getEnergy() == 0) {
+                deadAnimals.add(animal);
+            }
+        }
+
+        for (Animal deadAnimal : deadAnimals) {
+            map.remove(deadAnimal);
+            animals.remove(deadAnimal);
+        }
+        map.notifyObservers("Dzień %s: remove dead animals".formatted(daysCount));
+    }
+
+    private void moveAnimals(){
+        for (Animal animal : animals) {
+            map.move(animal);
+        }
+        map.notifyObservers("Dzień %s: move animals".formatted(daysCount));
+    }
+
+    private void growPlants(){
+        map.growPlants(map.getNumberOfNewGrassesEachDay());
+    }
+
+    private void sleep(){
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
     }
 }
