@@ -12,7 +12,6 @@
             fx:controller="agh.ics.oop.presenter.SimulationPresenter">
     <top>
         <VBox spacing="10" alignment="CENTER">
-            <TextField fx:id="movesList" promptText="Enter moves"/>
             <Label fx:id="moveDescription"/>
             <Button text="Start" onAction="#onSimulationStartClicked"/>
         </VBox>

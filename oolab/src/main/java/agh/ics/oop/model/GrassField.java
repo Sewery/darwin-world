@@ -52,15 +52,17 @@ public class GrassField implements WorldMap {
     @Override
     public void removeObserver(MapChangeListener mapChangeListener) {observers.remove(mapChangeListener);}
 
-    protected void notifyObservers(String message) {
+    @Override
+    public void notifyObservers(String message) {
         for (MapChangeListener observer : observers) {observer.mapChanged(this, message);}
     }
 
     @Override
     public boolean place(Animal animal) throws IncorrectPositionException {
-        if (canMoveTo(animal.getPosition())) {
-            animals.put(animal.getPosition(), animal);
-            notifyObservers("Animal placed at " + animal.getPosition());
+
+        Vector2d position = canMoveTo(animal.getPosition());
+        if (position != null) {
+            animals.put(position, animal);
             return true;
         }
         throw new IncorrectPositionException(animal.getPosition());
@@ -73,7 +75,6 @@ public class GrassField implements WorldMap {
             animal.move(this);
             animals.remove(oldPosition);
             animals.put(animal.getPosition(), animal);
-            if (!(animal.getPosition().equals(oldPosition))) notifyObservers("Animal moved from %s to %s".formatted(oldPosition, animal.getPosition()));
         }
     }
 
@@ -83,8 +84,26 @@ public class GrassField implements WorldMap {
     }
 
     @Override
-    public boolean canMoveTo(Vector2d position) {
-        return !(objectAt(position) instanceof Animal) && position.follows(lowerLeft) && position.precedes(upperRight);
+    public Vector2d canMoveTo(Vector2d position) {
+
+        if (!(objectAt(position) instanceof Animal)) {
+
+            if (position.follows(lowerLeft) && position.precedes(upperRight)) {
+                return position;
+            }
+
+            if (lowerLeft.getY() <= position.getY() && position.getY() <= upperRight.getY()) {
+                if (position.getX() < lowerLeft.getX()) {
+                    return new Vector2d(upperRight.getX(), position.getY());
+                }
+
+                if (position.getX() > upperRight.getX()) {
+                    return new Vector2d(lowerLeft.getX(), position.getY());
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override

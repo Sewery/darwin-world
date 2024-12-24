@@ -1,5 +1,7 @@
 package agh.ics.oop.model;
 
+import java.util.Arrays;
+
 public enum MapDirection {
     NORTH,
     NORTHEAST,
@@ -14,7 +16,7 @@ public enum MapDirection {
             new Vector2d(0,1),
             new Vector2d(1,1),
             new Vector2d(1,0),
-            new Vector2d(-1,-1),
+            new Vector2d(1,-1),
             new Vector2d(0,-1),
             new Vector2d(-1,-1),
             new Vector2d(-1,0),
@@ -26,38 +28,25 @@ public enum MapDirection {
         return switch (this) {
             case NORTH -> "Północ";
             case NORTHEAST -> "Północny-Wschód";
-            case NORTHWEST -> "Północny-Zachód";
-            case SOUTHEAST -> "Południowy-Wschód";
-            case SOUTHWEST -> "Południowy-Zachód";
-            case SOUTH -> "Południe";
-            case WEST -> "Zachód";
             case EAST -> "Wschód";
+            case SOUTHEAST -> "Południowy-Wschód";
+            case SOUTH -> "Południe";
+            case SOUTHWEST -> "Południowy-Zachód";
+            case WEST -> "Zachód";
+            case NORTHWEST -> "Północny-Zachód";
         };
     }
 
-    public MapDirection next(){
-        return MapDirection.values()[(this.ordinal() + 1) % MapDirection.values().length];
+    public MapDirection next(int n){
+        return MapDirection.values()[(this.ordinal() + n) % MapDirection.values().length];
     }
 
     public MapDirection previous(){
         return MapDirection.values()[(this.ordinal() + MapDirection.values().length - 1) % MapDirection.values().length];}
 
     public MapDirection changeDirection(int n){
-
         if (n==0) {return this;}
-
-        if (n <= 4) {
-            for (int i = 0; i < n; i++){
-                this.next();
-            }
-        }
-        else {
-            for (int i = 8; i > n; i--){
-                this.previous();
-            }
-        }
-
-        return this;
+        return this.next(n);
     }
 
     public Vector2d toUnitVector(){

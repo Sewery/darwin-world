@@ -4,6 +4,7 @@ import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.util.Boundary;
+import agh.ics.oop.model.util.ConsoleMapDisplay;
 import agh.ics.oop.model.util.MapChangeListener;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -107,17 +108,12 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML
     public void onSimulationStartClicked() throws IllegalArgumentException {
 
-            /*
-            String[] args = movesList.getText().split(" ");
-            List<MoveDirection> directions = OptionsParser.parse(args);
-            List<Vector2d> positions = List.of(new Vector2d(2, 2), new Vector2d(3, 4));
-            WorldMap map = new GrassField(10);
+            WorldMap map = new GrassField(10, 5, 5);
+            Simulation simulation = new Simulation(map, 2, 10, 5, 4, 4);
             map.addObserver(this);
-
-            Simulation simulation = new Simulation(positions, directions, map);
             SimulationEngine engine = new SimulationEngine(List.of(simulation));
             engine.runAsync();
-            */
+
     }
 
 }

@@ -52,6 +52,6 @@ public interface WorldMap extends MoveValidator {
 
     void addObserver(MapChangeListener mapChangeListener);
     void removeObserver(MapChangeListener mapChangeListener);
-
+    public void notifyObservers(String message);
     int getID();
 }
