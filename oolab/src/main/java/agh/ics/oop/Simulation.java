@@ -1,6 +1,7 @@
 package agh.ics.oop;
 
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.util.Boundary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,19 +9,22 @@ import java.util.List;
 public class Simulation implements Runnable {
 
     private final List<Animal> animals;
-    private final List<MoveDirection> moves;
     private final WorldMap map;
 
-    public Simulation(List<Vector2d> positions, List<MoveDirection> directions, WorldMap map) {
-        this.moves = directions;
+    public Simulation(WorldMap map, int initialNumberOfAnimals, int initialEnergy, int genotypeLength, int AGE_OF_BURDEN, int MIN_ENERGY_TO_REPRODUCE) {
+
         this.map = map;
         this.animals = new ArrayList<>();
 
-        for (Vector2d position : positions)
-        {
+        Boundary boundary = map.getCurrentBounds();
+        int width = boundary.upperRight().getX() - boundary.lowerLeft().getX();
+        int height = boundary.upperRight().getY() - boundary.lowerLeft().getY();
+
+        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, initialNumberOfAnimals);
+        for(Vector2d animalPosition : randomPositionGenerator) {
             try
             {
-                Animal animal = new Animal(position);
+                Animal animal = new Animal(animalPosition, initialEnergy, genotypeLength, MIN_ENERGY_TO_REPRODUCE, AGE_OF_BURDEN);
                 map.place(animal);
                 animals.add(animal);
             } catch (IncorrectPositionException e) {
@@ -33,25 +37,26 @@ public class Simulation implements Runnable {
         return animals.get(index);
     }
 
-    public List<MoveDirection> getMoves() {
-        return moves;
-    }
 
     public void run() {
 
+        System.out.println(map);
         if (animals.isEmpty())  return;
-        //System.out.println(map);
 
-        for (int i = 0; i < moves.size(); i++) {
-            map.move(animals.get(i % animals.size()), moves.get(i));
+
+        for (Animal animal: animals) {
+            map.move(animal);
+            /*
             try {
                 Thread.sleep(500);
             }
             catch (InterruptedException e) {
                 System.out.println("Exception: " + e.getMessage());
             }
+             */
             //System.out.printf("Zwierzę %s : %s%n", i % animals.size(), animals.get(i % animals.size()).toStringPositionOnly());
-            //System.out.println(map);
+            System.out.println(map);
         }
+
     }
 }

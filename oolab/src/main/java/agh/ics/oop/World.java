@@ -12,6 +12,20 @@ public class World {
     public static void main(String[] args) {
 
         try {
+            WorldMap map = new GrassField(10, 5, 5);
+            Simulation simulation = new Simulation(map, 5, 10, 5, 4, 4);
+            map.addObserver(new ConsoleMapDisplay());
+            SimulationEngine engine = new SimulationEngine(List.of(simulation));
+            engine.runASyncInThreadPool();
+            engine.awaitSimulationsEnd();
+        }
+        catch (IllegalArgumentException | InterruptedException e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+
+
+        /*
+        try {
             List<MoveDirection> directions = OptionsParser.parse(args);
             List<Vector2d> positions = List.of(new Vector2d(2, 2), new Vector2d(3, 4));
             List<Simulation> simulations = new ArrayList<>();
@@ -34,6 +48,8 @@ public class World {
         catch (IllegalArgumentException | InterruptedException e) {
             System.out.println("Exception: " + e.getMessage());
         }
+
+         */
 
         /*
         try {
@@ -84,9 +100,10 @@ public class World {
         System.out.println(move1.next());
         System.out.println(move2.previous());
         System.out.println(move1.toUnitVector());
-         */
+       */
     }
 
+    /*
     private static void run(String[] given_moves) {
 
         List<MoveDirection> moves = OptionsParser.parse(given_moves);
@@ -107,5 +124,7 @@ public class World {
         System.out.println();
 
     }
+
+         */
 
 }
