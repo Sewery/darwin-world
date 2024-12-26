@@ -1,9 +1,14 @@
-package agh.ics.oop.model;
+package agh.ics.oop.model.AnimalLife;
 
-import java.util.ArrayList;
+import agh.ics.oop.model.MapDirection;
+import agh.ics.oop.model.MoveValidator;
+import agh.ics.oop.model.Vector2d;
+import agh.ics.oop.model.WorldElement;
+
 import java.util.Random;
 
 public class Animal implements WorldElement {
+
 
     private Vector2d position;
     private MapDirection direction;
@@ -16,15 +21,17 @@ public class Animal implements WorldElement {
     private static int GENOTYPE_LENGTH;
     private static int MIN_ENERGY_TO_REPRODUCE;
     private static int AGE_OF_BURDEN;
+    private static int ENERGY_GIVEN_BY_ONE_GRASS;
+    private static int INITIAL_ENERGY;
 
 
 
-    public Animal(Vector2d position, int energy ) {
+    public Animal(Vector2d position, int[] genotype) {
 
         this.position = position;
         this.direction = randomDirection();
-        this.energy = energy;
-        this.genotype = randomGenotype();
+        this.energy = INITIAL_ENERGY;
+        this.genotype = genotype;
         this.currentGene = randomGene();
         this.numberOfChildren = 0;
         this.age = 0;
@@ -33,15 +40,6 @@ public class Animal implements WorldElement {
 
     private int randomGene(){
         return new Random().nextInt(genotype.length);
-    }
-
-    private int[] randomGenotype(){
-        Random random = new Random();
-        int[] genotype = new int[GENOTYPE_LENGTH];
-        for (int i = 0; i < GENOTYPE_LENGTH; i++) {
-            genotype[i] = random.nextInt(MapDirection.values().length);
-        }
-        return genotype;
     }
 
     private MapDirection randomDirection(){
@@ -61,9 +59,29 @@ public class Animal implements WorldElement {
         GENOTYPE_LENGTH = length;
     }
 
+    public static void set_ENERGY_GIVEN_BY_ONE_GRASS(int energy) {
+        ENERGY_GIVEN_BY_ONE_GRASS = energy;
+    }
+
+    public static void set_INITIAL_ENERGY(int energy) {
+        INITIAL_ENERGY = energy;
+    }
+
 
     public Vector2d getPosition() {
         return position;
+    }
+
+    public static int getMinEnergyToReproduce() {
+        return MIN_ENERGY_TO_REPRODUCE;
+    }
+
+    public static int getGenotypeLength() {
+        return GENOTYPE_LENGTH;
+    }
+
+    public static int getInitialEnergy() {
+        return INITIAL_ENERGY;
     }
 
     @Override
@@ -87,4 +105,14 @@ public class Animal implements WorldElement {
     public int getCurrentGene() {return currentGene;}
     public Vector2d getDirection() {return this.direction.toUnitVector();}
     public int getEnergy(){return energy;}
+    public int getAge(){return age;}
+    public int getNumberOfChildren() {return numberOfChildren;}
+
+    public void eat(){
+        this.energy += ENERGY_GIVEN_BY_ONE_GRASS;
+    }
+
+    public void looseEnergyDueToReproduction(int energyLost){
+        this.energy -= energyLost;
+    }
 }

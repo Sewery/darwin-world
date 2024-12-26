@@ -3,8 +3,8 @@ package agh.ics.oop.presenter;
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.AnimalLife.Animal;
 import agh.ics.oop.model.util.Boundary;
-import agh.ics.oop.model.util.ConsoleMapDisplay;
 import agh.ics.oop.model.util.MapChangeListener;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -78,12 +78,25 @@ public class SimulationPresenter implements MapChangeListener {
         // add elements
         for (int x = 1; x < cellsInARow+2; x++) {
             for (int y = cellsInAColumn+1; y >= 0; y--) {
-                WorldElement worldElement = worldMap.objectAt(new Vector2d(x-1+minX, cellsInAColumn-y+minY));
-                if (worldElement != null) {
-                    Label mapElement = new Label(worldElement.toString());
+
+                Vector2d currentPosition = new Vector2d(x-1+minX, cellsInAColumn-y+minY);
+                // zwierzęta
+                List<Animal> animals = worldMap.animalsAt(currentPosition);
+                if (animals != null){
+                    Label mapElement = new Label(String.valueOf(animals.size()));
+                    mapGrid.add(mapElement, x, y + 1);
+                    GridPane.setHalignment(mapElement, HPos.CENTER);
+                }
+
+                // trawa, jeśli nie ma zwierzęcia
+                else if (worldMap.grassAt(currentPosition) != null) {
+                    Label mapElement = new Label("*");
                     mapGrid.add(mapElement, x, y+1);
                     GridPane.setHalignment(mapElement, HPos.CENTER);
                 }
+
+
+
             }
         }
 
@@ -108,8 +121,8 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML
     public void onSimulationStartClicked() throws IllegalArgumentException {
 
-            WorldMap map = new GrassField(2, 5, 5, 3);
-            Simulation simulation = new Simulation(map, 1, 3, 5, 4, 4);
+            WorldMap map = new GrassField(2, 3, 3, 3);
+            Simulation simulation = new Simulation(map, 2, 6, 5, 4, 3, 1, 1, 1);
             map.addObserver(this);
             SimulationEngine engine = new SimulationEngine(List.of(simulation));
             engine.runAsync();

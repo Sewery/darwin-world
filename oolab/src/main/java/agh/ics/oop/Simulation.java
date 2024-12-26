@@ -1,11 +1,11 @@
 package agh.ics.oop;
 
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.AnimalLife.Animal;
+import agh.ics.oop.model.AnimalLife.Reproduction;
 import agh.ics.oop.model.util.Boundary;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Simulation implements Runnable {
 
@@ -14,7 +14,7 @@ public class Simulation implements Runnable {
     private int daysCount;
 
 
-    public Simulation(WorldMap map, int initialNumberOfAnimals, int initialEnergy, int GENOTYPE_LENGTH, int AGE_OF_BURDEN, int MIN_ENERGY_TO_REPRODUCE) {
+    public Simulation(WorldMap map, int initialNumberOfAnimals, int initialEnergy, int GENOTYPE_LENGTH, int AGE_OF_BURDEN, int MIN_ENERGY_TO_REPRODUCE, int ENERGY_GIVEN_BY_ONE_GRASS, int MIN_NUMBER_OF_MUTATIONS, int MAX_NUMBER_OF_MUTATIONS) {
 
         this.map = map;
 
@@ -22,24 +22,43 @@ public class Simulation implements Runnable {
         this.daysCount = 0;
 
         Boundary boundary = map.getCurrentBounds();
-        int width = boundary.upperRight().getX() - boundary.lowerLeft().getX();
-        int height = boundary.upperRight().getY() - boundary.lowerLeft().getY();
+        int width = boundary.upperRight().getX() - boundary.lowerLeft().getX()+1;
+        int height = boundary.upperRight().getY() - boundary.lowerLeft().getY()+1;
 
         Animal.set_MIN_ENERGY_TO_REPRODUCE(MIN_ENERGY_TO_REPRODUCE);
         Animal.set_AGE_OF_BURDEN(AGE_OF_BURDEN);
         Animal.set_GENOTYPE_LENGTH(GENOTYPE_LENGTH);
+        Animal.set_ENERGY_GIVEN_BY_ONE_GRASS(ENERGY_GIVEN_BY_ONE_GRASS);
+        Animal.set_INITIAL_ENERGY(initialEnergy);
+
+        Reproduction.setMaxNumberOfMutations(MAX_NUMBER_OF_MUTATIONS);
+        Reproduction.setMinNumberOfMutations(MIN_NUMBER_OF_MUTATIONS);
+
+        System.out.println(height);
+        System.out.println(width);
+        System.out.println(initialNumberOfAnimals);
 
         RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, initialNumberOfAnimals);
+
         for(Vector2d animalPosition : randomPositionGenerator) {
             try
             {
-                Animal animal = new Animal(animalPosition, initialEnergy);
+                Animal animal = new Animal(animalPosition, randomGenotype());
                 map.place(animal);
                 animals.add(animal);
             } catch (IncorrectPositionException e) {
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    private int[] randomGenotype(){
+        Random random = new Random();
+        int[] genotype = new int[Animal.getGenotypeLength()];
+        for (int i = 0; i < Animal.getGenotypeLength(); i++) {
+            genotype[i] = random.nextInt(MapDirection.values().length);
+        }
+        return genotype;
     }
 
 
@@ -56,10 +75,7 @@ public class Simulation implements Runnable {
 
         System.out.println();
 
-        while (daysCount < 10) {
-
-            System.out.printf("Day %s%n", daysCount);
-            System.out.println(map);
+        while (daysCount < 100) {
 
             sleep();
             removeDeadAnimals();
@@ -67,11 +83,26 @@ public class Simulation implements Runnable {
             sleep();
             moveAnimals();
 
-            sleep();
-            // consumePlants();
+            System.out.printf("\nDay %s%n", daysCount);
+            System.out.println("After move: ");
+            for (int i = 0; i < animals.size(); i++) {
+                System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
+            }
 
             sleep();
-            // reproduce();
+            consumePlants();
+            System.out.println("After consume: ");
+            for (int i = 0; i < animals.size(); i++) {
+                System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
+            }
+
+
+            sleep();
+            reproduce();
+            System.out.println("After reproduce: ");
+            for (int i = 0; i < animals.size(); i++) {
+                System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
+            }
 
             sleep();
             growPlants();
@@ -94,25 +125,50 @@ public class Simulation implements Runnable {
             map.remove(deadAnimal);
             animals.remove(deadAnimal);
         }
-        map.notifyObservers("Dzień %s: remove dead animals".formatted(daysCount));
+        map.notifyObservers("Day %s: remove dead animals".formatted(daysCount));
     }
 
     private void moveAnimals(){
         for (Animal animal : animals) {
             map.move(animal);
         }
-        map.notifyObservers("Dzień %s: move animals".formatted(daysCount));
+        map.notifyObservers("Day %s: move animals".formatted(daysCount));
     }
 
     private void growPlants(){
         map.growPlants(map.getNumberOfNewGrassesEachDay());
+        map.notifyObservers("Day %s: grow plants".formatted(daysCount));
     }
 
     private void sleep(){
         try {
-            Thread.sleep(500);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             System.out.println("Exception: " + e.getMessage());
+        }
+    }
+
+    private void consumePlants(){
+        map.consumePlants();
+        map.notifyObservers("Day %s: consume plants".formatted(daysCount));
+
+
+    }
+
+    private void reproduce(){
+        List<Animal> createdAnimals = map.reproduce();
+
+        System.out.println(createdAnimals);
+
+        for (Animal animal : createdAnimals) {
+            System.out.printf("Nowe zwierze: %s %s\n", animal.getEnergy(), animal.getPosition().toString());
+            try
+            {
+                map.place(animal);
+                animals.add(animal);
+            } catch (IncorrectPositionException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 }

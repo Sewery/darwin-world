@@ -1,8 +1,9 @@
 package agh.ics.oop.model;
 
+import agh.ics.oop.model.AnimalLife.Animal;
+import agh.ics.oop.model.AnimalLife.Reproduction;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
-import agh.ics.oop.model.util.MapVisualizer;
 
 import java.util.*;
 
@@ -12,7 +13,7 @@ import static java.lang.Math.min;
 public class GrassField implements WorldMap {
 
     private final Map<Vector2d, Grass> grasses = new HashMap<>();
-    private final Map<Vector2d, Animal> animals = new HashMap<>();
+    private final Map<Vector2d, List<Animal>> animals = new HashMap<>();
     private final int newGrassesEachDay;
 
     private final Vector2d lowerLeft;
@@ -23,10 +24,11 @@ public class GrassField implements WorldMap {
     private final int mapID;
 
     protected final List<MapChangeListener> observers = new ArrayList<>();
-    protected final MapVisualizer mapVisualizer = new MapVisualizer(this);
 
     private ArrayList<Vector2d> emptyEquatorGrassPositions = new ArrayList<>();
     private ArrayList<Vector2d> emptyOtherGrassPositions = new ArrayList<>();
+    private final int equatorLowerBound;
+    private final int equatorUpperBound;
 
 
     public GrassField(int initialGrassCount, int width, int height, int newGrassesEachDay) {
@@ -38,39 +40,43 @@ public class GrassField implements WorldMap {
 
         this.newGrassesEachDay = newGrassesEachDay;
         int equatorWidth = height/5;
-        this.emptyEquatorGrassPositions = generateEmptyEquatorGrassPositions(width, height, equatorWidth);
-        this.emptyOtherGrassPositions = generateOtherEmptyGrassPositions(width, height, equatorWidth);
+        this.equatorLowerBound = height/2-equatorWidth+1;
+        this.equatorUpperBound = height/2+equatorWidth;
+        this.emptyEquatorGrassPositions = generateEmptyEquatorGrassPositions(width);
+        this.emptyOtherGrassPositions = generateOtherEmptyGrassPositions(width, height);
         growPlants(initialGrassCount);
 
     }
 
-    private ArrayList<Vector2d> generateOtherEmptyGrassPositions(int width, int height, int equator) {
+    private ArrayList<Vector2d> generateOtherEmptyGrassPositions(int width, int height) {
         ArrayList<Vector2d> all_possible_positions = new ArrayList<>();
         for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height/2-equator+1; y++) all_possible_positions.add(new Vector2d(x, y));
+            for (int y = 0; y < equatorLowerBound; y++) all_possible_positions.add(new Vector2d(x, y));
         }
         for (int x = 0; x < width; x++) {
-            for (int y = height/2+equator; y < height; y++) all_possible_positions.add(new Vector2d(x, y));
+            for (int y = equatorUpperBound; y < height; y++) all_possible_positions.add(new Vector2d(x, y));
         }
 
         Collections.shuffle(all_possible_positions, new Random());
         return all_possible_positions;
     }
 
-    private ArrayList<Vector2d> generateEmptyEquatorGrassPositions(int width, int height, int equator) {
+    private ArrayList<Vector2d> generateEmptyEquatorGrassPositions(int width) {
         ArrayList<Vector2d> all_possible_positions = new ArrayList<>();
         for (int x = 0; x < width; x++) {
-            for (int y = height/2-equator+1; y < height/2+equator; y++) all_possible_positions.add(new Vector2d(x, y));
+            for (int y = equatorLowerBound; y < equatorUpperBound; y++) all_possible_positions.add(new Vector2d(x, y));
         }
 
         Collections.shuffle(all_possible_positions, new Random());
         return all_possible_positions;
     }
 
+    @Override
     public int getNumberOfNewGrassesEachDay(){
         return newGrassesEachDay;
     }
 
+    @Override
     public void growPlants(int grassCount) {
 
         grassCount = min(grassCount, emptyOtherGrassPositions.size() + emptyEquatorGrassPositions.size());
@@ -95,13 +101,6 @@ public class GrassField implements WorldMap {
         Random random = new Random();
         double randomValue = random.nextDouble();
         return randomValue < 0.8 ? areaOne : areaTwo;
-    }
-
-    private void growPlantOnASpecificArea(ArrayList<Vector2d> area) {
-        Random random = new Random();
-        Vector2d randomGrassPosition = area.get(random.nextInt(area.size()));
-        grasses.put(randomGrassPosition, new Grass(randomGrassPosition));
-        area.remove(randomGrassPosition);
     }
 
     @Override
@@ -130,7 +129,7 @@ public class GrassField implements WorldMap {
 
         Vector2d position = canMoveTo(animal.getPosition());
         if (position != null) {
-            animals.put(position, animal);
+            animals.computeIfAbsent(position, _ -> new ArrayList<>()).add(animal);
             return true;
         }
         throw new IncorrectPositionException(animal.getPosition());
@@ -139,43 +138,45 @@ public class GrassField implements WorldMap {
     @Override
     public void remove(Animal animal) {
 
-        if (objectAt(animal.getPosition()) == animal) {
-            animals.remove(animal.getPosition());
+        List<Animal> oldList = animalsAt(animal.getPosition());
+        if (oldList != null){
+            if (oldList.contains(animal)) {
+                oldList.remove(animal);
+                if (oldList.isEmpty()) {
+                    animals.remove(animal.getPosition());
+                }
+            }
         }
     }
 
     @Override
     public void move(Animal animal) {
-        if (objectAt(animal.getPosition()) == animal) { // czy zwierzak jest na mapie
-            Vector2d oldPosition = animal.getPosition();
-            animal.move(this);
-            animals.remove(oldPosition);
-            animals.put(animal.getPosition(), animal);
-        }
-    }
 
-    @Override
-    public boolean isOccupied(Vector2d position) {
-        return objectAt(position) != null;
+        List<Animal> oldList = animalsAt(animal.getPosition());
+        if (oldList != null){
+            if (oldList.contains(animal)) {
+                remove(animal);
+                animal.move(this);
+                animals.computeIfAbsent(animal.getPosition(), _ -> new ArrayList<>()).add(animal);
+            }
+        }
     }
 
     @Override
     public Vector2d canMoveTo(Vector2d position) {
 
-        if (!(objectAt(position) instanceof Animal)) {
 
-            if (position.follows(lowerLeft) && position.precedes(upperRight)) {
-                return position;
+        if (position.follows(lowerLeft) && position.precedes(upperRight)) {
+            return position;
+        }
+
+        if (lowerLeft.getY() <= position.getY() && position.getY() <= upperRight.getY()) {
+            if (position.getX() < lowerLeft.getX()) {
+                return new Vector2d(upperRight.getX(), position.getY());
             }
 
-            if (lowerLeft.getY() <= position.getY() && position.getY() <= upperRight.getY()) {
-                if (position.getX() < lowerLeft.getX()) {
-                    return new Vector2d(upperRight.getX(), position.getY());
-                }
-
-                if (position.getX() > upperRight.getX()) {
-                    return new Vector2d(lowerLeft.getX(), position.getY());
-                }
+            if (position.getX() > upperRight.getX()) {
+                return new Vector2d(lowerLeft.getX(), position.getY());
             }
         }
 
@@ -184,23 +185,104 @@ public class GrassField implements WorldMap {
 
     @Override
     public List<WorldElement> getElements(){
-        ArrayList<WorldElement> elements = new ArrayList<>(animals.values());
-        elements.addAll(grasses.values());
-        return elements;
+        List<WorldElement> worldElements = new ArrayList<>();
+        animals.values().forEach(worldElements::addAll);
+        worldElements.addAll(grasses.values());
+        return worldElements;
     }
 
     @Override
-    public WorldElement objectAt(Vector2d position) {
-        WorldElement object = animals.get(position);
-        if (object == null) return grasses.get(position);
-        return object;
+    public List<Animal> animalsAt(Vector2d position) {
+        return animals.get(position);
     }
 
     @Override
-    public String toString(){
-        Boundary boundaries = getCurrentBounds();
-        return mapVisualizer.draw(boundaries.lowerLeft(), boundaries.upperRight());
+    public Grass grassAt(Vector2d position){
+        return grasses.get(position);
     }
 
+    private Animal resolveFoodConflict(List<Animal> conflictedAnimals) {
+        conflictedAnimals.sort(new AnimalComparator());
+        return conflictedAnimals.getLast();
+    }
+
+    @Override
+    public void consumePlants(){
+
+        ArrayList<Grass> grassesToRemove = new ArrayList<>();
+
+        for (Vector2d position : grasses.keySet()) {
+
+            if (animals.containsKey(position)) {
+
+                List<Animal> conflictedAnimals = animalsAt(position);
+
+                if (conflictedAnimals.size() == 1) {
+                    conflictedAnimals.getFirst().eat();
+                }
+
+                else{
+                    Animal winner = resolveFoodConflict(conflictedAnimals);
+                    winner.eat();
+                }
+
+                grassesToRemove.add(grasses.get(position));
+            }
+        }
+
+        for (Grass grass : grassesToRemove) {
+            grasses.remove(grass.getPosition());
+            addEmptyGrassPosition(grass.getPosition());
+        }
+    }
+
+    private void addEmptyGrassPosition(Vector2d position) {
+        if (equatorLowerBound <= position.getY() && position.getY() < equatorUpperBound) {
+            emptyEquatorGrassPositions.add(position);
+        }
+        else {emptyOtherGrassPositions.add(position);}
+    }
+
+    private List<Animal> resolveReproductionConflict(List<Animal> conflictedAnimals) {
+        conflictedAnimals.sort(new AnimalComparator());
+        return List.of(conflictedAnimals.getLast(), conflictedAnimals.get(conflictedAnimals.size()-2));
+    }
+
+    private List<Animal> filterReproductiveAnimals(List<Animal> allAnimals){
+        List<Animal> reproductiveAnimals = new ArrayList<>();
+
+        for (Animal animal : allAnimals) {
+            if (animal.getEnergy() >= Animal.getMinEnergyToReproduce()){
+                reproductiveAnimals.add(animal);
+            }
+        }
+
+        if (reproductiveAnimals.size() < 2) {return null;}
+        return reproductiveAnimals;
+    }
+
+    public List<Animal> reproduce() {
+
+        List<Animal> newAnimals = new ArrayList<>();
+
+        for (Vector2d position : animals.keySet()) {
+
+            List<Animal> parents = filterReproductiveAnimals(animalsAt(position));
+
+            if (parents == null) {
+                continue;
+            }
+
+            if (parents.size() > 2) {
+                parents = resolveReproductionConflict(parents);
+            }
+
+            Reproduction reproduction = new Reproduction(parents.getFirst(), parents.getLast());
+            newAnimals.add(reproduction.createAChild());
+
+        }
+
+        return newAnimals;
+    }
 
 }

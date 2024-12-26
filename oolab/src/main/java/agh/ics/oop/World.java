@@ -4,13 +4,13 @@ import agh.ics.oop.model.*;
 import agh.ics.oop.model.util.ConsoleMapDisplay;
 import javafx.application.Application;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class World {
 
     public static void main(String[] args) {
 
+        /*
         try {
             WorldMap map = new GrassField(10, 5, 5, 5);
             Simulation simulation = new Simulation(map, 1, 10, 5, 4, 4);
@@ -22,6 +22,8 @@ public class World {
         catch (IllegalArgumentException | InterruptedException e) {
             System.out.println("Exception: " + e.getMessage());
         }
+        /*
+         */
 
 
         /*
