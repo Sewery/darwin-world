@@ -6,10 +6,12 @@ import agh.ics.oop.model.AnimalLife.Reproduction;
 import agh.ics.oop.model.util.Boundary;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Simulation implements Runnable {
 
     private final List<Animal> animals;
+    private final Map<int[], Integer> allGenotypes = new HashMap<>();
     private final WorldMap map;
     private int daysCount;
 
@@ -43,7 +45,9 @@ public class Simulation implements Runnable {
         for(Vector2d animalPosition : randomPositionGenerator) {
             try
             {
-                Animal animal = new Animal(animalPosition, randomGenotype());
+                int[] randomGenotype = getRandomGenotype();
+                allGenotypes.put(randomGenotype, allGenotypes.getOrDefault(randomGenotype, 0) + 1);
+                Animal animal = new Animal(animalPosition, randomGenotype);
                 map.place(animal);
                 animals.add(animal);
             } catch (IncorrectPositionException e) {
@@ -52,7 +56,7 @@ public class Simulation implements Runnable {
         }
     }
 
-    private int[] randomGenotype(){
+    private int[] getRandomGenotype(){
         Random random = new Random();
         int[] genotype = new int[Animal.getGenotypeLength()];
         for (int i = 0; i < Animal.getGenotypeLength(); i++) {
@@ -107,6 +111,8 @@ public class Simulation implements Runnable {
             sleep();
             growPlants();
 
+            System.out.printf("Most common genotype: %s\n", getMostCommonGenotypes());
+
             daysCount += 1;
         }
 
@@ -118,7 +124,9 @@ public class Simulation implements Runnable {
         for (Animal animal : animals) {
             if (animal.getEnergy() == 0) {
                 deadAnimals.add(animal);
+                animal.setDead();
             }
+            animal.increaseAge();
         }
 
         for (Animal deadAnimal : deadAnimals) {
@@ -166,9 +174,28 @@ public class Simulation implements Runnable {
             {
                 map.place(animal);
                 animals.add(animal);
+                allGenotypes.put(animal.getGenotype(), allGenotypes.getOrDefault(animal.getGenotype(), 0) + 1);
             } catch (IncorrectPositionException e) {
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    private List<int[]> getMostCommonGenotypes(){
+        int findMaxCount = 0;
+
+        for (int count : allGenotypes.values()) {
+            if (count > findMaxCount) {
+                findMaxCount = count;
+            }
+        }
+
+        final int maxCount = findMaxCount;
+
+        return allGenotypes.entrySet()
+                                            .stream()
+                                            .filter(entry -> entry.getValue() == maxCount)
+                                            .map(Map.Entry::getKey)
+                                            .toList();
     }
 }

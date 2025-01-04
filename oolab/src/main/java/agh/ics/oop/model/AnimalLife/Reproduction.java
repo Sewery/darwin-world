@@ -103,8 +103,8 @@ public class Reproduction {
 
         System.out.println(Arrays.toString(parentOne.getGenotype()) );
         System.out.println(Arrays.toString(parentTwo.getGenotype()));
-        parentOne.looseEnergyDueToReproduction(Animal.getInitialEnergy()/2);
-        parentTwo.looseEnergyDueToReproduction(Animal.getInitialEnergy()-Animal.getInitialEnergy()/2);
+        parentOne.reproduce(Animal.getInitialEnergy()/2);
+        parentTwo.reproduce(Animal.getInitialEnergy()-Animal.getInitialEnergy()/2);
         return new Animal(this.position, createGenotype());
 
     }

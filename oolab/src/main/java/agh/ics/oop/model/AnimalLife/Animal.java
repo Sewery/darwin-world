@@ -13,10 +13,12 @@ public class Animal implements WorldElement {
     private Vector2d position;
     private MapDirection direction;
     private int energy;
-    private int[] genotype;
+    private final int[] genotype;
     private int currentGene;
     private int numberOfChildren;
     private int age;
+    private boolean alive = true;
+    private int plantsEaten = 0;
 
     private static int GENOTYPE_LENGTH;
     private static int MIN_ENERGY_TO_REPRODUCE;
@@ -34,14 +36,13 @@ public class Animal implements WorldElement {
         this.genotype = genotype;
         this.currentGene = randomGene();
         this.numberOfChildren = 0;
-        this.age = 0;
+        this.age = -1;
 
     }
 
     private int randomGene(){
         return new Random().nextInt(genotype.length);
     }
-
     private MapDirection randomDirection(){
         MapDirection[] directions = MapDirection.values();
         return directions[new Random().nextInt(directions.length)];
@@ -50,43 +51,44 @@ public class Animal implements WorldElement {
     public static void set_MIN_ENERGY_TO_REPRODUCE(int energy) {
         MIN_ENERGY_TO_REPRODUCE = energy;
     }
-
     public static void set_AGE_OF_BURDEN(int age) {
         AGE_OF_BURDEN = age;
     }
-
     public static void set_GENOTYPE_LENGTH(int length) {
         GENOTYPE_LENGTH = length;
     }
-
     public static void set_ENERGY_GIVEN_BY_ONE_GRASS(int energy) {
         ENERGY_GIVEN_BY_ONE_GRASS = energy;
     }
-
     public static void set_INITIAL_ENERGY(int energy) {
         INITIAL_ENERGY = energy;
     }
-
-
-    public Vector2d getPosition() {
-        return position;
-    }
-
     public static int getMinEnergyToReproduce() {
         return MIN_ENERGY_TO_REPRODUCE;
     }
-
     public static int getGenotypeLength() {
         return GENOTYPE_LENGTH;
     }
-
     public static int getInitialEnergy() {
         return INITIAL_ENERGY;
     }
 
+
+    public void setDead(){
+        alive = false;
+    }
+    public void increaseAge(){
+        age++;
+    }
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public Vector2d getPosition() {
+        return position;
+    }
     @Override
     public String toString(){return "A";};
-
     public boolean isAt(Vector2d position) {
         return this.position.equals(position);
     }
@@ -107,12 +109,15 @@ public class Animal implements WorldElement {
     public int getEnergy(){return energy;}
     public int getAge(){return age;}
     public int getNumberOfChildren() {return numberOfChildren;}
+    public int getPlantsEaten() {return plantsEaten;}
 
     public void eat(){
+        this.plantsEaten++;
         this.energy += ENERGY_GIVEN_BY_ONE_GRASS;
     }
 
-    public void looseEnergyDueToReproduction(int energyLost){
+    public void reproduce(int energyLost){
         this.energy -= energyLost;
+        numberOfChildren += 1;
     }
 }
