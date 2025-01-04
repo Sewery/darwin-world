@@ -37,11 +37,11 @@
 }
 .config-button {
     -fx-font-family: sans-serif;
-    -fx-font-size: 18px;
+    -fx-font-size: 22px;
     -fx-text-fill: #EED3B1;
     -fx-background-color: #1F4529;
     -fx-background-radius: 10;
-    -fx-padding: 190 10;
+    -fx-padding: 10 20;
     -fx-border-color: #47663B;
     -fx-border-width: 2;
     -fx-border-radius: 10;

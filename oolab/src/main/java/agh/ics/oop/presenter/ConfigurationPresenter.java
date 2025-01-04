@@ -2,15 +2,17 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.model.util.Configuration;
 import agh.ics.oop.model.util.ConfigurationInvalidException;
+import agh.ics.oop.service.CSVWriter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.io.IOException;
 
 public class ConfigurationPresenter extends AppPresenter{
-
-
+    private static Integer counter = 0;
     @FXML
     private Spinner<Integer> height;
     @FXML
@@ -40,9 +42,29 @@ public class ConfigurationPresenter extends AppPresenter{
     @FXML
     private RadioButton poles,globe;
     @FXML
-    private ToggleGroup animalBehaviourGroup,mapEdgesGroup;
+    private final ToggleGroup animalsBehaviourGroup =new ToggleGroup(), mapEdgesGroup = new ToggleGroup();
     @FXML
     private void initialize() {
+        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        initialNumberOfGrasses.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        energyPerOneGrass.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        initialNumberOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        numberOfNewGrassesEachDay.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        initialEnergyOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        energyToReproduce.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        minNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        maxNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+
+        forestedEquator.fire();
+        forestedEquator.setToggleGroup(animalsBehaviourGroup);
+        ageOfBurden.setToggleGroup(animalsBehaviourGroup);
+
+        poles.setToggleGroup(mapEdgesGroup);
+        globe.setToggleGroup(mapEdgesGroup);
+        globe.fire();
+
 
     }
     public void onBackButtonClicked(ActionEvent actionEvent) throws IOException {
@@ -50,7 +72,8 @@ public class ConfigurationPresenter extends AppPresenter{
     }
 
     public void onSaveConfigButtonClicked(ActionEvent actionEvent) {
-        System.out.println(getConfiguration());
+        CSVWriter.writeConfiguration(getConfiguration(),"config-"+counter+".csv");
+        counter++;
     }
 
     public void onStartButtonClicked(ActionEvent actionEvent) {
@@ -67,6 +90,7 @@ public class ConfigurationPresenter extends AppPresenter{
         }catch (ConfigurationInvalidException e){
             new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK).show();
         }
+        System.out.println(mapEdgesGroup.getToggles().toString());
         return new Configuration(
                 height.getValue(),
                 width.getValue(),
@@ -84,7 +108,7 @@ public class ConfigurationPresenter extends AppPresenter{
                                 .getSelectedToggle())
                                 .getText()),
                 Configuration.AnimalsBehaviourStrategy
-                        .fromString(((RadioButton) animalBehaviourGroup
+                        .fromString(((RadioButton) animalsBehaviourGroup
                                 .getSelectedToggle())
                                 .getText())
         );

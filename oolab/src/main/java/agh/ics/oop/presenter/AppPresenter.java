@@ -10,8 +10,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class AppPresenter {
-    private Scene scene;
-
+    protected Scene scene;
+    protected Stage stage;
     public void changeScene(String newScene, ActionEvent actionEvent, AppPresenter presenter) throws IOException {
 
         FXMLLoader loader = new FXMLLoader();
@@ -19,7 +19,7 @@ public class AppPresenter {
         BorderPane viewRoot = loader.load();
         presenter = loader.getController();
 
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         scene = new Scene(viewRoot);
         stage.setScene(scene);
         stage.minWidthProperty().bind(viewRoot.minWidthProperty());

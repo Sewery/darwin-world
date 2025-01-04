@@ -21,7 +21,7 @@ public class Animal implements WorldElement {
     }
 
     public String toString(){
-        return orientation.getSymbol();
+        return orientation.toString();
     }
 
     public String toStringFull(){

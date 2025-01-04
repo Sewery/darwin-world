@@ -13,68 +13,69 @@
         </VBox>
     </top>
     <center>
-        <VBox spacing="140" alignment="TOP_CENTER">
+        <VBox spacing="140" alignment="TOP_CENTER"/>
         <VBox spacing="7">
             <HBox>
                 <Label fx:id="heightDescr" text="Height of the map: " styleClass="text"/>
-                <Spinner fx:id="height" styleClass="textField"/>
+                <Spinner fx:id="height" styleClass="textField" editable="true"/>
+            </HBox>
+            <HBox>
+                <Label fx:id="widthDescr" text="Width of the map: " styleClass="text" />
+                <Spinner fx:id="width" styleClass="textField" editable="true"/>
             </HBox>
             <HBox>
                 <Label fx:id="initialNumberOfGrassesDescr" text="Initial number of grasses: " styleClass="text"/>
-                <Spinner fx:id="initialNumberOfGrasses" styleClass="spinner"/>
+                <Spinner fx:id="initialNumberOfGrasses" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox>
                 <Label fx:id="numberOfNewGrassesEachDayDescr" text="Number of new grasses growing each day: "
                        styleClass="text"/>
-                <Spinner fx:id="numberOfNewGrassesEachDay" styleClass="spinner"/>
+                <Spinner fx:id="numberOfNewGrassesEachDay" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox>
                 <Label fx:id="energyPerOneGrassDescr" text="Energy given by eating one grass: " styleClass="text"/>
-                <Spinner fx:id="energyPerOneGrass" styleClass="spinner"/>
+                <Spinner fx:id="energyPerOneGrass" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox>
                 <Label fx:id="initialNumberOfAnimalsDescr" text="Initial number of animals: " styleClass="text"/>
-                <Spinner fx:id="initialNumberOfAnimals" styleClass="spinner"/>
+                <Spinner fx:id="initialNumberOfAnimals" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox>
                 <Label fx:id="initialEnergyOfAnimalsDescr" text="Initial energy of an animal: " styleClass="text"/>
-                <Spinner fx:id="initialEnergyOfAnimals" styleClass="spinner"/>
+                <Spinner fx:id="initialEnergyOfAnimals" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox>
                 <Label fx:id="energyToReproduceDescr" text="Energy needed for an animal to be able to reproduce: "
                        styleClass="text"/>
-                <Spinner fx:id="energyToReproduce" styleClass="spinner"/>
+                <Spinner fx:id="energyToReproduce" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox>
                 <Label fx:id="minNumberOfMutationsDescr" text="Minimal number of mutations in descendants' genome: "
                        styleClass="text"/>
-                <Spinner fx:id="minNumberOfMutations" styleClass="spinner"/>
+                <Spinner fx:id="minNumberOfMutations" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox>
                 <Label fx:id="maxNumberOfMutationsDescr" text="Maximal number of mutations in descendants' genome: "
                        styleClass="text"/>
-                <Spinner fx:id="maxNumberOfMutations" styleClass="spinner"/>
+                <Spinner fx:id="maxNumberOfMutations" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox>
                 <Label fx:id="genotypeLengthDescr" text="Length of animal's genome: " styleClass="text"/>
-                <Spinner fx:id="genotypeLength" styleClass="spinner"/>
+                <Spinner fx:id="genotypeLength" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox>
 
                 <Label fx:id="typeOfMapDescr" text="Type of map edges" styleClass="text"/>
-                <RadioButton fx:id="poles" text="Poles" toggleGroup="mapEdgesGroup" styleClass="textField"/>
-                <RadioButton fx:id="globe" text="Globe" toggleGroup="mapEdgesGroup" styleClass="textField"/>
+                <RadioButton fx:id="globe" text="Globe" toggleGroup="$mapEdgesGroup" styleClass="textField"/>
+                <RadioButton fx:id="poles" text="Poles" toggleGroup="$mapEdgesGroup" styleClass="textField"/>
             </HBox>
             <HBox>
                 <Label fx:id="typeOfAnimalsBehaviourDescr" text="Type of animals' behaviour: " styleClass="text"/>
-                <RadioButton fx:id="forestedEquator" text="Forested Equators" toggleGroup="animalsBehaviourGroup"
+                <RadioButton fx:id="forestedEquator" text="Forested Equators" toggleGroup="$animalsBehaviourGroup"
                              styleClass="textField"/>
-                <RadioButton fx:id="ageOfBurden" text="Age of Burden" toggleGroup="animalsBehaviourGroup"
+                <RadioButton fx:id="ageOfBurden" text="Age of Burden" toggleGroup="$animalsBehaviourGroup"
                              styleClass="textField"/>
             </HBox>
-            <Button fx:id="saveConfig" text="Save configuration" textAlignment="CENTER" styleClass="config-button"
-                    alignment="TOP_CENTER"
-                    onAction="#onSaveConfigButtonClicked"/>
         </VBox>
     </center>
     <bottom>
@@ -83,6 +84,8 @@
                     onAction="#onBackButtonClicked"/>
             <Button fx:id="start" text="Start simulation" textAlignment="CENTER" styleClass="start-button"
                     onAction="#onStartButtonClicked"/>
+            <Button fx:id="saveConfig" text="Save configuration" textAlignment="CENTER" styleClass="config-button"
+                    onAction="#onSaveConfigButtonClicked"/>
         </HBox>
     </bottom>
 </BorderPane>

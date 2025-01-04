@@ -22,7 +22,7 @@
                 <Button fx:id="createConfig" text="Create new configuration" textAlignment="CENTER" styleClass="config-button" onAction="#onCreateNewSimulationClicked"/>
             </VBox>
             <VBox alignment="CENTER" spacing="20">
-                <Button fx:id="loadConfig" text="Load configuration" textAlignment="CENTER" styleClass="config-button"/>
+                <Button fx:id="loadConfig" text="Load configuration" textAlignment="CENTER" styleClass="config-button" onAction="#onLoadSimulationClicked"/>
             </VBox>
         </HBox>
     </center>
