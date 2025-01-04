@@ -1,6 +1,6 @@
 package agh.ics.oop.util;
 
-import agh.ics.oop.model.util.Configuration;
+import agh.ics.oop.core.Configuration;
 import agh.ics.oop.model.util.ConfigurationInvalidException;
 
 import java.io.File;
@@ -31,7 +31,7 @@ public class CSVReader {
                 Configuration.AnimalsBehaviourStrategy.fromString(args[12])
         );
     }
-    public static Configuration readConfiguration(File file, Consumer<Exception> onError) {
+    public static Configuration readConfiguration(File file, Consumer<Exception> onError,Consumer<String> onSuccess) {
         Configuration config=null;
         try(Scanner scanner = new Scanner(file)){
             if (scanner.hasNextLine()
@@ -39,8 +39,9 @@ public class CSVReader {
                 config = toConfig(scanner.nextLine().split(","));
                 System.out.println(config);
             }else{
-                throw new ConfigurationInvalidException("Invalid CSV file data");
+                throw new ConfigurationInvalidException("Invalid CSV file data\\nConfiguration could not be loaded");
             }
+            onSuccess.accept("Configuration was loaded successfully");
         }catch (Exception e){
             onError.accept(e);
         }

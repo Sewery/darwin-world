@@ -2,8 +2,10 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
+import agh.ics.oop.core.AppState;
+import agh.ics.oop.core.Configuration;
 import agh.ics.oop.model.*;
-import agh.ics.oop.model.AnimalLife.Animal;
+import agh.ics.oop.model.animal_life.Animal;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
 import javafx.application.Platform;
@@ -20,7 +22,7 @@ import java.util.List;
 import static java.lang.Math.max;
 
 
-public class SimulationPresenter implements MapChangeListener {
+public class SimulationPresenter extends AppPresenter implements MapChangeListener {
     @FXML
     public TextField movesList;
     @FXML
@@ -29,6 +31,7 @@ public class SimulationPresenter implements MapChangeListener {
     private GridPane mapGrid;
 
     private WorldMap worldMap;
+    private Configuration configuration;
 
     private Boundary boundary;
     private int minX;
@@ -42,6 +45,7 @@ public class SimulationPresenter implements MapChangeListener {
     public void setWorldMap(WorldMap worldMap) {
         this.worldMap = worldMap;
     }
+
 
 
     private void drawMap() {
@@ -120,13 +124,21 @@ public class SimulationPresenter implements MapChangeListener {
 
     @FXML
     public void onSimulationStartClicked() throws IllegalArgumentException {
-
-            WorldMap map = new GrassField(2, 3, 3, 3);
-            Simulation simulation = new Simulation(map, 2, 6, 5, 4, 3, 1, 1, 1);
+        if(configuration!=null){
+            WorldMap map = new GrassField(configuration);
+            Simulation simulation = new Simulation(map,configuration);
             map.addObserver(this);
             SimulationEngine engine = new SimulationEngine(List.of(simulation));
             engine.runAsync();
+        }
 
     }
 
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
 }

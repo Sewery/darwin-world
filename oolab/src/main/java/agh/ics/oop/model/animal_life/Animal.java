@@ -1,9 +1,11 @@
-package agh.ics.oop.model.AnimalLife;
+package agh.ics.oop.model.animal_life;
 
+import agh.ics.oop.core.AppState;
 import agh.ics.oop.model.MapDirection;
 import agh.ics.oop.model.MoveValidator;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.WorldElement;
+import agh.ics.oop.core.Configuration;
 
 import java.util.Random;
 
@@ -20,19 +22,30 @@ public class Animal implements WorldElement {
     private boolean alive = true;
     private int plantsEaten = 0;
 
-    private static int GENOTYPE_LENGTH;
-    private static int MIN_ENERGY_TO_REPRODUCE;
-    private static int AGE_OF_BURDEN;
-    private static int ENERGY_GIVEN_BY_ONE_GRASS;
-    private static int INITIAL_ENERGY;
+    private final int genotypeLength;
+    private final int minEnergyToReproduce;
+    private final boolean ageOfBurden;
+    private final int energyGivenByOneGrass;
+    private final int initialEnergy;
 
 
 
     public Animal(Vector2d position, int[] genotype) {
 
+        this.genotypeLength= AppState.getInstance().getConfig().initialEnergyOfAnimals();;
+        this. minEnergyToReproduce=AppState.getInstance().getConfig().energyToReproduce();;
+        //TO DO
+        //fix age of burden
+        this. ageOfBurden=AppState.getInstance()
+                .getConfig()
+                .animalsBehaviourStrategy()
+                .equals(Configuration.AnimalsBehaviourStrategy.AGE_OF_BURDEN);
+        this.energyGivenByOneGrass=AppState.getInstance().getConfig().energyPerGrass();
+        this.initialEnergy=AppState.getInstance().getConfig().initialEnergyOfAnimals();;
+
         this.position = position;
         this.direction = randomDirection();
-        this.energy = INITIAL_ENERGY;
+        this.energy = this.initialEnergy;
         this.genotype = genotype;
         this.currentGene = randomGene();
         this.numberOfChildren = 0;
@@ -47,32 +60,6 @@ public class Animal implements WorldElement {
         MapDirection[] directions = MapDirection.values();
         return directions[new Random().nextInt(directions.length)];
     }
-
-    public static void set_MIN_ENERGY_TO_REPRODUCE(int energy) {
-        MIN_ENERGY_TO_REPRODUCE = energy;
-    }
-    public static void set_AGE_OF_BURDEN(int age) {
-        AGE_OF_BURDEN = age;
-    }
-    public static void set_GENOTYPE_LENGTH(int length) {
-        GENOTYPE_LENGTH = length;
-    }
-    public static void set_ENERGY_GIVEN_BY_ONE_GRASS(int energy) {
-        ENERGY_GIVEN_BY_ONE_GRASS = energy;
-    }
-    public static void set_INITIAL_ENERGY(int energy) {
-        INITIAL_ENERGY = energy;
-    }
-    public static int getMinEnergyToReproduce() {
-        return MIN_ENERGY_TO_REPRODUCE;
-    }
-    public static int getGenotypeLength() {
-        return GENOTYPE_LENGTH;
-    }
-    public static int getInitialEnergy() {
-        return INITIAL_ENERGY;
-    }
-
 
     public void setDead(){
         alive = false;
@@ -113,7 +100,7 @@ public class Animal implements WorldElement {
 
     public void eat(){
         this.plantsEaten++;
-        this.energy += ENERGY_GIVEN_BY_ONE_GRASS;
+        this.energy += energyGivenByOneGrass;
     }
 
     public void reproduce(int energyLost){

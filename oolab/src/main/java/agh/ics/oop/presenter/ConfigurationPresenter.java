@@ -1,11 +1,16 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.model.util.Configuration;
+import agh.ics.oop.core.AppState;
+import agh.ics.oop.core.Configuration;
 import agh.ics.oop.model.util.ConfigurationInvalidException;
 import agh.ics.oop.util.CSVWriter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -41,17 +46,17 @@ public class ConfigurationPresenter extends AppPresenter{
     private final ToggleGroup animalsBehaviourGroup =new ToggleGroup(), mapEdgesGroup = new ToggleGroup();
     @FXML
     private void initialize() {
-        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
-        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
-        initialNumberOfGrasses.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
-        energyPerOneGrass.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
-        initialNumberOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
-        numberOfNewGrassesEachDay.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
-        initialEnergyOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
-        energyToReproduce.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
-        minNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
-        maxNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
-        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(100,1000,200));
+        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,3));
+        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,3));
+        initialNumberOfGrasses.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,2));
+        energyPerOneGrass.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,1));
+        initialNumberOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,3));
+        numberOfNewGrassesEachDay.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,1));
+        initialEnergyOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,6));
+        energyToReproduce.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,1));
+        minNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,1));
+        maxNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,1));
+        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,5));
 
         forestedEquator.fire();
         forestedEquator.setToggleGroup(animalsBehaviourGroup);
@@ -68,11 +73,19 @@ public class ConfigurationPresenter extends AppPresenter{
     }
 
     public void onSaveConfigButtonClicked(ActionEvent actionEvent) {
-        CSVWriter.writeConfiguration(getConfiguration(),"config-"+counter+".csv");
+        Configuration config = loadConfiguration();
+        CSVWriter.writeConfiguration(config,"config-"+counter+".csv",this::infoAlert);
+        AppState.getInstance().setConfig(config);
         counter++;
     }
 
-    public void onStartButtonClicked(ActionEvent actionEvent) {
+    public void onStartButtonClicked(ActionEvent actionEvent) throws IOException {
+        if( AppState.getInstance().getConfig() != null) {
+//            super.changeScene("simulation.fxml", actionEvent, new SimulationPresenter());
+            addStageSimulation("simulation.fxml");
+        }else{
+            alertError(new ConfigurationInvalidException("No configuration found"));
+        }
     }
     private void configurationValidation() throws ConfigurationInvalidException {
         if(false){
@@ -80,14 +93,12 @@ public class ConfigurationPresenter extends AppPresenter{
         }
     }
 
-    public Configuration getConfiguration(){
+    public Configuration loadConfiguration(){
         try{
             configurationValidation();
         }catch (ConfigurationInvalidException e){
-            System.err.println(e.getMessage());
-            new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK).show();
+            alertError(e);
         }
-        System.out.println(mapEdgesGroup.getToggles().toString());
         return new Configuration(
                 height.getValue(),
                 width.getValue(),
@@ -109,6 +120,22 @@ public class ConfigurationPresenter extends AppPresenter{
                                 .getSelectedToggle())
                                 .getText())
         );
+    }
+    public void addStageSimulation(String newScene) throws IOException {
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getClassLoader().getResource(newScene));
+        BorderPane viewRoot = loader.load();
+        SimulationPresenter presenter = loader.getController();
+        presenter.setConfiguration(AppState.getInstance().getConfig());
+
+        Stage stage =new Stage();
+        Scene scene = new Scene(viewRoot);
+        stage.setScene(scene);
+        stage.setTitle("Simulation runner");
+        stage.minWidthProperty().bind(viewRoot.minWidthProperty());
+        stage.minHeightProperty().bind(viewRoot.minHeightProperty());
+        stage.show();
     }
 }
 

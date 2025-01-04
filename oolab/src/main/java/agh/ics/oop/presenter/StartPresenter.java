@@ -1,11 +1,15 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.model.util.Configuration;
+import agh.ics.oop.core.AppState;
+import agh.ics.oop.core.Configuration;
+import agh.ics.oop.model.util.ConfigurationInvalidException;
 import agh.ics.oop.util.CSVReader;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,23 +20,41 @@ public class StartPresenter extends AppPresenter{
         super.changeScene("configuration.fxml", actionEvent, new ConfigurationPresenter());
     }
 
-    public void onLoadSimulationClicked(ActionEvent actionEvent) {
+    public void onLoadSimulationClicked(ActionEvent actionEvent) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Csv files", "*.csv"));
         File selectedFile = fileChooser.showOpenDialog(stage);
-        Configuration configuration =null;
+        Configuration config =null;
         if (selectedFile != null) {
-            configuration = CSVReader.readConfiguration(
-                    selectedFile,
-                    (err)->{
-                        System.err.println(err.getMessage());
-                        new Alert(Alert.AlertType.ERROR, err.getMessage(), ButtonType.OK).show();
-                    }
+            config = CSVReader.readConfiguration(
+                    selectedFile, this::alertError,this::infoAlert
             );
+        }AppState.getInstance().setConfig(config);
+
+    }
+
+    public void onStartClicked(ActionEvent actionEvent)  throws IOException{
+        if( AppState.getInstance().getConfig() != null) {
+            addStageSimulation("simulation.fxml");
+        }else{
+            alertError(new ConfigurationInvalidException("No configuration found"));
         }
-        if(configuration != null) {
-            //Redirect to map
-        }
+    }
+    public void addStageSimulation(String newScene) throws IOException {
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getClassLoader().getResource(newScene));
+        BorderPane viewRoot = loader.load();
+        SimulationPresenter presenter = loader.getController();
+        presenter.setConfiguration(AppState.getInstance().getConfig());
+
+        Stage stage =new Stage();
+        Scene scene = new Scene(viewRoot);
+        stage.setScene(scene);
+        stage.setTitle("Simulation runner");
+        stage.minWidthProperty().bind(viewRoot.minWidthProperty());
+        stage.minHeightProperty().bind(viewRoot.minHeightProperty());
+        stage.show();
     }
 }

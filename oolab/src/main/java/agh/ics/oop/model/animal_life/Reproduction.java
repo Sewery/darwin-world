@@ -1,5 +1,6 @@
-package agh.ics.oop.model.AnimalLife;
+package agh.ics.oop.model.animal_life;
 
+import agh.ics.oop.core.AppState;
 import agh.ics.oop.model.Vector2d;
 
 import java.util.*;
@@ -34,33 +35,34 @@ public class Reproduction {
         int energyTwo = parentTwo.getEnergy();
         int totalEnergy = energyOne + energyTwo;
 
-        int numberOfGenesFromParentOne = (Animal.getGenotypeLength() * energyOne)/totalEnergy;
-        int numberOfGenesFromParentTwo = Animal.getGenotypeLength() - numberOfGenesFromParentOne;
+        Integer genotypeLength = AppState.getInstance().getConfig().genotypeLength();
+        int numberOfGenesFromParentOne = (genotypeLength * energyOne)/totalEnergy;
+        int numberOfGenesFromParentTwo = genotypeLength - numberOfGenesFromParentOne;
         System.out.println(numberOfGenesFromParentOne);
         System.out.println(numberOfGenesFromParentTwo);
 
         int chooseSideForParentOne = new Random().nextInt(2);
 
-        int[] childsGenotype = new int[Animal.getGenotypeLength()];
+        int[] childrenGenotype = new int[genotypeLength];
 
         switch (chooseSideForParentOne) {
             case 0: {
-                System.arraycopy(parentOne.getGenotype(), 0, childsGenotype, 0, numberOfGenesFromParentOne);
-                System.arraycopy(parentTwo.getGenotype(), 0, childsGenotype, numberOfGenesFromParentOne, numberOfGenesFromParentTwo);
+                System.arraycopy(parentOne.getGenotype(), 0, childrenGenotype, 0, numberOfGenesFromParentOne);
+                System.arraycopy(parentTwo.getGenotype(), 0, childrenGenotype, numberOfGenesFromParentOne, numberOfGenesFromParentTwo);
             }
             case 1: {
-                System.arraycopy(parentTwo.getGenotype(), 0, childsGenotype, 0, numberOfGenesFromParentTwo);
-                System.arraycopy(parentOne.getGenotype(), 0, childsGenotype, numberOfGenesFromParentTwo, numberOfGenesFromParentOne);
+                System.arraycopy(parentTwo.getGenotype(), 0, childrenGenotype, 0, numberOfGenesFromParentTwo);
+                System.arraycopy(parentOne.getGenotype(), 0, childrenGenotype, numberOfGenesFromParentTwo, numberOfGenesFromParentOne);
             }
         }
 
-        if (MIN_NUMBER_OF_MUTATIONS == 0 && MAX_NUMBER_OF_MUTATIONS == 0) { return childsGenotype; }
-        return mutateGenotype(childsGenotype);
+        if (MIN_NUMBER_OF_MUTATIONS == 0 && MAX_NUMBER_OF_MUTATIONS == 0) { return childrenGenotype; }
+        return mutateGenotype(childrenGenotype);
     }
 
     private int randomGeneValue(int bannedNumber){
         List<Integer> possibleGenes =  new ArrayList<>();
-        for (int i = 0; i < Animal.getGenotypeLength(); i++) {
+        for (int i = 0; i < AppState.getInstance().getConfig().genotypeLength(); i++) {
             if (i != bannedNumber) {
                 possibleGenes.add(i);
             }
@@ -73,10 +75,11 @@ public class Reproduction {
         int numberOfMutations = new Random().nextInt(MAX_NUMBER_OF_MUTATIONS - MIN_NUMBER_OF_MUTATIONS + 1) + MIN_NUMBER_OF_MUTATIONS;
         System.out.println(Arrays.toString(genotype));
         System.out.println(numberOfMutations);
+        Integer genotypeLength = AppState.getInstance().getConfig().genotypeLength();
         switch (numberOfMutations){
             case 0: return genotype;
             case 1: {
-                int chosenGene = new Random().nextInt(Animal.getGenotypeLength());
+                int chosenGene = new Random().nextInt(genotypeLength);
                 genotype[chosenGene] = randomGeneValue(genotype[chosenGene]);
                 genotype[chosenGene] += 1;
                 System.out.println(Arrays.toString(genotype));
@@ -84,7 +87,7 @@ public class Reproduction {
             }
             default: {
                 List<Integer> indices = new ArrayList<>();
-                for (int i = 0; i < Animal.getGenotypeLength(); i++) {
+                for (int i = 0; i < genotypeLength;i++) {
                     indices.add(i);
                 }
                 Collections.shuffle(indices);
@@ -100,11 +103,11 @@ public class Reproduction {
     }
 
     public Animal createAChild(){
-
+        Integer animalInitialEnergy = AppState.getInstance().getConfig().initialEnergyOfAnimals();
         System.out.println(Arrays.toString(parentOne.getGenotype()) );
         System.out.println(Arrays.toString(parentTwo.getGenotype()));
-        parentOne.reproduce(Animal.getInitialEnergy()/2);
-        parentTwo.reproduce(Animal.getInitialEnergy()-Animal.getInitialEnergy()/2);
+        parentOne.reproduce(animalInitialEnergy/2);
+        parentTwo.reproduce(animalInitialEnergy-animalInitialEnergy/2);
         return new Animal(this.position, createGenotype());
 
     }

@@ -1,20 +1,19 @@
 package agh.ics.oop.model;
 
-import agh.ics.oop.model.AnimalLife.Animal;
-import agh.ics.oop.model.AnimalLife.Reproduction;
+import agh.ics.oop.core.Configuration;
+import agh.ics.oop.model.animal_life.Animal;
+import agh.ics.oop.model.animal_life.Reproduction;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
 
 import java.util.*;
 
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class GrassField implements WorldMap {
 
     private final Map<Vector2d, Grass> grasses = new HashMap<>();
     private final Map<Vector2d, List<Animal>> animals = new HashMap<>();
-    private final int newGrassesEachDay;
 
     private final Vector2d lowerLeft;
     private final Vector2d upperRight;
@@ -30,21 +29,24 @@ public class GrassField implements WorldMap {
     private final int equatorLowerBound;
     private final int equatorUpperBound;
 
+    private final int numberOfNewGrassesEachDay;
+    private final int energyToReproduce;
 
-    public GrassField(int initialGrassCount, int width, int height, int newGrassesEachDay) {
+    public GrassField(Configuration config) {
         this.lowerLeft = new Vector2d(0, 0);
-        this.upperRight = new Vector2d(width-1, height-1);
+        this.upperRight = new Vector2d(config.width()-1, config.height()-1);
         this.boundary = new Boundary(lowerLeft, upperRight);
 
         synchronized (this) {this.mapID = mapsCount++;}
 
-        this.newGrassesEachDay = newGrassesEachDay;
-        int equatorWidth = height/5;
-        this.equatorLowerBound = height/2-equatorWidth+1;
-        this.equatorUpperBound = height/2+equatorWidth;
-        this.emptyEquatorGrassPositions = generateEmptyEquatorGrassPositions(width);
-        this.emptyOtherGrassPositions = generateOtherEmptyGrassPositions(width, height);
-        growPlants(initialGrassCount);
+        int equatorWidth = config.height()/5;
+        this.equatorLowerBound = config.height()/2-equatorWidth+1;
+        this.equatorUpperBound = config.height()/2+equatorWidth;
+        this.emptyEquatorGrassPositions = generateEmptyEquatorGrassPositions(config.width());
+        this.emptyOtherGrassPositions = generateOtherEmptyGrassPositions(config.width(), config.height());
+        this.numberOfNewGrassesEachDay= config.numberOfNewGrassesEachDay();
+        this.energyToReproduce =config.energyToReproduce();
+        growPlants(config.initialNumberOfGrasses());
 
     }
 
@@ -73,7 +75,7 @@ public class GrassField implements WorldMap {
 
     @Override
     public int getNumberOfNewGrassesEachDay(){
-        return newGrassesEachDay;
+        return numberOfNewGrassesEachDay;
     }
 
     @Override
@@ -252,7 +254,7 @@ public class GrassField implements WorldMap {
         List<Animal> reproductiveAnimals = new ArrayList<>();
 
         for (Animal animal : allAnimals) {
-            if (animal.getEnergy() >= Animal.getMinEnergyToReproduce()){
+            if (animal.getEnergy() >=energyToReproduce){
                 reproductiveAnimals.add(animal);
             }
         }

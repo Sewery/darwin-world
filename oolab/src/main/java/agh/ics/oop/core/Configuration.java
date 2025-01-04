@@ -1,4 +1,4 @@
-package agh.ics.oop.model.util;
+package agh.ics.oop.core;
 
 public record Configuration(
         Integer width,

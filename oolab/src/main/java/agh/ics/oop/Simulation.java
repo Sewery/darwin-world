@@ -1,12 +1,12 @@
 package agh.ics.oop;
 
+import agh.ics.oop.core.Configuration;
 import agh.ics.oop.model.*;
-import agh.ics.oop.model.AnimalLife.Animal;
-import agh.ics.oop.model.AnimalLife.Reproduction;
+import agh.ics.oop.model.animal_life.Animal;
+import agh.ics.oop.model.animal_life.Reproduction;
 import agh.ics.oop.model.util.Boundary;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Simulation implements Runnable {
 
@@ -15,32 +15,27 @@ public class Simulation implements Runnable {
     private final WorldMap map;
     private int daysCount;
 
+    private final Integer genotypeLength;
 
-    public Simulation(WorldMap map, int initialNumberOfAnimals, int initialEnergy, int GENOTYPE_LENGTH, int AGE_OF_BURDEN, int MIN_ENERGY_TO_REPRODUCE, int ENERGY_GIVEN_BY_ONE_GRASS, int MIN_NUMBER_OF_MUTATIONS, int MAX_NUMBER_OF_MUTATIONS) {
+    public Simulation(WorldMap map, Configuration config) {
 
         this.map = map;
 
         this.animals = new ArrayList<>();
         this.daysCount = 0;
-
+        this.genotypeLength = config.genotypeLength();
         Boundary boundary = map.getCurrentBounds();
         int width = boundary.upperRight().getX() - boundary.lowerLeft().getX()+1;
         int height = boundary.upperRight().getY() - boundary.lowerLeft().getY()+1;
 
-        Animal.set_MIN_ENERGY_TO_REPRODUCE(MIN_ENERGY_TO_REPRODUCE);
-        Animal.set_AGE_OF_BURDEN(AGE_OF_BURDEN);
-        Animal.set_GENOTYPE_LENGTH(GENOTYPE_LENGTH);
-        Animal.set_ENERGY_GIVEN_BY_ONE_GRASS(ENERGY_GIVEN_BY_ONE_GRASS);
-        Animal.set_INITIAL_ENERGY(initialEnergy);
-
-        Reproduction.setMaxNumberOfMutations(MAX_NUMBER_OF_MUTATIONS);
-        Reproduction.setMinNumberOfMutations(MIN_NUMBER_OF_MUTATIONS);
+        Reproduction.setMaxNumberOfMutations(config.maxNumberOfMutations());
+        Reproduction.setMinNumberOfMutations(config.minNumberOfMutations());
 
         System.out.println(height);
         System.out.println(width);
-        System.out.println(initialNumberOfAnimals);
+//        System.out.println(initialNumberOfAnimals);
 
-        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, initialNumberOfAnimals);
+        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, config.initialEnergyOfAnimals());
 
         for(Vector2d animalPosition : randomPositionGenerator) {
             try
@@ -58,8 +53,8 @@ public class Simulation implements Runnable {
 
     private int[] getRandomGenotype(){
         Random random = new Random();
-        int[] genotype = new int[Animal.getGenotypeLength()];
-        for (int i = 0; i < Animal.getGenotypeLength(); i++) {
+        int[] genotype = new int[genotypeLength];
+        for (int i = 0; i < genotypeLength; i++) {
             genotype[i] = random.nextInt(MapDirection.values().length);
         }
         return genotype;

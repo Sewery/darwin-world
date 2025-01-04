@@ -24,6 +24,9 @@
             <VBox alignment="CENTER" spacing="20">
                 <Button fx:id="loadConfig" text="Load configuration" textAlignment="CENTER" styleClass="config-button" onAction="#onLoadSimulationClicked"/>
             </VBox>
+            <VBox alignment="CENTER" spacing="20">
+                <Button fx:id="start" text="Start" textAlignment="CENTER" styleClass="config-button" onAction="#onStartClicked"/>
+            </VBox>
         </HBox>
     </center>
 </BorderPane>

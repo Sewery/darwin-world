@@ -1,9 +1,10 @@
 package agh.ics.oop.util;
 
-import agh.ics.oop.model.util.Configuration;
+import agh.ics.oop.core.Configuration;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.PrintWriter;
+import java.util.function.Consumer;
 
 public class CSVWriter {
     private static void writeConfigurationHeader(PrintWriter writer) {
@@ -28,11 +29,12 @@ public class CSVWriter {
                 config.animalsBehaviourStrategy()
         );
     }
-    public static void writeConfiguration(Configuration config ,String filename) {
+    public static void writeConfiguration(Configuration config , String filename, Consumer<String> onSuccess) {
         String DOCUMENTS_PATH = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
         try (PrintWriter writer = new PrintWriter(DOCUMENTS_PATH+'/'+filename)) {
             writeConfigurationHeader(writer);
             writeConfigurationContent(writer, config);
+            onSuccess.accept("Configuration was saved successfully in:\n"+DOCUMENTS_PATH+'\\'+filename);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
