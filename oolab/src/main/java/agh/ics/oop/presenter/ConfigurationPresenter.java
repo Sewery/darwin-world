@@ -2,13 +2,11 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.model.util.Configuration;
 import agh.ics.oop.model.util.ConfigurationInvalidException;
-import agh.ics.oop.service.CSVWriter;
+import agh.ics.oop.util.CSVWriter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.stage.FileChooser;
 
-import java.io.File;
 import java.io.IOException;
 
 public class ConfigurationPresenter extends AppPresenter{
@@ -35,8 +33,6 @@ public class ConfigurationPresenter extends AppPresenter{
     private Spinner<Integer> maxNumberOfMutations;
     @FXML
     private Spinner<Integer> genotypeLength;
-    @FXML
-    private Button saveConfig;
     @FXML
     private RadioButton forestedEquator, ageOfBurden;
     @FXML
@@ -88,6 +84,7 @@ public class ConfigurationPresenter extends AppPresenter{
         try{
             configurationValidation();
         }catch (ConfigurationInvalidException e){
+            System.err.println(e.getMessage());
             new Alert(Alert.AlertType.ERROR, e.getMessage(), ButtonType.OK).show();
         }
         System.out.println(mapEdgesGroup.getToggles().toString());

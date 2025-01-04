@@ -1,4 +1,4 @@
-package agh.ics.oop.service;
+package agh.ics.oop.util;
 
 import agh.ics.oop.model.util.Configuration;
 
