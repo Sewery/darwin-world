@@ -8,10 +8,10 @@ public class MapDirectionTest {
 
     @Test
     void next() {
-        assertEquals(MapDirection.NORTH.next(), MapDirection.EAST);
-        assertEquals(MapDirection.EAST.next(), MapDirection.SOUTH);
-        assertEquals(MapDirection.SOUTH.next(), MapDirection.WEST);
-        assertEquals(MapDirection.WEST.next(), MapDirection.NORTH);
+        assertEquals(MapDirection.NORTH.next(1), MapDirection.EAST);
+        assertEquals(MapDirection.EAST.next(1), MapDirection.SOUTH);
+        assertEquals(MapDirection.SOUTH.next(1), MapDirection.WEST);
+        assertEquals(MapDirection.WEST.next(1), MapDirection.NORTH);
     }
 
     @Test
