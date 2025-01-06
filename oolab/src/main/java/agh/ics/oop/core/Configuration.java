@@ -1,8 +1,8 @@
 package agh.ics.oop.core;
 
 public record Configuration(
-        Integer width,
         Integer height,
+        Integer width,
         Integer initialNumberOfGrasses,
         Integer numberOfNewGrassesEachDay,
         Integer energyPerGrass,

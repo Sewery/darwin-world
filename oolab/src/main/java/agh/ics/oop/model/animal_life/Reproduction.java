@@ -108,7 +108,16 @@ public class Reproduction {
         System.out.println(Arrays.toString(parentTwo.getGenotype()));
         parentOne.reproduce(animalInitialEnergy/2);
         parentTwo.reproduce(animalInitialEnergy-animalInitialEnergy/2);
-        return new Animal(this.position, createGenotype());
 
+        Set<Animal> unionedAncestors = new HashSet<>(parentOne.getAncestors()); // Kopiujemy elementy z set1
+        unionedAncestors.addAll(parentTwo.getAncestors());
+        unionedAncestors.add(parentOne);
+        unionedAncestors.add(parentTwo);
+
+        for (Animal ancestor: unionedAncestors) {
+            ancestor.increaseNumberOfDescendants();
+        }
+
+        return new Animal(this.position, createGenotype(), unionedAncestors);
     }
 }

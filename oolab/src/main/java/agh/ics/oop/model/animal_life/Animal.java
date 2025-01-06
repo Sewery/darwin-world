@@ -8,6 +8,7 @@ import agh.ics.oop.model.WorldElement;
 import agh.ics.oop.core.Configuration;
 
 import java.util.Random;
+import java.util.Set;
 
 public class Animal implements WorldElement {
 
@@ -21,6 +22,8 @@ public class Animal implements WorldElement {
     private int age;
     private boolean alive = true;
     private int plantsEaten = 0;
+    private final Set<Animal> ancestors;
+    private int numberOfDescendants = 0;
 
     private final int genotypeLength;
     private final int minEnergyToReproduce;
@@ -30,7 +33,7 @@ public class Animal implements WorldElement {
 
 
 
-    public Animal(Vector2d position, int[] genotype) {
+    public Animal(Vector2d position, int[] genotype, Set<Animal> ancestors) {
 
         this.genotypeLength= AppState.getInstance().getConfig().initialEnergyOfAnimals();;
         this. minEnergyToReproduce=AppState.getInstance().getConfig().energyToReproduce();;
@@ -50,6 +53,8 @@ public class Animal implements WorldElement {
         this.currentGene = randomGene();
         this.numberOfChildren = 0;
         this.age = -1;
+
+        this.ancestors = ancestors;
 
     }
 
@@ -80,12 +85,24 @@ public class Animal implements WorldElement {
         return this.position.equals(position);
     }
 
-    public void move(MoveValidator validator) {
-        energy -= 1;
-        direction = direction.changeDirection(genotype[currentGene]);
-        Vector2d newPosition = validator.canMoveTo(position.add(direction.toUnitVector()));
-        if (newPosition != null) {
-            position = newPosition;
+    private boolean isGoingToMove(){
+        if (!(AppState.getInstance().getConfig().animalsBehaviourStrategy() == Configuration.AnimalsBehaviourStrategy.AGE_OF_BURDEN)) return true;
+        double probabilityOfAnimalSkippingAMove = Math.min(0.01 * this.age, 0.8);
+        return new Random().nextDouble() >= probabilityOfAnimalSkippingAMove;
+    }
+
+    public void move(MoveValidator validator, double energyMultiplier) {
+        if (!isGoingToMove()) {
+            System.out.println("skipped move");
+            energy -= (int)(1*energyMultiplier);} // energy loss when animal is skipping a move because of it's age
+
+        else {
+            direction = direction.changeDirection(genotype[currentGene]);
+            Vector2d newPosition = validator.canMoveTo(position.add(direction.toUnitVector()));
+            if (newPosition != null) {
+                position = newPosition;
+                energy -= (int)(1*energyMultiplier);
+            }
         }
         currentGene = (currentGene + 1)%genotype.length;
     }
@@ -105,6 +122,12 @@ public class Animal implements WorldElement {
 
     public void reproduce(int energyLost){
         this.energy -= energyLost;
-        numberOfChildren += 1;
+        this.numberOfChildren += 1;
+    }
+
+    Set<Animal> getAncestors() {return ancestors;}
+
+    void increaseNumberOfDescendants(){
+        this.numberOfDescendants++;
     }
 }

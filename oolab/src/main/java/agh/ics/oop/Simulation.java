@@ -35,14 +35,14 @@ public class Simulation implements Runnable {
         System.out.println(width);
 //        System.out.println(initialNumberOfAnimals);
 
-        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, config.initialEnergyOfAnimals());
+        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, config.initialNumberOfAnimals());
 
         for(Vector2d animalPosition : randomPositionGenerator) {
             try
             {
                 int[] randomGenotype = getRandomGenotype();
                 allGenotypes.put(randomGenotype, allGenotypes.getOrDefault(randomGenotype, 0) + 1);
-                Animal animal = new Animal(animalPosition, randomGenotype);
+                Animal animal = new Animal(animalPosition, randomGenotype, new HashSet<>());
                 map.place(animal);
                 animals.add(animal);
             } catch (IncorrectPositionException e) {

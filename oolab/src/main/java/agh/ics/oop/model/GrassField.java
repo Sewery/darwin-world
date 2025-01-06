@@ -7,17 +7,21 @@ import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class GrassField implements WorldMap {
 
     private final Map<Vector2d, Grass> grasses = new HashMap<>();
     private final Map<Vector2d, List<Animal>> animals = new HashMap<>();
+    private final Set<Animal> animalsMovedInTheLastMove = new HashSet<>();
 
     private final Vector2d lowerLeft;
     private final Vector2d upperRight;
     private final Boundary boundary;
+    private final int height;
 
     private static int mapsCount = 0;
     private final int mapID;
@@ -31,13 +35,17 @@ public class GrassField implements WorldMap {
 
     private final int numberOfNewGrassesEachDay;
     private final int energyToReproduce;
+    private final boolean poles;
 
     public GrassField(Configuration config) {
         this.lowerLeft = new Vector2d(0, 0);
         this.upperRight = new Vector2d(config.width()-1, config.height()-1);
         this.boundary = new Boundary(lowerLeft, upperRight);
+        this.height = config.height();
 
         synchronized (this) {this.mapID = mapsCount++;}
+
+        this.poles = (config.mapStrategy() == Configuration.MapStrategy.POLES);
 
         int equatorWidth = config.height()/5;
         this.equatorLowerBound = config.height()/2-equatorWidth+1;
@@ -151,15 +159,25 @@ public class GrassField implements WorldMap {
         }
     }
 
+    public void setAnimalsMovedInTheLastMoveEmpty(){
+        animalsMovedInTheLastMove.clear();
+    }
+
     @Override
     public void move(Animal animal) {
 
+        Vector2d oldPosition = animal.getPosition();
         List<Animal> oldList = animalsAt(animal.getPosition());
         if (oldList != null){
             if (oldList.contains(animal)) {
                 remove(animal);
-                animal.move(this);
+                if (!poles) {
+                    animal.move(this, 1);
+                }
+                else {animal.move(this, getPoleEffect(animal.getPosition()));}
                 animals.computeIfAbsent(animal.getPosition(), _ -> new ArrayList<>()).add(animal);
+
+                if (oldPosition != animal.getPosition()) {animalsMovedInTheLastMove.add(animal);}
             }
         }
     }
@@ -217,18 +235,21 @@ public class GrassField implements WorldMap {
 
             if (animals.containsKey(position)) {
 
-                List<Animal> conflictedAnimals = animalsAt(position);
+                List<Animal> conflictedAnimals = animalsAt(position).stream()
+                        .filter(animalsMovedInTheLastMove::contains) // animal can eat a plant only after stepping onto the plant
+                        .collect(Collectors.toList());
 
-                if (conflictedAnimals.size() == 1) {
-                    conflictedAnimals.getFirst().eat();
+                if (!conflictedAnimals.isEmpty()) {
+
+                    if (conflictedAnimals.size() == 1) {
+                        conflictedAnimals.getFirst().eat();
+                    } else {
+                        Animal winner = resolveFoodConflict(conflictedAnimals);
+                        winner.eat();
+                    }
+
+                    grassesToRemove.add(grasses.get(position));
                 }
-
-                else{
-                    Animal winner = resolveFoodConflict(conflictedAnimals);
-                    winner.eat();
-                }
-
-                grassesToRemove.add(grasses.get(position));
             }
         }
 
@@ -285,6 +306,22 @@ public class GrassField implements WorldMap {
         }
 
         return newAnimals;
+    }
+
+    public int getPoleEffect(Vector2d position) {
+        int distanceFromEquator = 0;
+        int max_pole_effect = equatorUpperBound-equatorLowerBound + 1;
+
+        if (position.getY() < equatorLowerBound) {
+            distanceFromEquator = equatorLowerBound - position.getY();}
+        else if (position.getY() >= equatorUpperBound) {
+            distanceFromEquator = position.getY() - equatorUpperBound + 1;
+        }
+
+        int h = height/2- distanceFromEquator;
+        if (height%2==0) {h-=1;}
+        System.out.println(max(max_pole_effect - h, 1));
+        return max(max_pole_effect - h, 1);
     }
 
 }
