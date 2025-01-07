@@ -34,7 +34,7 @@
                 <Label fx:id="numberOfPlants"/>
             </HBox>
             <HBox>
-                <Label fx:id="numberOfEmptySpacesDescription" text="Number of empty spaces:" styleClass="subtitle"/>
+                <Label fx:id="numberOfEmptySpacesDescription" text="Number of empty spaces on the map:" styleClass="subtitle"/>
                 <Label fx:id="numberOfEmptySpaces"/>
             </HBox>
             <HBox>

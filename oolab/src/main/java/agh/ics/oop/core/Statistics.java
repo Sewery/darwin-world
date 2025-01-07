@@ -38,11 +38,10 @@ public class Statistics {
         this.averageEnergy = new ArrayList<>();
         this.averageEnergy.add(configuration.initialEnergyOfAnimals());
         this.averageLifespan = new ArrayList<>();
-        this.averageLifespan.add(0);
         this.averageNUmberOfChildren = new ArrayList<>();
         this.averageNUmberOfChildren.add(0);
         this.emptySpaces = new ArrayList<>();
-        this.emptySpaces.add(0);
+        this.emptySpaces.add(configuration.height()*configuration.width()- configuration.initialNumberOfGrasses());
 
     }
 

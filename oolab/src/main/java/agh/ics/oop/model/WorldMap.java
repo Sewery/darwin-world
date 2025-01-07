@@ -35,4 +35,5 @@ public interface WorldMap extends MoveValidator {
 
     public List<Animal> reproduce();
     public int getNumberOfGrasses();
+    public int getNumberOfEmptySpaces();
 }

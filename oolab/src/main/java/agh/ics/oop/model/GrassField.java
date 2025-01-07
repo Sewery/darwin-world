@@ -20,6 +20,7 @@ public class GrassField implements WorldMap {
     private final Vector2d upperRight;
     private final Boundary boundary;
     private final int height;
+    private final int width;
 
     private static int mapsCount = 0;
     private final int mapID;
@@ -40,6 +41,7 @@ public class GrassField implements WorldMap {
         this.upperRight = new Vector2d(config.width()-1, config.height()-1);
         this.boundary = new Boundary(lowerLeft, upperRight);
         this.height = config.height();
+        this.width = config.width();
 
         synchronized (this) {this.mapID = mapsCount++;}
 
@@ -317,4 +319,10 @@ public class GrassField implements WorldMap {
         return grasses.size();
     }
 
+    @Override
+    public int getNumberOfEmptySpaces() {
+        Set<Vector2d> commonPositions = new HashSet<>(grasses.keySet());
+        commonPositions.retainAll(animals.keySet());
+        return this.width * this.height - animals.size() - grasses.size() + commonPositions.size();
+    }
 }

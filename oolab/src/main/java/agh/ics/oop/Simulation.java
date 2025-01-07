@@ -218,7 +218,7 @@ public class Simulation implements Runnable {
     public int getNumberOfAllPlants(){
         return map.getNumberOfGrasses();
     }
-    public int getNUmberOfEmptySpaces(){return 0;}  ///////////////// CO TO EMPTY SPACES
+    public int getNUmberOfEmptySpaces(){return map.getNumberOfEmptySpaces();}
     public List<String> getMostCommonGenotypes(){
         int findMaxCount = 0;
 
