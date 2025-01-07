@@ -91,17 +91,21 @@ public class Animal implements WorldElement {
         return new Random().nextDouble() >= probabilityOfAnimalSkippingAMove;
     }
 
-    public void move(MoveValidator validator, double energyMultiplier) {
-        if (!isGoingToMove()) {
-            System.out.println("skipped move");
-            energy -= (int)(1*energyMultiplier);} // energy loss when animal is skipping a move because of it's age
+    public void move(MoveValidator validator, int energyMultiplier) {
+        if (this.energy >= energyMultiplier) {  // animal on pole can have energy > 0 and not be able to move
 
-        else {
-            direction = direction.changeDirection(genotype[currentGene]);
-            Vector2d newPosition = validator.canMoveTo(position.add(direction.toUnitVector()));
-            if (newPosition != null) {
-                position = newPosition;
-                energy -= (int)(1*energyMultiplier);
+            if (!isGoingToMove()) {
+                System.out.println("skipped move");
+                energy -= (int) (energyMultiplier);
+            } // energy loss when animal is skipping a move because of it's age
+
+            else {
+                direction = direction.changeDirection(genotype[currentGene]);
+                Vector2d newPosition = validator.canMoveTo(position.add(direction.toUnitVector()));
+                if (newPosition != null) {
+                    position = newPosition;
+                    energy -= (int) (energyMultiplier);
+                }
             }
         }
         currentGene = (currentGene + 1)%genotype.length;

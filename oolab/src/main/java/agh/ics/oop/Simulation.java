@@ -1,6 +1,7 @@
 package agh.ics.oop;
 
 import agh.ics.oop.core.Configuration;
+import agh.ics.oop.core.Statistics;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.animal_life.Animal;
 import agh.ics.oop.model.animal_life.Reproduction;
@@ -11,15 +12,23 @@ import java.util.*;
 public class Simulation implements Runnable {
 
     private final List<Animal> animals;
-    private final Map<int[], Integer> allGenotypes = new HashMap<>();
+    private final Map<List<Integer>, Integer> allGenotypes = new HashMap<>();
     private final WorldMap map;
     private int daysCount;
 
+    private int numberOfDeadAnimals = 0;
+    private int totalAgeForDeadAnimals = 0;
+
+    private final Statistics statistics;
+
+
+
     private final Integer genotypeLength;
 
-    public Simulation(WorldMap map, Configuration config) {
+    public Simulation(WorldMap map, Configuration config, Statistics statistics) {
 
         this.map = map;
+        this.statistics = statistics;
 
         this.animals = new ArrayList<>();
         this.daysCount = 0;
@@ -41,7 +50,7 @@ public class Simulation implements Runnable {
             try
             {
                 int[] randomGenotype = getRandomGenotype();
-                allGenotypes.put(randomGenotype, allGenotypes.getOrDefault(randomGenotype, 0) + 1);
+                allGenotypes.put(toList(randomGenotype), allGenotypes.getOrDefault(toList(randomGenotype), 0) + 1);
                 Animal animal = new Animal(animalPosition, randomGenotype, new HashSet<>());
                 map.place(animal);
                 animals.add(animal);
@@ -49,6 +58,14 @@ public class Simulation implements Runnable {
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    private static List<Integer> toList(int[] array) {
+        List<Integer> list = new ArrayList<>();
+        for (int num : array) {
+            list.add(num);
+        }
+        return list;
     }
 
     private int[] getRandomGenotype(){
@@ -106,8 +123,6 @@ public class Simulation implements Runnable {
             sleep();
             growPlants();
 
-            System.out.printf("Most common genotype: %s\n", getMostCommonGenotypes());
-
             daysCount += 1;
         }
 
@@ -125,10 +140,18 @@ public class Simulation implements Runnable {
         }
 
         for (Animal deadAnimal : deadAnimals) {
+            this.numberOfDeadAnimals++;
+            this.totalAgeForDeadAnimals += deadAnimal.getAge();
             map.remove(deadAnimal);
             animals.remove(deadAnimal);
         }
         map.notifyObservers("Day %s: remove dead animals".formatted(daysCount));
+
+        statistics.updateNumberOfAllAnimals(getNumberOfAllAnimals());
+        statistics.updateAverageLifespan(getAverageLifeSpan());
+        statistics.updateAverageEnergy(getAverageEnergy());
+        statistics.updateAverageNUmberOfChildren(getAverageNumberOfChildren());
+        statistics.updateMostPopularGenotypes(getMostCommonGenotypes());
     }
 
     private void moveAnimals(){
@@ -136,16 +159,21 @@ public class Simulation implements Runnable {
             map.move(animal);
         }
         map.notifyObservers("Day %s: move animals".formatted(daysCount));
+        statistics.updateAverageEnergy(getAverageEnergy());
+
     }
 
     private void growPlants(){
         map.growPlants(map.getNumberOfNewGrassesEachDay());
         map.notifyObservers("Day %s: grow plants".formatted(daysCount));
+
+        statistics.updateNumberOfAllPlants(getNumberOfAllPlants());
+        statistics.updateEmptySpaces(getNUmberOfEmptySpaces());
     }
 
     private void sleep(){
         try {
-            Thread.sleep(200);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             System.out.println("Exception: " + e.getMessage());
         }
@@ -155,6 +183,9 @@ public class Simulation implements Runnable {
         map.consumePlants();
         map.notifyObservers("Day %s: consume plants".formatted(daysCount));
 
+        statistics.updateNumberOfAllPlants(getNumberOfAllPlants());
+        statistics.updateEmptySpaces(getNUmberOfEmptySpaces());
+        statistics.updateAverageEnergy(getAverageEnergy());
 
     }
 
@@ -169,14 +200,26 @@ public class Simulation implements Runnable {
             {
                 map.place(animal);
                 animals.add(animal);
-                allGenotypes.put(animal.getGenotype(), allGenotypes.getOrDefault(animal.getGenotype(), 0) + 1);
+                allGenotypes.put(toList(animal.getGenotype()), allGenotypes.getOrDefault(toList(animal.getGenotype()), 0) + 1);
             } catch (IncorrectPositionException e) {
                 System.out.println(e.getMessage());
             }
         }
+
+        statistics.updateNumberOfAllAnimals(getNumberOfAllAnimals());
+        statistics.updateAverageEnergy(getAverageEnergy());
+        statistics.updateAverageNUmberOfChildren(getAverageNumberOfChildren());
+        statistics.updateMostPopularGenotypes(getMostCommonGenotypes());
     }
 
-    private List<int[]> getMostCommonGenotypes(){
+    public int getNumberOfAllAnimals(){
+        return animals.size();
+    }
+    public int getNumberOfAllPlants(){
+        return map.getNumberOfGrasses();
+    }
+    public int getNUmberOfEmptySpaces(){return 0;}  ///////////////// CO TO EMPTY SPACES
+    public List<String> getMostCommonGenotypes(){
         int findMaxCount = 0;
 
         for (int count : allGenotypes.values()) {
@@ -187,10 +230,38 @@ public class Simulation implements Runnable {
 
         final int maxCount = findMaxCount;
 
+        System.out.println(allGenotypes.keySet());
+
         return allGenotypes.entrySet()
-                                            .stream()
-                                            .filter(entry -> entry.getValue() == maxCount)
-                                            .map(Map.Entry::getKey)
-                                            .toList();
+                .stream()
+                .filter(entry -> entry.getValue() == maxCount)
+                .map(Map.Entry::getKey)
+                .map(Object::toString)
+                .toList();
     }
+    public int getAverageEnergy(){
+        if (animals.isEmpty()) {return 0;}
+        int result = 0;
+
+        for (Animal animal : animals) {
+            result += animal.getEnergy();
+        }
+        return result / animals.size();
+    }
+    public int getAverageLifeSpan(){
+        if (totalAgeForDeadAnimals == 0) {return 0;}
+        return numberOfDeadAnimals / totalAgeForDeadAnimals;
+    }
+    public int getAverageNumberOfChildren(){
+        if (animals.isEmpty()) {return 0;}
+        int result = 0;
+        for (Animal animal : animals) {
+            result += animal.getNumberOfChildren();
+        }
+        return result / animals.size();
+    }
+
+
+
+
 }

@@ -4,34 +4,55 @@ import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.core.AppState;
 import agh.ics.oop.core.Configuration;
+import agh.ics.oop.core.Statistics;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.animal_life.Animal;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
+import agh.ics.oop.model.util.StatisticsChangeListener;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.max;
 
 
-public class SimulationPresenter extends AppPresenter implements MapChangeListener {
+public class SimulationPresenter extends AppPresenter implements MapChangeListener, StatisticsChangeListener {
     @FXML
     public TextField movesList;
     @FXML
     public Label moveDescription;
     @FXML
     private GridPane mapGrid;
+    @FXML
+    private Label numberOfAnimals;
+    @FXML
+    private Label numberOfPlants;
+    @FXML
+    private Label numberOfEmptySpaces;
+    @FXML
+    private Label mostCommonGenotypes;
+    @FXML
+    private Label averageEnergy;
+    @FXML
+    private Label averageLifespan;
+    @FXML
+    private Label averageNumberOfChildren;
 
     private WorldMap worldMap;
     private Configuration configuration;
+    private Statistics statistics;
 
     private Boundary boundary;
     private int minX;
@@ -46,7 +67,74 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         this.worldMap = worldMap;
     }
 
+    private void colourMap(int cellSize){
 
+        int equatorWidth = max(configuration.height()/5, 1);
+        int equatorUpperBound = (configuration.height()-1)/2 - (equatorWidth)/2;
+        if (equatorWidth % 2 == 0 && configuration.height() % 2 == 0){equatorUpperBound += 1;}
+        int equatorLowerBound = equatorUpperBound + equatorWidth - 1;
+
+
+        for (int row = equatorUpperBound; row <= equatorLowerBound; row++) {
+           for (int col = 0; col < cellsInARow + 1; col++) {
+                Rectangle rect = new Rectangle(cellSize, cellSize);
+                rect.setFill(Color.BEIGE);
+                mapGrid.add(rect, col + 1, row +1);
+            }
+        }
+
+        if (this.configuration.mapStrategy() == Configuration.MapStrategy.POLES) {
+            int h = 0;
+            for (int row = 0; row < equatorWidth; row++) {
+                for (int col = 0; col < cellsInARow + 1; col++) {
+                    Rectangle rect = new Rectangle(cellSize, cellSize);
+                    rect.setFill(Color.LIGHTBLUE);
+                    mapGrid.add(rect, col + 1, row +1);
+                }
+            }
+            for (int row = equatorWidth; row < equatorUpperBound; row++) {
+                for (int col = 0; col < cellsInARow + 1; col++) {
+                    Rectangle rect = new Rectangle(cellSize, cellSize);
+                    rect.setFill(Color.LIGHTGREEN);
+                    mapGrid.add(rect, col + 1, row +1);
+                }
+            }
+            for (int row = equatorLowerBound + 1; row <= configuration.height() - 1 - equatorWidth; row++) {
+                for (int col = 0; col < cellsInARow + 1; col++) {
+                    Rectangle rect = new Rectangle(cellSize, cellSize);
+                    rect.setFill(Color.LIGHTGREEN);
+                    mapGrid.add(rect, col + 1, row +1);
+                }
+            }
+            for (int row = configuration.height() - 1; row >  configuration.height() - 1 - equatorWidth; row--) {
+                for (int col = 0; col < cellsInARow + 1; col++) {
+                    Rectangle rect = new Rectangle(cellSize, cellSize);
+                    rect.setFill(Color.LIGHTBLUE);
+                    mapGrid.add(rect, col + 1, row +1);
+                }
+            }
+        }
+        else{
+
+            for (int row = 0; row < equatorUpperBound; row++) {
+                for (int col = 0; col < cellsInARow + 1; col++) {
+                    Rectangle rect = new Rectangle(cellSize, cellSize);
+                    rect.setFill(Color.LIGHTGREEN);
+                    mapGrid.add(rect, col + 1, row +1);
+                }
+            }
+
+            for (int row = equatorLowerBound + 1; row < configuration.height(); row++) {
+                for (int col = 0; col < cellsInARow + 1; col++) {
+                    Rectangle rect = new Rectangle(cellSize, cellSize);
+                    rect.setFill(Color.LIGHTGREEN);
+                    mapGrid.add(rect, col + 1, row + 1);
+                }
+            }
+
+
+        }
+    }
 
     private void drawMap() {
 
@@ -58,6 +146,8 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         cellsInAColumn = subtracted.getY();
 
         cellSize = max(maxMapSize/(max(cellsInAColumn, cellsInARow)+1), cellSize);
+
+        colourMap(cellSize);
 
 
         // create grid
@@ -78,6 +168,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         Label label = new Label("y/x");
         mapGrid.add(label, 0, 0);
         GridPane.setHalignment(label, HPos.CENTER);
+
 
         // add elements
         for (int x = 1; x < cellsInARow+2; x++) {
@@ -126,13 +217,18 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     public void onSimulationStartClicked() throws IllegalArgumentException {
         if(configuration!=null){
             WorldMap map = new GrassField(configuration);
-            Simulation simulation = new Simulation(map,configuration);
+            Statistics statistics = new Statistics(configuration);
+            Simulation simulation = new Simulation(map,configuration, statistics);
             map.addObserver(this);
+            statistics.addObserver(this);
+            statistics.notifyObservers();
             SimulationEngine engine = new SimulationEngine(List.of(simulation));
             engine.runAsync();
         }
 
     }
+
+
 
     public Configuration getConfiguration() {
         return configuration;
@@ -140,5 +236,25 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public void setStatistics(Statistics statistics) {
+        this.statistics = statistics;
+    }
+
+    @Override
+    public void statisticsChanged(Statistics statistics) {
+        setStatistics(statistics);
+        Platform.runLater(this::displayStatistics);
+    }
+
+    private void displayStatistics() {
+        numberOfAnimals.setText(statistics.getNumberOfAllAnimals().getLast().toString());
+        numberOfPlants.setText(statistics.getNumberOfAllPlants().getLast().toString());
+        numberOfEmptySpaces.setText(statistics.getEmptySpaces().getLast().toString());
+        mostCommonGenotypes.setText(statistics.getMostPopularGenotypes().toString());
+        averageEnergy.setText(statistics.getAverageEnergy().getLast().toString());
+        averageLifespan.setText(statistics.getAverageLifespan().getLast().toString());
+        averageNumberOfChildren.setText(statistics.getAverageNUmberOfChildren().getLast().toString());
     }
 }

@@ -6,17 +6,53 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             minHeight="550.0" minWidth="850.0"
-            fx:controller="agh.ics.oop.presenter.SimulationPresenter">
+            fx:controller="agh.ics.oop.presenter.SimulationPresenter"
+            styleClass="border-pane"
+            stylesheets="@simulation.css">
     <top>
-        <VBox spacing="10" alignment="CENTER">
+        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10;">
             <Label fx:id="moveDescription"/>
-            <Button text="Start" onAction="#onSimulationStartClicked"/>
-        </VBox>
+            <Button text="Start" onAction="#onSimulationStartClicked" styleClass="config-button"/>
+        </HBox>
     </top>
     <center>
         <GridPane fx:id="mapGrid" alignment="CENTER" gridLinesVisible="true"/>
     </center>
+    <left>
+        <VBox styleClass="left">
+            <Label fx:id="statisticsDescription" text="Statistics" styleClass="subtitle"/>
+            <HBox>
+                <Label fx:id="numberOfAnimalsDescription" text="Number of animals:" styleClass="subtitle"/>
+                <Label fx:id="numberOfAnimals"/>
+            </HBox>
+            <HBox>
+                <Label fx:id="numberOfPlantsDescription" text="Number of plants:" styleClass="subtitle"/>
+                <Label fx:id="numberOfPlants"/>
+            </HBox>
+            <HBox>
+                <Label fx:id="numberOfEmptySpacesDescription" text="Number of empty spaces:" styleClass="subtitle"/>
+                <Label fx:id="numberOfEmptySpaces"/>
+            </HBox>
+            <HBox>
+                <Label fx:id="mostCommonGenotypesDescription" text="Most common genotypes:" styleClass="subtitle"/>
+                <Label fx:id="mostCommonGenotypes"/>
+            </HBox>
+            <HBox>
+                <Label fx:id="averageEnergyDescription" text="Average energy:" styleClass="subtitle"/>
+                <Label fx:id="averageEnergy"/>
+            </HBox>
+            <HBox>
+                <Label fx:id="averageLifespanDescription" text="Average lifespan:" styleClass="subtitle"/>
+                <Label fx:id="averageLifespan"/>
+            </HBox>
+            <HBox>
+                <Label fx:id="numberOfChildrenDescription" text="Average number of children:" styleClass="subtitle"/>
+                <Label fx:id="averageNumberOfChildren"/>
+            </HBox>
+        </VBox>
+    </left>
 </BorderPane>

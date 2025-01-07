@@ -1,0 +1,49 @@
+/* Styles for the map grid */
+#mapGrid {
+    -fx-background-color: #F8F9E8; /* Light background for the grid */
+}
+
+/* Styles for the statistics description */
+#statisticsDescription {
+    -fx-font-family: sans-serif;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #47663B; /* Dark green text */
+    -fx-padding: 10 10 10 10;
+}
+
+/* General styles for labels in the statistics section */
+.left HBox Label {
+    -fx-font-family: sans-serif;
+    -fx-font-size: 16px;
+    -fx-text-fill: #88591e; /* Warm brown text */
+}
+
+/* Styles for individual labels (e.g., numbers in statistics) */
+.left Label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #47663B; /* Dark green text for values */
+    -fx-padding: 0 10 0 10;
+}
+
+/* Styles for buttons specific to the simulation */
+#startButton {
+    -fx-font-family: sans-serif;
+    -fx-font-size: 18px;
+    -fx-text-fill: #EED3B1; /* Light text */
+    -fx-background-color: #1F4529; /* Dark green background */
+    -fx-background-radius: 10;
+    -fx-padding: 10 20;
+    -fx-border-color: #47663B; /* Green border */
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-pref-width: 150px;
+}
+
+#startButton:hover {
+    -fx-background-color: #47663B; /* Darker green on hover */
+}
+
+#startButton:pressed {
+    -fx-background-color: #88591e; /* Brown on click */
+}

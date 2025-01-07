@@ -7,7 +7,6 @@ import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -16,7 +15,6 @@ public class GrassField implements WorldMap {
 
     private final Map<Vector2d, Grass> grasses = new HashMap<>();
     private final Map<Vector2d, List<Animal>> animals = new HashMap<>();
-    private final Set<Animal> animalsMovedInTheLastMove = new HashSet<>();
 
     private final Vector2d lowerLeft;
     private final Vector2d upperRight;
@@ -90,6 +88,7 @@ public class GrassField implements WorldMap {
     public void growPlants(int grassCount) {
 
         grassCount = min(grassCount, emptyOtherGrassPositions.size() + emptyEquatorGrassPositions.size());
+        System.out.println(grassCount);
 
         for (int i = 0; i < grassCount; i++){
 
@@ -159,10 +158,6 @@ public class GrassField implements WorldMap {
         }
     }
 
-    public void setAnimalsMovedInTheLastMoveEmpty(){
-        animalsMovedInTheLastMove.clear();
-    }
-
     @Override
     public void move(Animal animal) {
 
@@ -177,7 +172,6 @@ public class GrassField implements WorldMap {
                 else {animal.move(this, getPoleEffect(animal.getPosition()));}
                 animals.computeIfAbsent(animal.getPosition(), _ -> new ArrayList<>()).add(animal);
 
-                if (oldPosition != animal.getPosition()) {animalsMovedInTheLastMove.add(animal);}
             }
         }
     }
@@ -235,9 +229,7 @@ public class GrassField implements WorldMap {
 
             if (animals.containsKey(position)) {
 
-                List<Animal> conflictedAnimals = animalsAt(position).stream()
-                        .filter(animalsMovedInTheLastMove::contains) // animal can eat a plant only after stepping onto the plant
-                        .collect(Collectors.toList());
+                List<Animal> conflictedAnimals = new ArrayList<>(animalsAt(position));
 
                 if (!conflictedAnimals.isEmpty()) {
 
@@ -309,19 +301,20 @@ public class GrassField implements WorldMap {
     }
 
     public int getPoleEffect(Vector2d position) {
-        int distanceFromEquator = 0;
+
         int max_pole_effect = equatorUpperBound-equatorLowerBound + 1;
 
         if (position.getY() < equatorLowerBound) {
-            distanceFromEquator = equatorLowerBound - position.getY();}
+            return max(max_pole_effect - position.getY(), 1);}
         else if (position.getY() >= equatorUpperBound) {
-            distanceFromEquator = position.getY() - equatorUpperBound + 1;
-        }
+            return max(max_pole_effect - (height-1 - position.getY()), 1);}
 
-        int h = height/2- distanceFromEquator;
-        if (height%2==0) {h-=1;}
-        System.out.println(max(max_pole_effect - h, 1));
-        return max(max_pole_effect - h, 1);
+
+        return 1;
+    }
+
+    public int getNumberOfGrasses(){
+        return grasses.size();
     }
 
 }
