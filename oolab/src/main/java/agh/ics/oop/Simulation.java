@@ -4,10 +4,11 @@ import agh.ics.oop.core.Configuration;
 import agh.ics.oop.core.Statistics;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.animal_life.Animal;
-import agh.ics.oop.model.animal_life.Reproduction;
 import agh.ics.oop.model.util.Boundary;
 
 import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 public class Simulation implements Runnable {
 
@@ -37,9 +38,6 @@ public class Simulation implements Runnable {
         int width = boundary.upperRight().getX() - boundary.lowerLeft().getX()+1;
         int height = boundary.upperRight().getY() - boundary.lowerLeft().getY()+1;
 
-        Reproduction.setMaxNumberOfMutations(config.maxNumberOfMutations());
-        Reproduction.setMinNumberOfMutations(config.minNumberOfMutations());
-
         System.out.println(height);
         System.out.println(width);
 //        System.out.println(initialNumberOfAnimals);
@@ -51,7 +49,14 @@ public class Simulation implements Runnable {
             {
                 int[] randomGenotype = getRandomGenotype();
                 allGenotypes.put(toList(randomGenotype), allGenotypes.getOrDefault(toList(randomGenotype), 0) + 1);
-                Animal animal = new Animal(animalPosition, randomGenotype, new HashSet<>());
+                Animal animal = new Animal(
+                        animalPosition,
+                        randomGenotype,
+                        new HashSet<>(),
+                        config.energyPerGrass(),
+                        config.initialEnergyOfAnimals(),
+                        config.animalsBehaviourStrategy().equals(Configuration.AnimalsBehaviourStrategy.AGE_OF_BURDEN)
+                );
                 map.place(animal);
                 animals.add(animal);
             } catch (IncorrectPositionException e) {

@@ -1,6 +1,5 @@
 package agh.ics.oop.model.animal_life;
 
-import agh.ics.oop.core.AppState;
 import agh.ics.oop.model.MapDirection;
 import agh.ics.oop.model.MoveValidator;
 import agh.ics.oop.model.Vector2d;
@@ -25,30 +24,26 @@ public class Animal implements WorldElement {
     private final Set<Animal> ancestors;
     private int numberOfDescendants = 0;
 
-    private final int genotypeLength;
-    private final int minEnergyToReproduce;
+
     private final boolean ageOfBurden;
     private final int energyGivenByOneGrass;
-    private final int initialEnergy;
 
 
 
-    public Animal(Vector2d position, int[] genotype, Set<Animal> ancestors) {
-
-        this.genotypeLength= AppState.getInstance().getConfig().initialEnergyOfAnimals();;
-        this. minEnergyToReproduce=AppState.getInstance().getConfig().energyToReproduce();;
-        //TO DO
-        //fix age of burden
-        this. ageOfBurden=AppState.getInstance()
-                .getConfig()
-                .animalsBehaviourStrategy()
-                .equals(Configuration.AnimalsBehaviourStrategy.AGE_OF_BURDEN);
-        this.energyGivenByOneGrass=AppState.getInstance().getConfig().energyPerGrass();
-        this.initialEnergy=AppState.getInstance().getConfig().initialEnergyOfAnimals();;
+    public Animal(
+            Vector2d position,
+            int[] genotype,
+            Set<Animal> ancestors,
+            int energyPerGrass,
+            int initialEnergyOfAnimals,
+            boolean ageOfBurden
+            ) {
+        this. ageOfBurden=ageOfBurden;
+        this.energyGivenByOneGrass=energyPerGrass;
 
         this.position = position;
         this.direction = randomDirection();
-        this.energy = this.initialEnergy;
+        this.energy = initialEnergyOfAnimals;
         this.genotype = genotype;
         this.currentGene = randomGene();
         this.numberOfChildren = 0;
@@ -86,7 +81,7 @@ public class Animal implements WorldElement {
     }
 
     private boolean isGoingToMove(){
-        if (!(AppState.getInstance().getConfig().animalsBehaviourStrategy() == Configuration.AnimalsBehaviourStrategy.AGE_OF_BURDEN)) return true;
+        if (!ageOfBurden) return true;
         double probabilityOfAnimalSkippingAMove = Math.min(0.01 * this.age, 0.8);
         return new Random().nextDouble() >= probabilityOfAnimalSkippingAMove;
     }

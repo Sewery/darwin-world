@@ -15,6 +15,7 @@ public record Configuration(
         MapStrategy mapStrategy,
         AnimalsBehaviourStrategy animalsBehaviourStrategy
 ) {
+
     public enum MapStrategy{
         GLOBE("Globe"),
         POLES("Poles");

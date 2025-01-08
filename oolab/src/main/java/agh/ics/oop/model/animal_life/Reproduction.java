@@ -11,22 +11,16 @@ public class Reproduction {
     private final Animal parentTwo;
     private final Vector2d position;
 
-    private static int MIN_NUMBER_OF_MUTATIONS;
-    private static int MAX_NUMBER_OF_MUTATIONS;
-
-    public static void setMinNumberOfMutations(int minNumberOfMutations) {
-        MIN_NUMBER_OF_MUTATIONS = minNumberOfMutations;
-    }
-
-    public static void setMaxNumberOfMutations(int maxNumberOfMutations) {
-        MAX_NUMBER_OF_MUTATIONS = maxNumberOfMutations;
-    }
+    private final AnimalLife animalLife;
 
 
-    public Reproduction(Animal animal1, Animal animal2) {
+    public Reproduction(Animal animal1,
+                        Animal animal2,
+                        AnimalLife animalLife) {
         parentOne = animal1;
         parentTwo = animal2;
         position = animal1.getPosition();
+        this.animalLife = animalLife;
     }
 
     private int[] createGenotype() {
@@ -35,15 +29,14 @@ public class Reproduction {
         int energyTwo = parentTwo.getEnergy();
         int totalEnergy = energyOne + energyTwo;
 
-        Integer genotypeLength = AppState.getInstance().getConfig().genotypeLength();
-        int numberOfGenesFromParentOne = (genotypeLength * energyOne)/totalEnergy;
-        int numberOfGenesFromParentTwo = genotypeLength - numberOfGenesFromParentOne;
+        int numberOfGenesFromParentOne = (animalLife.genotypeLength() * energyOne)/totalEnergy;
+        int numberOfGenesFromParentTwo = animalLife.genotypeLength() - numberOfGenesFromParentOne;
         System.out.println(numberOfGenesFromParentOne);
         System.out.println(numberOfGenesFromParentTwo);
 
         int chooseSideForParentOne = new Random().nextInt(2);
 
-        int[] childrenGenotype = new int[genotypeLength];
+        int[] childrenGenotype = new int[animalLife.genotypeLength()];
 
         switch (chooseSideForParentOne) {
             case 0: {
@@ -56,13 +49,13 @@ public class Reproduction {
             }
         }
 
-        if (MIN_NUMBER_OF_MUTATIONS == 0 && MAX_NUMBER_OF_MUTATIONS == 0) { return childrenGenotype; }
+        if (animalLife.minNumberOfMutations() == 0 && animalLife.maxNumberOfMutations() == 0) { return childrenGenotype; }
         return mutateGenotype(childrenGenotype);
     }
 
     private int randomGeneValue(int bannedNumber){
         List<Integer> possibleGenes =  new ArrayList<>();
-        for (int i = 0; i < AppState.getInstance().getConfig().genotypeLength(); i++) {
+        for (int i = 0; i <animalLife.genotypeLength(); i++) {
             if (i != bannedNumber) {
                 possibleGenes.add(i);
             }
@@ -72,14 +65,13 @@ public class Reproduction {
 
 
     private int[] mutateGenotype(int[] genotype) {
-        int numberOfMutations = new Random().nextInt(MAX_NUMBER_OF_MUTATIONS - MIN_NUMBER_OF_MUTATIONS + 1) + MIN_NUMBER_OF_MUTATIONS;
+        int numberOfMutations = new Random().nextInt(animalLife.maxNumberOfMutations() - animalLife.minNumberOfMutations() + 1) + animalLife.minNumberOfMutations();
         System.out.println(Arrays.toString(genotype));
         System.out.println(numberOfMutations);
-        Integer genotypeLength = AppState.getInstance().getConfig().genotypeLength();
         switch (numberOfMutations){
             case 0: return genotype;
             case 1: {
-                int chosenGene = new Random().nextInt(genotypeLength);
+                int chosenGene = new Random().nextInt(animalLife.genotypeLength());
                 genotype[chosenGene] = randomGeneValue(genotype[chosenGene]);
                 genotype[chosenGene] += 1;
                 System.out.println(Arrays.toString(genotype));
@@ -87,7 +79,7 @@ public class Reproduction {
             }
             default: {
                 List<Integer> indices = new ArrayList<>();
-                for (int i = 0; i < genotypeLength;i++) {
+                for (int i = 0; i < animalLife.genotypeLength();i++) {
                     indices.add(i);
                 }
                 Collections.shuffle(indices);
@@ -103,11 +95,10 @@ public class Reproduction {
     }
 
     public Animal createAChild(){
-        Integer animalInitialEnergy = AppState.getInstance().getConfig().initialEnergyOfAnimals();
         System.out.println(Arrays.toString(parentOne.getGenotype()) );
         System.out.println(Arrays.toString(parentTwo.getGenotype()));
-        parentOne.reproduce(animalInitialEnergy/2);
-        parentTwo.reproduce(animalInitialEnergy-animalInitialEnergy/2);
+        parentOne.reproduce(animalLife.initialEnergyOfAnimals()/2);
+        parentTwo.reproduce(animalLife.initialEnergyOfAnimals()-animalLife.initialEnergyOfAnimals()/2);
 
         Set<Animal> unionedAncestors = new HashSet<>(parentOne.getAncestors()); // Kopiujemy elementy z set1
         unionedAncestors.addAll(parentTwo.getAncestors());
@@ -118,6 +109,13 @@ public class Reproduction {
             ancestor.increaseNumberOfDescendants();
         }
 
-        return new Animal(this.position, createGenotype(), unionedAncestors);
+        return new Animal(
+                this.position,
+                createGenotype(),
+                unionedAncestors,
+                animalLife.energyPerGrass(),
+                animalLife.initialEnergyOfAnimals(),
+                animalLife.ageOfBurden()
+        );
     }
 }

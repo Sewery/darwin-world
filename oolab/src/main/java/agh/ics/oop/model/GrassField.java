@@ -2,6 +2,8 @@ package agh.ics.oop.model;
 
 import agh.ics.oop.core.Configuration;
 import agh.ics.oop.model.animal_life.Animal;
+import agh.ics.oop.model.animal_life.AnimalComparator;
+import agh.ics.oop.model.animal_life.AnimalLife;
 import agh.ics.oop.model.animal_life.Reproduction;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
@@ -19,8 +21,6 @@ public class GrassField implements WorldMap {
     private final Vector2d lowerLeft;
     private final Vector2d upperRight;
     private final Boundary boundary;
-    private final int height;
-    private final int width;
 
     private static int mapsCount = 0;
     private final int mapID;
@@ -32,28 +32,23 @@ public class GrassField implements WorldMap {
     private final int equatorLowerBound;
     private final int equatorUpperBound;
 
-    private final int numberOfNewGrassesEachDay;
-    private final int energyToReproduce;
     private final boolean poles;
+    private final Configuration config;
 
     public GrassField(Configuration config) {
         this.lowerLeft = new Vector2d(0, 0);
         this.upperRight = new Vector2d(config.width()-1, config.height()-1);
         this.boundary = new Boundary(lowerLeft, upperRight);
-        this.height = config.height();
-        this.width = config.width();
 
         synchronized (this) {this.mapID = mapsCount++;}
 
         this.poles = (config.mapStrategy() == Configuration.MapStrategy.POLES);
-
+        this.config = config;
         int equatorWidth = config.height()/5;
         this.equatorLowerBound = config.height()/2-equatorWidth+1;
         this.equatorUpperBound = config.height()/2+equatorWidth;
         this.emptyEquatorGrassPositions = generateEmptyEquatorGrassPositions(config.width());
         this.emptyOtherGrassPositions = generateOtherEmptyGrassPositions(config.width(), config.height());
-        this.numberOfNewGrassesEachDay= config.numberOfNewGrassesEachDay();
-        this.energyToReproduce =config.energyToReproduce();
         growPlants(config.initialNumberOfGrasses());
 
     }
@@ -83,14 +78,13 @@ public class GrassField implements WorldMap {
 
     @Override
     public int getNumberOfNewGrassesEachDay(){
-        return numberOfNewGrassesEachDay;
+        return config.numberOfNewGrassesEachDay();
     }
 
     @Override
     public void growPlants(int grassCount) {
 
         grassCount = min(grassCount, emptyOtherGrassPositions.size() + emptyEquatorGrassPositions.size());
-        System.out.println(grassCount);
 
         for (int i = 0; i < grassCount; i++){
 
@@ -269,7 +263,7 @@ public class GrassField implements WorldMap {
         List<Animal> reproductiveAnimals = new ArrayList<>();
 
         for (Animal animal : allAnimals) {
-            if (animal.getEnergy() >=energyToReproduce){
+            if (animal.getEnergy() >=config.energyToReproduce()){
                 reproductiveAnimals.add(animal);
             }
         }
@@ -294,7 +288,18 @@ public class GrassField implements WorldMap {
                 parents = resolveReproductionConflict(parents);
             }
 
-            Reproduction reproduction = new Reproduction(parents.getFirst(), parents.getLast());
+            Reproduction reproduction = new Reproduction(
+                    parents.getFirst(),
+                    parents.getLast(),
+                    new AnimalLife(
+                            config.initialEnergyOfAnimals(),
+                            config.energyPerGrass(),
+                            config.minNumberOfMutations(),
+                            config.maxNumberOfMutations(),
+                            config.genotypeLength(),
+                            config.animalsBehaviourStrategy().equals(Configuration.AnimalsBehaviourStrategy.AGE_OF_BURDEN)
+                    )
+            );
             newAnimals.add(reproduction.createAChild());
 
         }
@@ -309,7 +314,7 @@ public class GrassField implements WorldMap {
         if (position.getY() < equatorLowerBound) {
             return max(max_pole_effect - position.getY(), 1);}
         else if (position.getY() >= equatorUpperBound) {
-            return max(max_pole_effect - (height-1 - position.getY()), 1);}
+            return max(max_pole_effect - (config.height()-1 - position.getY()), 1);}
 
 
         return 1;
@@ -323,6 +328,6 @@ public class GrassField implements WorldMap {
     public int getNumberOfEmptySpaces() {
         Set<Vector2d> commonPositions = new HashSet<>(grasses.keySet());
         commonPositions.retainAll(animals.keySet());
-        return this.width * this.height - animals.size() - grasses.size() + commonPositions.size();
+        return config.width() * config.height() - animals.size() - grasses.size() + commonPositions.size();
     }
 }
