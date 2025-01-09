@@ -16,7 +16,8 @@
     <top>
         <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10;">
             <Label fx:id="moveDescription"/>
-            <Button text="Start" onAction="#onSimulationStartClicked" styleClass="config-button"/>
+            <Button fx:id="startButton" text="Start" onAction="#onSimulationStartClicked" styleClass="config-button"/>
+            <Button fx:id="stopButton" text="Stop" onAction="#onSimulationStopClicked" styleClass="config-button" disable="true"/>
         </HBox>
     </top>
     <center>

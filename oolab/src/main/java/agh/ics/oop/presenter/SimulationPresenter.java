@@ -11,6 +11,9 @@ import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
 import agh.ics.oop.model.util.StatisticsChangeListener;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.scene.control.Button;
@@ -30,9 +33,9 @@ import static java.lang.Math.max;
 
 public class SimulationPresenter extends AppPresenter implements MapChangeListener, StatisticsChangeListener {
     @FXML
-    public TextField movesList;
+    private TextField movesList;
     @FXML
-    public Label moveDescription;
+    private Label moveDescription;
     @FXML
     private GridPane mapGrid;
     @FXML
@@ -49,6 +52,10 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private Label averageLifespan;
     @FXML
     private Label averageNumberOfChildren;
+    @FXML
+    private Button stopButton;
+    @FXML
+    private Button startButton;
 
     private WorldMap worldMap;
     private Configuration configuration;
@@ -62,11 +69,16 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
     private final int maxMapSize = 300;
     private int cellSize = 20;
-
+    private SimulationEngine engine=null;
+    private final BooleanProperty isStartDisabled = new SimpleBooleanProperty(false);
     public void setWorldMap(WorldMap worldMap) {
         this.worldMap = worldMap;
     }
-
+    @FXML
+    private void initialize() {
+        stopButton.disableProperty().bind(isStartDisabled.not());
+        startButton.disableProperty().bind(isStartDisabled);
+    }
     private void colourMap(int cellSize){
 
         int equatorWidth = max(configuration.height()/5, 1);
@@ -222,12 +234,19 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             map.addObserver(this);
             statistics.addObserver(this);
             statistics.notifyObservers();
-            SimulationEngine engine = new SimulationEngine(List.of(simulation));
+            engine = new SimulationEngine(List.of(simulation));
             engine.runAsync();
+            isStartDisabled.set(true);
         }
 
     }
-
+    @FXML
+    public void onSimulationStopClicked(ActionEvent actionEvent) throws InterruptedException {
+        if(engine!=null){
+            engine.awaitSimulationsEnd();
+            isStartDisabled.set(false);
+        }
+    }
 
 
     public Configuration getConfiguration() {
@@ -257,4 +276,5 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         averageLifespan.setText(statistics.getAverageLifespan().getLast().toString());
         averageNumberOfChildren.setText(statistics.getAverageNUmberOfChildren().getLast().toString());
     }
+
 }
