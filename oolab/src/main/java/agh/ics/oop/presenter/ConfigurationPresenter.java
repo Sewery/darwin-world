@@ -2,20 +2,25 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.core.AppState;
 import agh.ics.oop.core.Configuration;
-import agh.ics.oop.model.util.ConfigurationInvalidException;
+import agh.ics.oop.core.ConfigurationManager;
 import agh.ics.oop.util.CSVWriter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class ConfigurationPresenter extends AppPresenter{
+public class ConfigurationPresenter extends AppPresenter implements ConfigurationManager {
     private static Integer counter = 0;
+    @FXML
+    private final ToggleGroup animalsBehaviourGroup = new ToggleGroup(), mapEdgesGroup = new ToggleGroup();
     @FXML
     private Spinner<Integer> height;
     @FXML
@@ -41,22 +46,21 @@ public class ConfigurationPresenter extends AppPresenter{
     @FXML
     private RadioButton forestedEquator, ageOfBurden;
     @FXML
-    private RadioButton poles,globe;
-    @FXML
-    private final ToggleGroup animalsBehaviourGroup =new ToggleGroup(), mapEdgesGroup = new ToggleGroup();
+    private RadioButton poles, globe;
+
     @FXML
     private void initialize() {
-        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,3));
-        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,3));
-        initialNumberOfGrasses.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,2));
-        energyPerOneGrass.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,1));
-        initialNumberOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,3));
-        numberOfNewGrassesEachDay.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,1));
-        initialEnergyOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,6));
-        energyToReproduce.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,1));
-        minNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,1));
-        maxNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,1));
-        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1,100,5));
+        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 100, 3));
+        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 100, 3));
+        initialNumberOfGrasses.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 2));
+        energyPerOneGrass.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
+        initialNumberOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3));
+        numberOfNewGrassesEachDay.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
+        initialEnergyOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 6));
+        energyToReproduce.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
+        minNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 1));
+        maxNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 1));
+        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 5));
 
         forestedEquator.fire();
         forestedEquator.setToggleGroup(animalsBehaviourGroup);
@@ -68,38 +72,40 @@ public class ConfigurationPresenter extends AppPresenter{
 
 
     }
+
     public void onBackButtonClicked(ActionEvent actionEvent) throws IOException {
         super.changeScene("start.fxml", actionEvent, new StartPresenter());
     }
 
-    public void onSaveConfigButtonClicked(ActionEvent actionEvent) {
+    public void onSaveConfigButtonClicked(ActionEvent actionEvent){
         Configuration config = loadConfiguration();
-        CSVWriter.writeConfiguration(config,"config-"+counter+".csv",this::infoAlert);
+        try {
+            validate(config);
+        } catch (Exception e) {
+            alertError(e);
+            return;
+        }
         AppState.getInstance().setConfig(config);
+        CSVWriter.writeConfiguration(config, "config-" + counter + ".csv", this::infoAlert);
         counter++;
+
     }
 
     public void onStartButtonClicked(ActionEvent actionEvent) throws IOException {
-        if( AppState.getInstance().getConfig() != null) {
-//            super.changeScene("simulation.fxml", actionEvent, new SimulationPresenter());
+
+        if (AppState.getInstance().getConfig() == null) {
+            Configuration config = loadConfiguration();
+            AppState.getInstance().setConfig(config);
+        }
+        if(AppState.getInstance().getConfig() != null){
             addStageSimulation("simulation.fxml");
-        }else{
-            alertError(new ConfigurationInvalidException("No configuration found"));
         }
-    }
-    private void configurationValidation() throws ConfigurationInvalidException {
-        if(false){
-            throw new ConfigurationInvalidException("Max number of Mutations must be an positive integer");
-        }
+//            alertError(new ConfigurationInvalidException("No configuration found"));
     }
 
-    public Configuration loadConfiguration(){
-        try{
-            configurationValidation();
-        }catch (ConfigurationInvalidException e){
-            alertError(e);
-        }
-        return new Configuration(
+
+    public Configuration loadConfiguration() {
+       return new Configuration(
                 height.getValue(),
                 width.getValue(),
                 initialNumberOfGrasses.getValue(),
@@ -118,9 +124,10 @@ public class ConfigurationPresenter extends AppPresenter{
                 Configuration.AnimalsBehaviourStrategy
                         .fromString(((RadioButton) animalsBehaviourGroup
                                 .getSelectedToggle())
-                                .getText())
-        );
+                                .getText()));
+
     }
+
     public void addStageSimulation(String newScene) throws IOException {
 
         FXMLLoader loader = new FXMLLoader();
@@ -129,7 +136,7 @@ public class ConfigurationPresenter extends AppPresenter{
         SimulationPresenter presenter = loader.getController();
         presenter.setConfiguration(AppState.getInstance().getConfig());
 
-        Stage stage =new Stage();
+        Stage stage = new Stage();
         Scene scene = new Scene(viewRoot);
         stage.setScene(scene);
         stage.setTitle("Simulation runner");

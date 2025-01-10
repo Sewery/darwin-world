@@ -2,10 +2,12 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.core.AppState;
 import agh.ics.oop.core.Configuration;
-import agh.ics.oop.model.util.ConfigurationInvalidException;
+import agh.ics.oop.core.ConfigurationInvalidException;
+import agh.ics.oop.core.ConfigurationManager;
 import agh.ics.oop.util.CSVReader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
@@ -14,23 +16,21 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 
-public class StartPresenter extends AppPresenter{
+public class StartPresenter extends AppPresenter implements ConfigurationManager{
 
     public void onCreateNewSimulationClicked(ActionEvent actionEvent) throws IOException {
         super.changeScene("configuration.fxml", actionEvent, new ConfigurationPresenter());
     }
 
-    public void onLoadSimulationClicked(ActionEvent actionEvent) throws IOException {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Resource File");
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Csv files", "*.csv"));
-        File selectedFile = fileChooser.showOpenDialog(stage);
-        Configuration config =null;
-        if (selectedFile != null) {
-            config = CSVReader.readConfiguration(
-                    selectedFile, this::alertError,this::infoAlert
-            );
-        }AppState.getInstance().setConfig(config);
+    public void onLoadSimulationClicked(ActionEvent actionEvent) {
+        Configuration config = loadConfiguration();
+        try {
+            validate(config);
+        } catch (Exception e) {
+            alertError(e);
+            return;
+        }
+        AppState.getInstance().setConfig(config);
 
     }
 
@@ -56,5 +56,20 @@ public class StartPresenter extends AppPresenter{
         stage.minWidthProperty().bind(viewRoot.minWidthProperty());
         stage.minHeightProperty().bind(viewRoot.minHeightProperty());
         stage.show();
+    }
+
+    @Override
+    public Configuration loadConfiguration() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Csv files", "*.csv"));
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        Configuration config =null;
+        if (selectedFile != null) {
+            config = CSVReader.readConfiguration(
+                    selectedFile, this::alertError,this::infoAlert
+            );
+        }
+        return config;
     }
 }
