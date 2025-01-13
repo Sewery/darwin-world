@@ -39,8 +39,8 @@ public class Simulation implements Runnable {
         int width = boundary.upperRight().getX() - boundary.lowerLeft().getX()+1;
         int height = boundary.upperRight().getY() - boundary.lowerLeft().getY()+1;
 
-        System.out.println(height);
-        System.out.println(width);
+        //System.out.println(height);
+        //System.out.println(width);
 //        System.out.println(initialNumberOfAnimals);
 
         RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, config.initialNumberOfAnimals());
@@ -101,6 +101,8 @@ public class Simulation implements Runnable {
 
     }
 
+    public boolean isPaused() {return this.paused;}
+
     public synchronized void resumeSimulation() {
         this.paused = false;
         map.notifyObservers("Simulation resumed");
@@ -109,21 +111,21 @@ public class Simulation implements Runnable {
 
     public void run() {
 
-        System.out.println("Simulation started as: ");
-        System.out.println(map);
+        //System.out.println("Simulation started as: ");
+        //System.out.println(map);
         if (animals.isEmpty())  return;
 
         // print genotypów
-        for (int i = 0; i < animals.size(); i++) {
-            System.out.printf("Zwierze %s: %s, start with: %s %s\n", i, Arrays.toString(animals.get(i).getGenotype()), animals.get(i).getCurrentGene(), animals.get(i).getDirection());
-        }
+        //for (int i = 0; i < animals.size(); i++) {
+        //    System.out.printf("Zwierze %s: %s, start with: %s %s\n", i, Arrays.toString(animals.get(i).getGenotype()), animals.get(i).getCurrentGene(), animals.get(i).getDirection());
+        //}
 
-        System.out.println();
+        //System.out.println();
 
         while (this.running) {
 
             synchronized (this) {
-                while (this.paused) {
+                while (this.running && this.paused) {
                     try {
                         wait();
                     } catch (InterruptedException e) {
@@ -138,26 +140,26 @@ public class Simulation implements Runnable {
             sleep();
             moveAnimals();
 
-            System.out.printf("\nDay %s%n", daysCount);
-            System.out.println("After move: ");
-            for (int i = 0; i < animals.size(); i++) {
-                System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
-            }
+            //System.out.printf("\nDay %s%n", daysCount);
+            //System.out.println("After move: ");
+            //for (int i = 0; i < animals.size(); i++) {
+            //    System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
+            //}
 
             sleep();
             consumePlants();
-            System.out.println("After consume: ");
-            for (int i = 0; i < animals.size(); i++) {
-                System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
-            }
+            //System.out.println("After consume: ");
+            //for (int i = 0; i < animals.size(); i++) {
+            //    System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
+            //}
 
 
             sleep();
             reproduce();
-            System.out.println("After reproduce: ");
-            for (int i = 0; i < animals.size(); i++) {
-                System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
-            }
+            //System.out.println("After reproduce: ");
+            //for (int i = 0; i < animals.size(); i++) {
+            //    System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
+            //}
 
             sleep();
             growPlants();
@@ -221,10 +223,10 @@ public class Simulation implements Runnable {
     private void reproduce(){
         List<Animal> createdAnimals = map.reproduce();
 
-        System.out.println(createdAnimals);
+        //System.out.println(createdAnimals);
 
         for (Animal animal : createdAnimals) {
-            System.out.printf("Nowe zwierze: %s %s\n", animal.getEnergy(), animal.getPosition().toString());
+            //System.out.printf("Nowe zwierze: %s %s\n", animal.getEnergy(), animal.getPosition().toString());
             try
             {
                 map.place(animal);
@@ -242,7 +244,7 @@ public class Simulation implements Runnable {
     }
     private void sleep(){
         try {
-            Thread.sleep(1000);
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             System.out.println("Exception: " + e.getMessage());
         }
@@ -250,7 +252,7 @@ public class Simulation implements Runnable {
 
     // STATISTICS GETTERS
     public int getNumberOfAllAnimals(){
-        System.out.println("Animals size: " + animals.size());
+        //System.out.println("Animals size: " + animals.size());
         return animals.size();
     }
     public int getNumberOfAllPlants(){
@@ -268,7 +270,7 @@ public class Simulation implements Runnable {
 
         final int maxCount = findMaxCount;
 
-        System.out.println(allGenotypes.keySet());
+        //System.out.println(allGenotypes.keySet());
 
         return allGenotypes.entrySet()
                 .stream()

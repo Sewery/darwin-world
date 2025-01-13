@@ -21,7 +21,7 @@ public class AgingAnimal extends Animal {
         if (this.energy >= energyMultiplier) {  // animal on pole can have energy > 0 and not be able to move
 
             if (!isGoingToMove()) {
-                System.out.println("skipped move");
+                //System.out.println("skipped move");
                 energy -= (int) (energyMultiplier);
             } // energy loss when animal is skipping a move because of it's age
 

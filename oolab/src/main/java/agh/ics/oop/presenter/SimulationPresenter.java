@@ -28,8 +28,10 @@ import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.lang.Math.max;
+import static java.lang.Math.multiplyHigh;
 
 
 public class SimulationPresenter extends AppPresenter implements MapChangeListener, StatisticsChangeListener {
@@ -63,6 +65,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private Configuration configuration;
     private Statistics statistics;
     private boolean isInitialized=false;
+    private Animal highlightedAnimal = null;
 
     private Boundary boundary;
     private int minX;
@@ -73,10 +76,12 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private final int maxMapSize = 300;
     private int cellSize = 20;
     private SimulationEngine engine=null;
+
     private final BooleanProperty isStartDisabled = new SimpleBooleanProperty(false);
     public void setWorldMap(WorldMap worldMap) {
         this.worldMap = worldMap;
     }
+
     @FXML
     private void initialize() {
         stopButton.disableProperty().bind(isStartDisabled.not());
@@ -150,7 +155,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
         }
     }
-
     private void drawMap() {
 
         boundary = worldMap.getCurrentBounds();
@@ -195,10 +199,26 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 if (animals != null){
 
                     Animal animalToDraw = getStrongestAnimalOnPosition(animals);
-                    Label animalSymbol = new Label("1");
+                    Rectangle animalSymbol = new Rectangle(cellSize/2, cellSize/2);
+
+                    if (animalToDraw == highlightedAnimal){
+                        animalSymbol.setFill(Color.YELLOW);
+                    }
+                    else {
+                        animalSymbol.setFill(Color.BROWN);
+                    }
+
+                    animalSymbol.setOnMouseClicked(event -> {
+                        if (simulation.isPaused()) {
+                            this.highlightedAnimal = animalToDraw;
+                            worldMap.notifyObservers("Highlighted an animal");
+                        }
+                    });
+
                     AnchorPane healthBar = createHealthBar(animalToDraw.getEnergy(), maxEnergy);
 
                     VBox mapElement = new VBox(animalSymbol, healthBar);
+                    mapElement.setAlignment(Pos.CENTER);
                     mapGrid.add(mapElement, x, y + 1);
                     GridPane.setHalignment(mapElement, HPos.CENTER);
                 }
@@ -218,10 +238,13 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     }
 
     private Animal getStrongestAnimalOnPosition(List<Animal> animals) {
+        if (highlightedAnimal != null) {
+            if (animals.contains(highlightedAnimal)) {
+                return highlightedAnimal;}
+        }
         animals.sort(new AnimalComparator());
         return animals.getFirst();
     }
-
     private AnchorPane createHealthBar(int currentEnergy, int maxEnergy) {
         int width = cellSize * 7 / 10;
         int height = cellSize / 10;
@@ -265,9 +288,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
         return healthBar;
     }
-
-
-
     private void clearGrid() {
         mapGrid.getChildren().retainAll(mapGrid.getChildren().getFirst()); // hack to retain visible grid lines
         mapGrid.getColumnConstraints().clear();
@@ -277,6 +297,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     @Override
     public void mapChanged(WorldMap worldMap, String message) {
         setWorldMap(worldMap);
+        if (Objects.equals(message, "Simulation paused")) { this.highlightedAnimal = null; }
         Platform.runLater(() -> {
             clearGrid();
             drawMap();
@@ -315,11 +336,11 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         Platform.runLater(() -> {
             mapGrid.getScene().getWindow().setOnCloseRequest(event -> {
                 simulation.stopSimulation();
-                //try {
-                    //engine.awaitSimulationsEnd();
-                //} catch (InterruptedException e) {
-                //    throw new RuntimeException(e);
-                //}
+                try {
+                    engine.awaitSimulationsEnd();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 Platform.exit();
             });
         });
@@ -354,6 +375,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     }
 
     private void displayStatistics() {
+
         numberOfAnimals.setText(statistics.getNumberOfAllAnimals().getLast().toString());
         numberOfPlants.setText(statistics.getNumberOfAllPlants().getLast().toString());
         numberOfEmptySpaces.setText(statistics.getEmptySpaces().getLast().toString());
