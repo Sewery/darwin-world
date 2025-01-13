@@ -7,6 +7,7 @@ import agh.ics.oop.core.Configuration;
 import agh.ics.oop.core.Statistics;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.animal_life.Animal;
+import agh.ics.oop.model.animal_life.AnimalComparator;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
 import agh.ics.oop.model.util.StatisticsChangeListener;
@@ -16,12 +17,12 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -58,8 +59,10 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private Button startButton;
 
     private WorldMap worldMap;
+    private Simulation simulation;
     private Configuration configuration;
     private Statistics statistics;
+    private boolean isInitialized=false;
 
     private Boundary boundary;
     private int minX;
@@ -181,7 +184,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         mapGrid.add(label, 0, 0);
         GridPane.setHalignment(label, HPos.CENTER);
 
-
+        int maxEnergy = simulation.getMaxEnergy();
         // add elements
         for (int x = 1; x < cellsInARow+2; x++) {
             for (int y = cellsInAColumn+1; y >= 0; y--) {
@@ -190,7 +193,12 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 // zwierzęta
                 List<Animal> animals = worldMap.animalsAt(currentPosition);
                 if (animals != null){
-                    Label mapElement = new Label(String.valueOf(animals.size()));
+
+                    Animal animalToDraw = getStrongestAnimalOnPosition(animals);
+                    Label animalSymbol = new Label("1");
+                    AnchorPane healthBar = createHealthBar(animalToDraw.getEnergy(), maxEnergy);
+
+                    VBox mapElement = new VBox(animalSymbol, healthBar);
                     mapGrid.add(mapElement, x, y + 1);
                     GridPane.setHalignment(mapElement, HPos.CENTER);
                 }
@@ -208,6 +216,57 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         }
 
     }
+
+    private Animal getStrongestAnimalOnPosition(List<Animal> animals) {
+        animals.sort(new AnimalComparator());
+        return animals.getFirst();
+    }
+
+    private AnchorPane createHealthBar(int currentEnergy, int maxEnergy) {
+        int width = cellSize * 7 / 10;
+        int height = cellSize / 10;
+
+        Rectangle background = new Rectangle(width, height);
+        background.setFill(Color.DARKGRAY);
+        background.setArcWidth(height);
+        background.setArcHeight(height);
+
+        double healthPercentage = (double) currentEnergy / maxEnergy;
+        Rectangle health = new Rectangle(width * healthPercentage, height);
+        if (healthPercentage > 0.5) {
+            health.setFill(Color.GREEN);
+        } else if (healthPercentage > 0.1) {
+            health.setFill(Color.ORANGE);
+        } else {
+            health.setFill(Color.RED);
+        }
+        health.setArcWidth(height);
+        health.setArcHeight(height);
+
+        Rectangle border = new Rectangle(width, height);
+        border.setFill(Color.TRANSPARENT);
+        border.setStroke(Color.BLACK);
+        border.setStrokeWidth(height / 5);
+        border.setArcWidth(height);
+        border.setArcHeight(height);
+
+
+        AnchorPane healthBar = new AnchorPane();
+        healthBar.setPrefSize(width, height);
+        healthBar.getChildren().add(background);
+        AnchorPane.setTopAnchor(background, 0.0);
+        AnchorPane.setLeftAnchor(background, 0.0);
+        healthBar.getChildren().add(health);
+        AnchorPane.setTopAnchor(health, 0.0);
+        AnchorPane.setLeftAnchor(health, 0.0);
+        healthBar.getChildren().add(border);
+        AnchorPane.setTopAnchor(border, 0.0);
+        AnchorPane.setLeftAnchor(border, 0.0);
+
+        return healthBar;
+    }
+
+
 
     private void clearGrid() {
         mapGrid.getChildren().retainAll(mapGrid.getChildren().getFirst()); // hack to retain visible grid lines
@@ -228,22 +287,49 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     @FXML
     public void onSimulationStartClicked() throws IllegalArgumentException {
         if(configuration!=null){
-            WorldMap map = new GrassField(configuration);
-            Statistics statistics = new Statistics(configuration);
-            Simulation simulation = new Simulation(map,configuration, statistics);
-            map.addObserver(this);
-            statistics.addObserver(this);
-            statistics.notifyObservers();
-            engine = new SimulationEngine(List.of(simulation));
-            engine.runAsync();
-            isStartDisabled.set(true);
+
+            if (!this.isInitialized) {
+
+                WorldMap map = (configuration.mapStrategy() == Configuration.MapStrategy.POLES) ? new GrassFieldWithPoles(configuration) : new GrassField(configuration);
+
+                Statistics statistics = new Statistics(configuration);
+                Simulation simulation = new Simulation(map, configuration, statistics);
+                this.simulation = simulation;
+                map.addObserver(this);
+                statistics.addObserver(this);
+                statistics.notifyObservers();
+                engine = new SimulationEngine(List.of(simulation));
+                engine.runAsync();
+                isStartDisabled.set(true);
+                this.isInitialized = true;
+            }
+
+            else {
+                if(engine!=null){
+                    simulation.resumeSimulation();
+                    isStartDisabled.set(true);
+                }
+            }
         }
 
+        Platform.runLater(() -> {
+            mapGrid.getScene().getWindow().setOnCloseRequest(event -> {
+                simulation.stopSimulation();
+                //try {
+                    //engine.awaitSimulationsEnd();
+                //} catch (InterruptedException e) {
+                //    throw new RuntimeException(e);
+                //}
+                Platform.exit();
+            });
+        });
+
     }
+
     @FXML
     public void onSimulationStopClicked(ActionEvent actionEvent) throws InterruptedException {
         if(engine!=null){
-            engine.awaitSimulationsEnd();
+            simulation.pauseSimulation();
             isStartDisabled.set(false);
         }
     }

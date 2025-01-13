@@ -114,8 +114,7 @@ public class Reproduction {
                 createGenotype(),
                 unionedAncestors,
                 animalLife.energyPerGrass(),
-                animalLife.initialEnergyOfAnimals(),
-                animalLife.ageOfBurden()
+                animalLife.initialEnergyOfAnimals()
         );
     }
 }

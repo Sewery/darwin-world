@@ -12,20 +12,18 @@ import java.util.Set;
 public class Animal implements WorldElement {
 
 
-    private Vector2d position;
-    private MapDirection direction;
-    private int energy;
-    private final int[] genotype;
-    private int currentGene;
+    protected Vector2d position;
+    protected MapDirection direction;
+    protected int energy;
+    protected final int[] genotype;
+    protected int currentGene;
     private int numberOfChildren;
-    private int age;
+    protected int age;
     private boolean alive = true;
     private int plantsEaten = 0;
     private final Set<Animal> ancestors;
     private int numberOfDescendants = 0;
 
-
-    private final boolean ageOfBurden;
     private final int energyGivenByOneGrass;
 
 
@@ -35,10 +33,9 @@ public class Animal implements WorldElement {
             int[] genotype,
             Set<Animal> ancestors,
             int energyPerGrass,
-            int initialEnergyOfAnimals,
-            boolean ageOfBurden
+            int initialEnergyOfAnimals
             ) {
-        this. ageOfBurden=ageOfBurden;
+
         this.energyGivenByOneGrass=energyPerGrass;
 
         this.position = position;
@@ -80,28 +77,16 @@ public class Animal implements WorldElement {
         return this.position.equals(position);
     }
 
-    private boolean isGoingToMove(){
-        if (!ageOfBurden) return true;
-        double probabilityOfAnimalSkippingAMove = Math.min(0.01 * this.age, 0.8);
-        return new Random().nextDouble() >= probabilityOfAnimalSkippingAMove;
-    }
-
     public void move(MoveValidator validator, int energyMultiplier) {
         if (this.energy >= energyMultiplier) {  // animal on pole can have energy > 0 and not be able to move
 
-            if (!isGoingToMove()) {
-                System.out.println("skipped move");
-                energy -= (int) (energyMultiplier);
-            } // energy loss when animal is skipping a move because of it's age
-
-            else {
-                direction = direction.changeDirection(genotype[currentGene]);
-                Vector2d newPosition = validator.canMoveTo(position.add(direction.toUnitVector()));
-                if (newPosition != null) {
-                    position = newPosition;
-                    energy -= (int) (energyMultiplier);
-                }
+            direction = direction.changeDirection(genotype[currentGene]);
+            Vector2d newPosition = validator.canMoveTo(position.add(direction.toUnitVector()));
+            if (newPosition != null) {
+                position = newPosition;
+                energy -= energyMultiplier;
             }
+
         }
         currentGene = (currentGene + 1)%genotype.length;
     }
