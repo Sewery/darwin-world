@@ -4,7 +4,7 @@
 }
 
 /* Styles for the statistics description */
-#statisticsDescription {
+.title-stats {
     -fx-font-family: sans-serif;
     -fx-font-size: 20px;
     -fx-font-weight: bold;

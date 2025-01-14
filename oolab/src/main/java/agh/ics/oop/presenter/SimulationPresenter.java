@@ -10,6 +10,7 @@ import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.WorldMap;
 import agh.ics.oop.model.animal_life.Animal;
 import agh.ics.oop.model.animal_life.AnimalComparator;
+import agh.ics.oop.model.util.AnimalChangeListener;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
 import agh.ics.oop.model.util.StatisticsChangeListener;
@@ -23,21 +24,39 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.effect.ColorAdjust;
+import lombok.Getter;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static java.lang.Math.max;
 
 
-public class SimulationPresenter extends AppPresenter implements MapChangeListener, StatisticsChangeListener {
+public class SimulationPresenter extends AppPresenter implements MapChangeListener, StatisticsChangeListener, AnimalChangeListener {
+    private final int maxMapSize = 300;
+    private final BooleanProperty isStartDisabled = new SimpleBooleanProperty(false);
+    @FXML
+    private VBox highlightedAnimalVBox;
+    @FXML
+    private Label plantsEaten;
+    @FXML
+    private Label currentGene;
+    @FXML
+    private Label genome;
+    @FXML
+    private Label numberOfChildren;
+    @FXML
+    private Label numberOfDescendants;
+    @FXML
+    private Label age;
     @FXML
     private TextField movesList;
     @FXML
@@ -64,28 +83,23 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private Button startButton;
     private Image animalImage;
     private Image plantImage;
-
     private WorldMap worldMap;
     private Simulation simulation;
     private Configuration configuration;
     private Statistics statistics;
-    private boolean isInitialized=false;
+    private boolean isInitialized = false;
     private Animal highlightedAnimal = null;
-
     private Boundary boundary;
     private int minX;
     private int minY;
     private int cellsInARow;
     private int cellsInAColumn;
-
-    private final int maxMapSize = 300;
     private int cellSize = 20;
-    private SimulationEngine engine=null;
+    private SimulationEngine engine = null;
 
-    private final BooleanProperty isStartDisabled = new SimpleBooleanProperty(false);
     public void setWorldMap(WorldMap worldMap) {
         this.worldMap = worldMap;
-        if(!worldMap.getCurrentBounds().equals(boundary)){
+        if (!worldMap.getCurrentBounds().equals(boundary)) {
             setMapProperties(worldMap.getCurrentBounds());
         }
     }
@@ -95,8 +109,9 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         stopButton.disableProperty().bind(isStartDisabled.not());
         startButton.disableProperty().bind(isStartDisabled);
 
-
+        highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(false));
     }
+
     private void setMapProperties(Boundary currentBounds) {
         boundary = currentBounds;
         minX = boundary.lowerLeft().getX();
@@ -105,16 +120,17 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         cellsInARow = subtracted.getX();
         cellsInAColumn = subtracted.getY();
 
-        cellSize = max(maxMapSize/(max(cellsInAColumn, cellsInARow)+1), cellSize);
-        renderImages((int) (cellSize*0.7), (int) (cellSize*0.7));
+        cellSize = max(maxMapSize / (max(cellsInAColumn, cellsInARow) + 1), cellSize);
+        renderImages((int) (cellSize * 0.7), (int) (cellSize * 0.7));
     }
+
     private void renderImages(int width, int height) {
         try (InputStream input = getClass().getResourceAsStream("/assets/grass.jpg")) {
             if (input == null) {
                 throw new IOException("Resource not found: grass.png");
             }
-            System.out.println(getClass().getResource("/assets/grass.jpg").getPath());
-            plantImage = new Image(input,width,height,true,true);
+//            System.out.println(getClass().getResource("/assets/grass.jpg").getPath());
+            plantImage = new Image(input, width, height, true, true);
         } catch (IOException e) {
             System.err.println("Could not load image of grass: " + e.getMessage());
         }
@@ -123,24 +139,27 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             if (input == null) {
                 throw new IOException("Resource not found: sheep.jpg");
             }
-            animalImage = new Image(input,width,height,true,true);
+            animalImage = new Image(input, width, height, true, true);
         } catch (IOException e) {
             System.err.println("Could not load image of animal: " + e.getMessage());
         }
     }
-    private void colourMap(int cellSize){
 
-        int equatorWidth = max(configuration.height()/5, 1);
-        int equatorUpperBound = (configuration.height()-1)/2 - (equatorWidth)/2;
-        if (equatorWidth % 2 == 0 && configuration.height() % 2 == 0){equatorUpperBound += 1;}
+    private void colourMap(int cellSize) {
+
+        int equatorWidth = max(configuration.height() / 5, 1);
+        int equatorUpperBound = (configuration.height() - 1) / 2 - (equatorWidth) / 2;
+        if (equatorWidth % 2 == 0 && configuration.height() % 2 == 0) {
+            equatorUpperBound += 1;
+        }
         int equatorLowerBound = equatorUpperBound + equatorWidth - 1;
 
 
         for (int row = equatorUpperBound; row <= equatorLowerBound; row++) {
-           for (int col = 0; col < cellsInARow + 1; col++) {
+            for (int col = 0; col < cellsInARow + 1; col++) {
                 Rectangle rect = new Rectangle(cellSize, cellSize);
                 rect.setFill(Color.BEIGE);
-                mapGrid.add(rect, col + 1, row +1);
+                mapGrid.add(rect, col + 1, row + 1);
             }
         }
 
@@ -150,38 +169,37 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 for (int col = 0; col < cellsInARow + 1; col++) {
                     Rectangle rect = new Rectangle(cellSize, cellSize);
                     rect.setFill(Color.LIGHTBLUE);
-                    mapGrid.add(rect, col + 1, row +1);
+                    mapGrid.add(rect, col + 1, row + 1);
                 }
             }
             for (int row = equatorWidth; row < equatorUpperBound; row++) {
                 for (int col = 0; col < cellsInARow + 1; col++) {
                     Rectangle rect = new Rectangle(cellSize, cellSize);
                     rect.setFill(Color.LIGHTGREEN);
-                    mapGrid.add(rect, col + 1, row +1);
+                    mapGrid.add(rect, col + 1, row + 1);
                 }
             }
             for (int row = equatorLowerBound + 1; row <= configuration.height() - 1 - equatorWidth; row++) {
                 for (int col = 0; col < cellsInARow + 1; col++) {
                     Rectangle rect = new Rectangle(cellSize, cellSize);
                     rect.setFill(Color.LIGHTGREEN);
-                    mapGrid.add(rect, col + 1, row +1);
+                    mapGrid.add(rect, col + 1, row + 1);
                 }
             }
-            for (int row = configuration.height() - 1; row >  configuration.height() - 1 - equatorWidth; row--) {
+            for (int row = configuration.height() - 1; row > configuration.height() - 1 - equatorWidth; row--) {
                 for (int col = 0; col < cellsInARow + 1; col++) {
                     Rectangle rect = new Rectangle(cellSize, cellSize);
                     rect.setFill(Color.LIGHTBLUE);
-                    mapGrid.add(rect, col + 1, row +1);
+                    mapGrid.add(rect, col + 1, row + 1);
                 }
             }
-        }
-        else{
+        } else {
 
             for (int row = 0; row < equatorUpperBound; row++) {
                 for (int col = 0; col < cellsInARow + 1; col++) {
                     Rectangle rect = new Rectangle(cellSize, cellSize);
                     rect.setFill(Color.LIGHTGREEN);
-                    mapGrid.add(rect, col + 1, row +1);
+                    mapGrid.add(rect, col + 1, row + 1);
                 }
             }
 
@@ -196,48 +214,50 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
         }
     }
+
     private void drawMap() {
 
         colourMap(cellSize);
         // create grid
         mapGrid.getColumnConstraints().add(new ColumnConstraints(cellSize));
-        for (int col = 0; col < cellsInARow+1; col++) {
+        for (int col = 0; col < cellsInARow + 1; col++) {
             mapGrid.getColumnConstraints().add(new ColumnConstraints(cellSize));
-            Label label = new Label(Integer.toString(col+minX));
+            Label label = new Label(Integer.toString(col + minX));
             GridPane.setHalignment(label, HPos.CENTER);
-            mapGrid.add(label, col+1, 0);
+            mapGrid.add(label, col + 1, 0);
         }
         mapGrid.getRowConstraints().add(new RowConstraints(cellSize));
-        for (int row = 0; row < cellsInAColumn+1; row++) {
+        for (int row = 0; row < cellsInAColumn + 1; row++) {
             mapGrid.getRowConstraints().add(new RowConstraints(cellSize));
-            Label label = new Label(Integer.toString(cellsInAColumn-row+minY));
+            Label label = new Label(Integer.toString(cellsInAColumn - row + minY));
             GridPane.setHalignment(label, HPos.CENTER);
-            mapGrid.add(label, 0, row+1);
+            mapGrid.add(label, 0, row + 1);
         }
         Label label = new Label("y/x");
         mapGrid.add(label, 0, 0);
         GridPane.setHalignment(label, HPos.CENTER);
         // add elements
-        for (int x = 1; x < cellsInARow+2; x++) {
-            for (int y = cellsInAColumn+1; y >= 0; y--) {
+        for (int x = 1; x < cellsInARow + 2; x++) {
+            for (int y = cellsInAColumn + 1; y >= 0; y--) {
 
-                Vector2d currentPosition = new Vector2d(x-1+minX, cellsInAColumn-y+minY);
+                Vector2d currentPosition = new Vector2d(x - 1 + minX, cellsInAColumn - y + minY);
                 // zwierzęta
                 List<Animal> animals = worldMap.animalsAt(currentPosition);
-                if (animals != null){
+                if (animals != null) {
                     Animal animalToDraw = getStrongestAnimalOnPosition(animals);
-                    drawAnimal(x,y,animalToDraw);
+                    drawAnimal(x, y, animalToDraw);
 
                 }
                 // trawa, jeśli nie ma zwierzęcia
                 else if (worldMap.grassAt(currentPosition) != null) {
-                    drawGrass(x,y);
+                    drawGrass(x, y);
                 }
             }
         }
 
     }
-    private void drawAnimal(int x, int y,Animal animal) {
+
+    private void drawAnimal(int x, int y, Animal animal) {
 
         //Rectangle animalSymbol = new Rectangle(cellSize/2, cellSize/2,);
 
@@ -245,10 +265,10 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
         //Dodaj zolta poswiate
         if (animal == highlightedAnimal) {
-            colorAdjust.setHue(0.3);
+            colorAdjust.setHue(0.9);       // Red tint
             colorAdjust.setSaturation(0.8);
-            colorAdjust.setBrightness(0.2);
-        //Dodaj bronzowa poswiate
+            colorAdjust.setBrightness(0.1);
+            //Dodaj bronzowa poswiate
         } else {
             colorAdjust.setHue(-0.05);
             colorAdjust.setSaturation(0.3);
@@ -258,11 +278,21 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         animalView.setOnMouseClicked(event -> {
             if (simulation.isPaused()) {
                 this.highlightedAnimal = animal;
-                worldMap.notifyObservers("Highlighted an animal");
+                animal.addObserver(this);
+                highlightedAnimalVBox.setVisible(true);
+                highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(true));
+                statistics.updateHighlightedAnimal(
+                        animal.getGenotype(),
+                        animal.getCurrentGene(),
+                        animal.getPlantsEaten(),
+                        animal.getNumberOfChildren(),
+                        animal.getNumberOfDescendants(),
+                        animal.getAge()
+                );
             }
         });
 
-        AnchorPane healthBar = createHealthBar(animal.getEnergy(),simulation.getMaxEnergy());
+        AnchorPane healthBar = createHealthBar(animal.getEnergy(), simulation.getMaxEnergy());
 
         VBox mapElement = new VBox(animalView, healthBar);
         mapElement.setAlignment(Pos.CENTER);
@@ -270,23 +300,27 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         GridPane.setHalignment(mapElement, HPos.CENTER);
 
     }
+
     private void drawGrass(int x, int y) {
         //Label mapElement = new Label("*");
         ImageView plantView = new ImageView(plantImage);
         VBox mapElement = new VBox(plantView);
         mapElement.setAlignment(Pos.CENTER);
-        mapGrid.add(mapElement, x, y+1);
+        mapGrid.add(mapElement, x, y + 1);
         GridPane.setHalignment(mapElement, HPos.CENTER);
 
     }
+
     private Animal getStrongestAnimalOnPosition(List<Animal> animals) {
         if (highlightedAnimal != null) {
             if (animals.contains(highlightedAnimal)) {
-                return highlightedAnimal;}
+                return highlightedAnimal;
+            }
         }
         animals.sort(new AnimalComparator());
         return animals.getFirst();
     }
+
     private AnchorPane createHealthBar(int currentEnergy, int maxEnergy) {
         int width = cellSize * 7 / 10;
         int height = cellSize / 10;
@@ -330,6 +364,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
         return healthBar;
     }
+
     private void clearGrid() {
         mapGrid.getChildren().retainAll(mapGrid.getChildren().getFirst()); // hack to retain visible grid lines
         mapGrid.getColumnConstraints().clear();
@@ -339,7 +374,19 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     @Override
     public void mapChanged(WorldMap worldMap, String message) {
         setWorldMap(worldMap);
-        if (Objects.equals(message, "Simulation paused")) { this.highlightedAnimal = null; }
+        switch (message){
+            case "Simulation paused" : {
+                if(highlightedAnimal != null) {
+                    highlightedAnimal.removeObserver(this);
+                    highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(false));
+                    highlightedAnimalVBox.setVisible(false);
+                    this.highlightedAnimal = null;
+                }
+
+
+            }
+            case "Highlighted an animal":  System.out.println("Highlighted an animal");
+        }
         Platform.runLater(() -> {
             clearGrid();
             drawMap();
@@ -347,9 +394,15 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         });
     }
 
+    @Override
+    public void statisticsChanged(Statistics statistics) {
+        setStatistics(statistics);
+        Platform.runLater(this::displayStatistics);
+    }
+
     @FXML
     public void onSimulationStartClicked() throws IllegalArgumentException {
-        if(configuration!=null){
+        if (configuration != null) {
 
             if (!this.isInitialized) {
 
@@ -365,10 +418,8 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 engine.runAsync();
                 isStartDisabled.set(true);
                 this.isInitialized = true;
-            }
-
-            else {
-                if(engine!=null){
+            } else {
+                if (engine != null) {
                     simulation.resumeSimulation();
                     isStartDisabled.set(true);
                 }
@@ -391,7 +442,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
     @FXML
     public void onSimulationStopClicked(ActionEvent actionEvent) throws InterruptedException {
-        if(engine!=null){
+        if (engine != null) {
             simulation.pauseSimulation();
             isStartDisabled.set(false);
         }
@@ -410,11 +461,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         this.statistics = statistics;
     }
 
-    @Override
-    public void statisticsChanged(Statistics statistics) {
-        setStatistics(statistics);
-        Platform.runLater(this::displayStatistics);
-    }
 
     private void displayStatistics() {
 
@@ -424,7 +470,28 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         mostCommonGenotypes.setText(statistics.getMostPopularGenotypes().toString());
         averageEnergy.setText(statistics.getAverageEnergy().getLast().toString());
         averageLifespan.setText(statistics.getAverageLifespan().getLast().toString());
-        averageNumberOfChildren.setText(statistics.getAverageNUmberOfChildren().getLast().toString());
+        averageNumberOfChildren.setText(statistics.getAverageNumberOfChildren().getLast().toString());
+        if(highlightedAnimal!=null){
+            genome.setText(statistics.getGenome().toString());
+            plantsEaten.setText(statistics.getPlantsEaten().toString());
+            currentGene.setText(statistics.getCurrentGene().toString());
+            numberOfChildren.setText(statistics.getNumberOfChildren().toString());
+            numberOfDescendants.setText(statistics.getNumberOfDescendants().toString());
+            age.setText(statistics.getAge().toString());
+        }
+
     }
 
+    @Override
+    public void animalChanged(Animal a,String message) {
+        if(a==highlightedAnimal){
+            switch (message){
+                case "numberOfDescendants"->statistics.updateNumberOfDescendants(highlightedAnimal.getNumberOfDescendants());
+                case "numberOfChildren"->statistics.updateNumberOfChildren(highlightedAnimal.getNumberOfChildren());
+                case "plantsEaten"->statistics.updatePlantsEaten(highlightedAnimal.getPlantsEaten());
+                case "currentGene"->statistics.updateCurrentGene(highlightedAnimal.getNumberOfDescendants());
+                case "age"->statistics.updateAge(highlightedAnimal.getAge());
+            }
+        }
+    }
 }

@@ -1,13 +1,11 @@
 package agh.ics.oop.core;
 
-import agh.ics.oop.Simulation;
-import agh.ics.oop.model.WorldMap;
-import agh.ics.oop.model.util.MapChangeListener;
 import agh.ics.oop.model.util.StatisticsChangeListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Statistics {
 
@@ -17,18 +15,17 @@ public class Statistics {
     private final List<Integer> numberOfAllAnimals;
     private final List<Integer> numberOfAllPlants;
     private final List<Integer> emptySpaces;
-    private List<String> mostPopularGenotypes = new ArrayList<>();
     private final List<Integer> averageEnergy;
     private final List<Integer> averageLifespan;
     private final List<Integer> averageNUmberOfChildren;
-
+    private List<String> mostPopularGenotypes = new ArrayList<>();
     // statistics for chosen animal
-    private int[] genome;
-    private int currentGene;
-    private int plantEaten;
-    private int numberOfChildren;
-    private int numberOfDescendants;
-    private int age;
+    private List<Integer> genome;
+    private Integer currentGene;
+    private Integer plantsEaten;
+    private Integer numberOfChildren;
+    private Integer numberOfDescendants;
+    private Integer age;
 
     public Statistics(Configuration configuration) {
         this.numberOfAllAnimals = new ArrayList<>();
@@ -42,14 +39,22 @@ public class Statistics {
         this.averageNUmberOfChildren = new ArrayList<>();
         this.averageNUmberOfChildren.add(0);
         this.emptySpaces = new ArrayList<>();
-        this.emptySpaces.add(configuration.height()*configuration.width()- configuration.initialNumberOfGrasses());
+        this.emptySpaces.add(configuration.height() * configuration.width() - configuration.initialNumberOfGrasses());
 
     }
 
-    public void addObserver(StatisticsChangeListener statisticsChangeListener) {observers.add(statisticsChangeListener);}
-    public void removeObserver(StatisticsChangeListener statisticsChangeListener) {observers.remove(statisticsChangeListener);}
+    public void addObserver(StatisticsChangeListener statisticsChangeListener) {
+        observers.add(statisticsChangeListener);
+    }
+
+    public void removeObserver(StatisticsChangeListener statisticsChangeListener) {
+        observers.remove(statisticsChangeListener);
+    }
+
     public void notifyObservers() {
-        for (StatisticsChangeListener observer : observers) {observer.statisticsChanged(this);}
+        for (StatisticsChangeListener observer : observers) {
+            observer.statisticsChanged(this);
+        }
     }
 
     public void updateStatistics(int numberOfAllAnimals, int numberOfAllPlants, int emptySpaces, List<String> mostPopularGenotypes, int averageEnergy, int averageLifespan, int averageNUmberOfChildren) {
@@ -98,6 +103,45 @@ public class Statistics {
         notifyObservers();
     }
 
+    public void updateHighlightedAnimal(int[] genome,
+                                        int currentGene,
+                                        int plantsEaten,
+                                        int numberOfChildren,
+                                        int numberOfDescendants,
+                                        int age) {
+        this.genome = Arrays.stream(genome).boxed().collect(Collectors.toList());
+        this.currentGene = currentGene;
+        this.plantsEaten = plantsEaten;
+        this.numberOfChildren = numberOfChildren;
+        this.numberOfDescendants = numberOfDescendants;
+        this.age = age;
+        notifyObservers();
+    }
+
+    public void updateNumberOfDescendants(int numberOfDescendants) {
+        this.numberOfDescendants = numberOfDescendants;
+        notifyObservers();
+    }
+
+    public void updateAge(int age) {
+        this.age = age;
+        notifyObservers();
+    }
+
+    public void updateCurrentGene(int gene) {
+        this.currentGene = gene;
+        notifyObservers();
+    }
+
+    public void updateNumberOfChildren(int numberOfChildren) {
+        this.numberOfChildren = numberOfChildren;
+        notifyObservers();
+    }
+
+    public void updatePlantsEaten(int plantEaten) {
+        this.plantsEaten = plantEaten;
+    }
+
     public List<Integer> getNumberOfAllAnimals() {
         return numberOfAllAnimals;
     }
@@ -122,7 +166,30 @@ public class Statistics {
         return averageLifespan;
     }
 
-    public List<Integer> getAverageNUmberOfChildren() {
+    public List<Integer> getAverageNumberOfChildren() {
         return averageNUmberOfChildren;
+    }
+    public Integer getPlantsEaten() {
+        return plantsEaten;
+    }
+
+    public Integer getNumberOfChildren() {
+        return numberOfChildren;
+    }
+
+    public Integer getNumberOfDescendants() {
+        return numberOfDescendants;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public Integer getCurrentGene() {
+        return currentGene;
+    }
+
+    public List<Integer> getGenome() {
+        return genome;
     }
 }
