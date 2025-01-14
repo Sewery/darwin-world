@@ -16,7 +16,7 @@ import static java.lang.Math.min;
 public class GrassField implements WorldMap {
 
     private final Map<Vector2d, Grass> grasses = new HashMap<>();
-    private final Map<Vector2d, List<Animal>> animals = new HashMap<>();
+    protected final Map<Vector2d, List<Animal>> animals = new HashMap<>();
 
     private final Vector2d lowerLeft;
     private final Vector2d upperRight;
@@ -29,11 +29,10 @@ public class GrassField implements WorldMap {
 
     private ArrayList<Vector2d> emptyEquatorGrassPositions = new ArrayList<>();
     private ArrayList<Vector2d> emptyOtherGrassPositions = new ArrayList<>();
-    private final int equatorLowerBound;
-    private final int equatorUpperBound;
+    protected final int equatorLowerBound;
+    protected final int equatorUpperBound;
 
-    private final boolean poles;
-    private final Configuration config;
+    protected final Configuration config;
 
     public GrassField(Configuration config) {
         this.lowerLeft = new Vector2d(0, 0);
@@ -42,7 +41,6 @@ public class GrassField implements WorldMap {
 
         synchronized (this) {this.mapID = mapsCount++;}
 
-        this.poles = (config.mapStrategy() == Configuration.MapStrategy.POLES);
         this.config = config;
         int equatorWidth = config.height()/5;
         this.equatorLowerBound = config.height()/2-equatorWidth+1;
@@ -162,10 +160,7 @@ public class GrassField implements WorldMap {
         if (oldList != null){
             if (oldList.contains(animal)) {
                 remove(animal);
-                if (!poles) {
-                    animal.move(this, 1);
-                }
-                else {animal.move(this, getPoleEffect(animal.getPosition()));}
+                animal.move(this, 1);
                 animals.computeIfAbsent(animal.getPosition(), _ -> new ArrayList<>()).add(animal);
 
             }
@@ -305,19 +300,6 @@ public class GrassField implements WorldMap {
         }
 
         return newAnimals;
-    }
-
-    public int getPoleEffect(Vector2d position) {
-
-        int max_pole_effect = equatorUpperBound-equatorLowerBound + 1;
-
-        if (position.getY() < equatorLowerBound) {
-            return max(max_pole_effect - position.getY(), 1);}
-        else if (position.getY() >= equatorUpperBound) {
-            return max(max_pole_effect - (config.height()-1 - position.getY()), 1);}
-
-
-        return 1;
     }
 
     public int getNumberOfGrasses(){
