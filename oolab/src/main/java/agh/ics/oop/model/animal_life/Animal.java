@@ -4,9 +4,6 @@ import agh.ics.oop.model.MapDirection;
 import agh.ics.oop.model.MoveValidator;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.WorldElement;
-import agh.ics.oop.core.Configuration;
-import agh.ics.oop.model.util.AnimalChangeListener;
-import agh.ics.oop.model.util.StatisticsChangeListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +12,7 @@ import java.util.Set;
 
 public class Animal implements WorldElement {
 
-    protected final List<AnimalChangeListener> observers = new ArrayList<>();
+    protected AnimalChangeListener observer;
     protected Vector2d position;
     protected MapDirection direction;
     protected int energy;
@@ -29,8 +26,6 @@ public class Animal implements WorldElement {
     private int numberOfDescendants = 0;
 
     private final int energyGivenByOneGrass;
-
-
 
     public Animal(
             Vector2d position,
@@ -54,15 +49,15 @@ public class Animal implements WorldElement {
 
     }
     public void addObserver(AnimalChangeListener statisticsChangeListener) {
-        observers.add(statisticsChangeListener);
+        observer = statisticsChangeListener;
     }
 
     public void removeObserver(AnimalChangeListener statisticsChangeListener) {
-        observers.remove(statisticsChangeListener);
+        observer = null;
     }
 
-    public void notifyObservers(String message) {
-        for (AnimalChangeListener observer : observers) {
+    public void notifyObserver(String message) {
+        if(observer != null) {
             observer.animalChanged(this,message);
         }
     }
@@ -76,10 +71,11 @@ public class Animal implements WorldElement {
 
     public void setDead(){
         alive = false;
+        notifyObserver("isDead");
     }
     public void increaseAge(){
         age++;
-        notifyObservers("age");
+        notifyObserver("age");
     }
     public boolean isAlive() {
         return alive;
@@ -106,7 +102,7 @@ public class Animal implements WorldElement {
 
         }
         currentGene = (currentGene + 1)%genotype.length;
-        notifyObservers("currentGene");
+        notifyObserver("currentGene");
     }
 
     public int[] getGenotype() {return genotype;}
@@ -120,20 +116,20 @@ public class Animal implements WorldElement {
     public void eat(){
         this.plantsEaten++;
         this.energy += energyGivenByOneGrass;
-        notifyObservers("plantsEaten");
+        notifyObserver("plantsEaten");
     }
 
     public void reproduce(int energyLost){
         this.energy -= energyLost;
         this.numberOfChildren += 1;
-        notifyObservers("numberOfChildren");
+        notifyObserver("numberOfChildren");
     }
 
     Set<Animal> getAncestors() {return ancestors;}
 
     void increaseNumberOfDescendants(){
         this.numberOfDescendants++;
-        notifyObservers("numberOfDescendants");
+        notifyObserver("numberOfDescendants");
     }
 
     public int getNumberOfDescendants() {

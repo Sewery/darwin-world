@@ -185,6 +185,7 @@ public class Simulation implements Runnable {
             map.remove(deadAnimal);
             animals.remove(deadAnimal);
             allGenotypes.remove(toList(deadAnimal.getGenotype()));
+
         }
         map.notifyObservers("Day %s: remove dead animals".formatted(daysCount));
 

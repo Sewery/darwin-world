@@ -17,8 +17,8 @@ public interface ConfigurationManager {
         if (config.maxNumberOfMutations() > config.genotypeLength()) {
             throw new ConfigurationInvalidException("Max number of mutations must be equal or lower than min number of genotype length");
         }
-        if (config.energyToReproduce() > (config.initialEnergyOfAnimals()/2)) {
-            throw new ConfigurationInvalidException("Energy to reproduce should be at least the half of initial  animal energy");
+        if (2*config.energyToReproduce() < config.initialEnergyOfAnimals()) {
+            throw new ConfigurationInvalidException("Energy to reproduce should be at least the half of initial animal energy");
         }
     }
     Configuration loadConfiguration();

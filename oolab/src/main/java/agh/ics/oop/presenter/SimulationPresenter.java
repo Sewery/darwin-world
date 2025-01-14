@@ -10,10 +10,10 @@ import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.WorldMap;
 import agh.ics.oop.model.animal_life.Animal;
 import agh.ics.oop.model.animal_life.AnimalComparator;
-import agh.ics.oop.model.util.AnimalChangeListener;
+import agh.ics.oop.model.animal_life.AnimalChangeListener;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
-import agh.ics.oop.model.util.StatisticsChangeListener;
+import agh.ics.oop.core.StatisticsChangeListener;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -21,20 +21,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Math.max;
@@ -42,7 +38,7 @@ import static java.lang.Math.max;
 
 public class SimulationPresenter extends AppPresenter implements MapChangeListener, StatisticsChangeListener, AnimalChangeListener {
     private final int maxMapSize = 300;
-    private final BooleanProperty isStartDisabled = new SimpleBooleanProperty(false);
+    private final BooleanProperty isStartEnabled = new SimpleBooleanProperty(false);
     @FXML
     private VBox highlightedAnimalVBox;
     @FXML
@@ -106,8 +102,8 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
     @FXML
     private void initialize() {
-        stopButton.disableProperty().bind(isStartDisabled.not());
-        startButton.disableProperty().bind(isStartDisabled);
+        stopButton.disableProperty().bind(isStartEnabled.not());
+        startButton.disableProperty().bind(isStartEnabled);
 
         highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(false));
     }
@@ -259,8 +255,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
     private void drawAnimal(int x, int y, Animal animal) {
 
-        //Rectangle animalSymbol = new Rectangle(cellSize/2, cellSize/2,);
-
         ColorAdjust colorAdjust = new ColorAdjust();
 
         //Dodaj zolta poswiate
@@ -376,16 +370,9 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         setWorldMap(worldMap);
         switch (message){
             case "Simulation paused" : {
-                if(highlightedAnimal != null) {
-                    highlightedAnimal.removeObserver(this);
-                    highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(false));
-                    highlightedAnimalVBox.setVisible(false);
-                    this.highlightedAnimal = null;
-                }
 
 
             }
-            case "Highlighted an animal":  System.out.println("Highlighted an animal");
         }
         Platform.runLater(() -> {
             clearGrid();
@@ -416,12 +403,12 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 statistics.notifyObservers();
                 engine = new SimulationEngine(List.of(simulation));
                 engine.runAsync();
-                isStartDisabled.set(true);
+                isStartEnabled.set(true);
                 this.isInitialized = true;
             } else {
                 if (engine != null) {
                     simulation.resumeSimulation();
-                    isStartDisabled.set(true);
+                    isStartEnabled.set(true);
                 }
             }
         }
@@ -444,7 +431,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     public void onSimulationStopClicked(ActionEvent actionEvent) throws InterruptedException {
         if (engine != null) {
             simulation.pauseSimulation();
-            isStartDisabled.set(false);
+            isStartEnabled.set(false);
         }
     }
 
@@ -483,15 +470,35 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     }
 
     @Override
-    public void animalChanged(Animal a,String message) {
-        if(a==highlightedAnimal){
+    public void animalChanged(Animal animal,String message) {
+        if(animal==highlightedAnimal){
             switch (message){
                 case "numberOfDescendants"->statistics.updateNumberOfDescendants(highlightedAnimal.getNumberOfDescendants());
                 case "numberOfChildren"->statistics.updateNumberOfChildren(highlightedAnimal.getNumberOfChildren());
                 case "plantsEaten"->statistics.updatePlantsEaten(highlightedAnimal.getPlantsEaten());
                 case "currentGene"->statistics.updateCurrentGene(highlightedAnimal.getNumberOfDescendants());
                 case "age"->statistics.updateAge(highlightedAnimal.getAge());
+                case "isDead"->{
+                    //Stop simulation
+                    simulation.pauseSimulation();
+                    isStartEnabled.set(false);
+                    Platform.runLater(() -> {    new Alert(Alert.AlertType.INFORMATION, "Observed animal died", ButtonType.OK).show();});
+                    highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(false));
+                    highlightedAnimalVBox.setVisible(false);
+                    highlightedAnimal.removeObserver(this);
+                    this.highlightedAnimal = null;
+
+                }
             }
+        }
+    }
+    @FXML
+    public void onStopObservingButtonClicked(ActionEvent actionEvent) {
+        if(highlightedAnimal != null) {
+            highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(false));
+            highlightedAnimalVBox.setVisible(false);
+            highlightedAnimal.removeObserver(this);
+            this.highlightedAnimal = null;
         }
     }
 }

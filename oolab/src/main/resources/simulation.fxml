@@ -82,6 +82,10 @@
                     <Label fx:id="ageDescription" text="Age:" styleClass="subtitle"/>
                     <Label fx:id="age"/>
                 </HBox>
+                <HBox>
+                    <Button fx:id="stopObserving" text="Stop observing animal" textAlignment="CENTER" styleClass="config-button"
+                            onAction="#onStopObservingButtonClicked"/>
+                </HBox>
             </VBox>
         </VBox>
 
