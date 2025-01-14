@@ -2,10 +2,12 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
-import agh.ics.oop.core.AppState;
 import agh.ics.oop.core.Configuration;
 import agh.ics.oop.core.Statistics;
-import agh.ics.oop.model.*;
+import agh.ics.oop.model.GrassField;
+import agh.ics.oop.model.GrassFieldWithPoles;
+import agh.ics.oop.model.Vector2d;
+import agh.ics.oop.model.WorldMap;
 import agh.ics.oop.model.animal_life.Animal;
 import agh.ics.oop.model.animal_life.AnimalComparator;
 import agh.ics.oop.model.util.Boundary;
@@ -17,21 +19,22 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-
-import java.util.ArrayList;
+import javafx.scene.effect.ColorAdjust;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 
 import static java.lang.Math.max;
-import static java.lang.Math.multiplyHigh;
 
 
 public class SimulationPresenter extends AppPresenter implements MapChangeListener, StatisticsChangeListener {
@@ -59,6 +62,8 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private Button stopButton;
     @FXML
     private Button startButton;
+    private Image animalImage;
+    private Image plantImage;
 
     private WorldMap worldMap;
     private Simulation simulation;
@@ -80,12 +85,48 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private final BooleanProperty isStartDisabled = new SimpleBooleanProperty(false);
     public void setWorldMap(WorldMap worldMap) {
         this.worldMap = worldMap;
+        if(!worldMap.getCurrentBounds().equals(boundary)){
+            setMapProperties(worldMap.getCurrentBounds());
+        }
     }
 
     @FXML
     private void initialize() {
         stopButton.disableProperty().bind(isStartDisabled.not());
         startButton.disableProperty().bind(isStartDisabled);
+
+
+    }
+    private void setMapProperties(Boundary currentBounds) {
+        boundary = currentBounds;
+        minX = boundary.lowerLeft().getX();
+        minY = boundary.lowerLeft().getY();
+        Vector2d subtracted = boundary.upperRight().subtract(boundary.lowerLeft());
+        cellsInARow = subtracted.getX();
+        cellsInAColumn = subtracted.getY();
+
+        cellSize = max(maxMapSize/(max(cellsInAColumn, cellsInARow)+1), cellSize);
+        renderImages((int) (cellSize*0.7), (int) (cellSize*0.7));
+    }
+    private void renderImages(int width, int height) {
+        try (InputStream input = getClass().getResourceAsStream("/assets/grass.jpg")) {
+            if (input == null) {
+                throw new IOException("Resource not found: grass.png");
+            }
+            System.out.println(getClass().getResource("/assets/grass.jpg").getPath());
+            plantImage = new Image(input,width,height,true,true);
+        } catch (IOException e) {
+            System.err.println("Could not load image of grass: " + e.getMessage());
+        }
+
+        try (InputStream input = getClass().getResourceAsStream("/assets/sheep.jpg")) { // Corrected path
+            if (input == null) {
+                throw new IOException("Resource not found: sheep.jpg");
+            }
+            animalImage = new Image(input,width,height,true,true);
+        } catch (IOException e) {
+            System.err.println("Could not load image of animal: " + e.getMessage());
+        }
     }
     private void colourMap(int cellSize){
 
@@ -157,18 +198,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     }
     private void drawMap() {
 
-        boundary = worldMap.getCurrentBounds();
-        minX = boundary.lowerLeft().getX();
-        minY = boundary.lowerLeft().getY();
-        Vector2d subtracted = boundary.upperRight().subtract(boundary.lowerLeft());
-        cellsInARow = subtracted.getX();
-        cellsInAColumn = subtracted.getY();
-
-        cellSize = max(maxMapSize/(max(cellsInAColumn, cellsInARow)+1), cellSize);
-
         colourMap(cellSize);
-
-
         // create grid
         mapGrid.getColumnConstraints().add(new ColumnConstraints(cellSize));
         for (int col = 0; col < cellsInARow+1; col++) {
@@ -187,8 +217,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         Label label = new Label("y/x");
         mapGrid.add(label, 0, 0);
         GridPane.setHalignment(label, HPos.CENTER);
-
-        int maxEnergy = simulation.getMaxEnergy();
         // add elements
         for (int x = 1; x < cellsInARow+2; x++) {
             for (int y = cellsInAColumn+1; y >= 0; y--) {
@@ -197,46 +225,60 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 // zwierzęta
                 List<Animal> animals = worldMap.animalsAt(currentPosition);
                 if (animals != null){
-
                     Animal animalToDraw = getStrongestAnimalOnPosition(animals);
-                    Rectangle animalSymbol = new Rectangle(cellSize/2, cellSize/2);
+                    drawAnimal(x,y,animalToDraw);
 
-                    if (animalToDraw == highlightedAnimal){
-                        animalSymbol.setFill(Color.YELLOW);
-                    }
-                    else {
-                        animalSymbol.setFill(Color.BROWN);
-                    }
-
-                    animalSymbol.setOnMouseClicked(event -> {
-                        if (simulation.isPaused()) {
-                            this.highlightedAnimal = animalToDraw;
-                            worldMap.notifyObservers("Highlighted an animal");
-                        }
-                    });
-
-                    AnchorPane healthBar = createHealthBar(animalToDraw.getEnergy(), maxEnergy);
-
-                    VBox mapElement = new VBox(animalSymbol, healthBar);
-                    mapElement.setAlignment(Pos.CENTER);
-                    mapGrid.add(mapElement, x, y + 1);
-                    GridPane.setHalignment(mapElement, HPos.CENTER);
                 }
-
                 // trawa, jeśli nie ma zwierzęcia
                 else if (worldMap.grassAt(currentPosition) != null) {
-                    Label mapElement = new Label("*");
-                    mapGrid.add(mapElement, x, y+1);
-                    GridPane.setHalignment(mapElement, HPos.CENTER);
+                    drawGrass(x,y);
                 }
-
-
-
             }
         }
 
     }
+    private void drawAnimal(int x, int y,Animal animal) {
 
+        //Rectangle animalSymbol = new Rectangle(cellSize/2, cellSize/2,);
+
+        ColorAdjust colorAdjust = new ColorAdjust();
+
+        //Dodaj zolta poswiate
+        if (animal == highlightedAnimal) {
+            colorAdjust.setHue(0.3);
+            colorAdjust.setSaturation(0.8);
+            colorAdjust.setBrightness(0.2);
+        //Dodaj bronzowa poswiate
+        } else {
+            colorAdjust.setHue(-0.05);
+            colorAdjust.setSaturation(0.3);
+        }
+        ImageView animalView = new ImageView(animalImage);
+        animalView.setEffect(colorAdjust);
+        animalView.setOnMouseClicked(event -> {
+            if (simulation.isPaused()) {
+                this.highlightedAnimal = animal;
+                worldMap.notifyObservers("Highlighted an animal");
+            }
+        });
+
+        AnchorPane healthBar = createHealthBar(animal.getEnergy(),simulation.getMaxEnergy());
+
+        VBox mapElement = new VBox(animalView, healthBar);
+        mapElement.setAlignment(Pos.CENTER);
+        mapGrid.add(mapElement, x, y + 1);
+        GridPane.setHalignment(mapElement, HPos.CENTER);
+
+    }
+    private void drawGrass(int x, int y) {
+        //Label mapElement = new Label("*");
+        ImageView plantView = new ImageView(plantImage);
+        VBox mapElement = new VBox(plantView);
+        mapElement.setAlignment(Pos.CENTER);
+        mapGrid.add(mapElement, x, y+1);
+        GridPane.setHalignment(mapElement, HPos.CENTER);
+
+    }
     private Animal getStrongestAnimalOnPosition(List<Animal> animals) {
         if (highlightedAnimal != null) {
             if (animals.contains(highlightedAnimal)) {
