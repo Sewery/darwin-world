@@ -40,6 +40,12 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private final int maxMapSize = 300;
     private final BooleanProperty isStartEnabled = new SimpleBooleanProperty(false);
     @FXML
+    private  Label currentEnergy;
+    @FXML
+    private Label dayOfDeath;
+    @FXML
+    private CheckBox savingStatsToFile;
+    @FXML
     private VBox highlightedAnimalVBox;
     @FXML
     private Label plantsEaten;
@@ -82,7 +88,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private WorldMap worldMap;
     private Simulation simulation;
     private Configuration configuration;
-    private Statistics statistics;
     private boolean isInitialized = false;
     private Animal highlightedAnimal = null;
     private Boundary boundary;
@@ -275,9 +280,10 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 animal.addObserver(this);
                 highlightedAnimalVBox.setVisible(true);
                 highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(true));
-                statistics.updateHighlightedAnimal(
+                simulation.getStatistics().updateHighlightedAnimal(
                         animal.getGenotype(),
                         animal.getCurrentGene(),
+                        animal.getEnergy(),
                         animal.getPlantsEaten(),
                         animal.getNumberOfChildren(),
                         animal.getNumberOfDescendants(),
@@ -383,12 +389,12 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
     @Override
     public void statisticsChanged(Statistics statistics) {
-        setStatistics(statistics);
         Platform.runLater(this::displayStatistics);
     }
 
     @FXML
     public void onSimulationStartClicked() throws IllegalArgumentException {
+        savingStatsToFile.disableProperty().set(true);
         if (configuration != null) {
 
             if (!this.isInitialized) {
@@ -396,7 +402,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 WorldMap map = (configuration.mapStrategy() == Configuration.MapStrategy.POLES) ? new GrassFieldWithPoles(configuration) : new GrassField(configuration);
 
                 Statistics statistics = new Statistics(configuration);
-                Simulation simulation = new Simulation(map, configuration, statistics);
+                Simulation simulation = new Simulation(map, configuration, statistics,savingStatsToFile.isSelected());
                 this.simulation = simulation;
                 map.addObserver(this);
                 statistics.addObserver(this);
@@ -444,27 +450,25 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         this.configuration = configuration;
     }
 
-    public void setStatistics(Statistics statistics) {
-        this.statistics = statistics;
-    }
-
 
     private void displayStatistics() {
 
-        numberOfAnimals.setText(statistics.getNumberOfAllAnimals().getLast().toString());
-        numberOfPlants.setText(statistics.getNumberOfAllPlants().getLast().toString());
-        numberOfEmptySpaces.setText(statistics.getEmptySpaces().getLast().toString());
-        mostCommonGenotypes.setText(statistics.getMostPopularGenotypes().toString());
-        averageEnergy.setText(statistics.getAverageEnergy().getLast().toString());
-        averageLifespan.setText(statistics.getAverageLifespan().getLast().toString());
-        averageNumberOfChildren.setText(statistics.getAverageNumberOfChildren().getLast().toString());
+        numberOfAnimals.setText(simulation.getStatistics().getNumberOfAllAnimals().getLast().toString());
+        numberOfPlants.setText(simulation.getStatistics().getNumberOfAllPlants().getLast().toString());
+        numberOfEmptySpaces.setText(simulation.getStatistics().getEmptySpaces().getLast().toString());
+        mostCommonGenotypes.setText(simulation.getStatistics().getMostPopularGenotypes().toString());
+        averageEnergy.setText(simulation.getStatistics().getAverageEnergy().getLast().toString());
+        averageLifespan.setText(simulation.getStatistics().getAverageLifespan().getLast().toString());
+        averageNumberOfChildren.setText(simulation.getStatistics().getAverageNumberOfChildren().getLast().toString());
         if(highlightedAnimal!=null){
-            genome.setText(statistics.getGenome().toString());
-            plantsEaten.setText(statistics.getPlantsEaten().toString());
-            currentGene.setText(statistics.getCurrentGene().toString());
-            numberOfChildren.setText(statistics.getNumberOfChildren().toString());
-            numberOfDescendants.setText(statistics.getNumberOfDescendants().toString());
-            age.setText(statistics.getAge().toString());
+            genome.setText(simulation.getStatistics().getGenome().toString());
+            plantsEaten.setText(simulation.getStatistics().getPlantsEaten().toString());
+            currentGene.setText(simulation.getStatistics().getCurrentGene().toString());
+            currentEnergy.setText(simulation.getStatistics().getCurrentEnergy().toString());
+            numberOfChildren.setText(simulation.getStatistics().getNumberOfChildren().toString());
+            numberOfDescendants.setText(simulation.getStatistics().getNumberOfDescendants().toString());
+            age.setText(simulation.getStatistics().getAge().toString());
+            dayOfDeath.setText(simulation.getStatistics().getDayOfDeath().toString());
         }
 
     }
@@ -473,23 +477,21 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     public void animalChanged(Animal animal,String message) {
         if(animal==highlightedAnimal){
             switch (message){
-                case "numberOfDescendants"->statistics.updateNumberOfDescendants(highlightedAnimal.getNumberOfDescendants());
-                case "numberOfChildren"->statistics.updateNumberOfChildren(highlightedAnimal.getNumberOfChildren());
-                case "plantsEaten"->statistics.updatePlantsEaten(highlightedAnimal.getPlantsEaten());
-                case "currentGene"->statistics.updateCurrentGene(highlightedAnimal.getNumberOfDescendants());
-                case "age"->statistics.updateAge(highlightedAnimal.getAge());
+                case "numberOfDescendants"->simulation.getStatistics().updateNumberOfDescendants(highlightedAnimal.getNumberOfDescendants());
+                case "numberOfChildren"->simulation.getStatistics().updateNumberOfChildren(highlightedAnimal.getNumberOfChildren());
+                case "plantsEaten"->simulation.getStatistics().updatePlantsEaten(highlightedAnimal.getPlantsEaten());
+                case "currentGene"->simulation.getStatistics().updateCurrentGene(highlightedAnimal.getNumberOfDescendants());
+                case "age"->simulation.getStatistics().updateAge(highlightedAnimal.getAge());
                 case "isDead"->{
                     //Stop simulation
                     simulation.pauseSimulation();
                     isStartEnabled.set(false);
+                    simulation.getStatistics().updateDayOfDeath(highlightedAnimal.getDayOfDeath());
                     Platform.runLater(() -> {    new Alert(Alert.AlertType.INFORMATION, "Observed animal died", ButtonType.OK).show();});
-                    highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(false));
-                    highlightedAnimalVBox.setVisible(false);
-                    highlightedAnimal.removeObserver(this);
-                    this.highlightedAnimal = null;
 
                 }
             }
+            simulation.getStatistics().updateCurrentEnergy(animal.getEnergy());
         }
     }
     @FXML
@@ -498,6 +500,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(false));
             highlightedAnimalVBox.setVisible(false);
             highlightedAnimal.removeObserver(this);
+            simulation.getStatistics().resetHighlightedAnimal();
             this.highlightedAnimal = null;
         }
     }

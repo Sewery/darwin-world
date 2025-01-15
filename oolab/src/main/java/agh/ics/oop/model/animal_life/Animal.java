@@ -24,7 +24,7 @@ public class Animal implements WorldElement {
     private int plantsEaten = 0;
     private final Set<Animal> ancestors;
     private int numberOfDescendants = 0;
-
+    private Integer dayOfDeath;
     private final int energyGivenByOneGrass;
 
     public Animal(
@@ -69,9 +69,16 @@ public class Animal implements WorldElement {
         return directions[new Random().nextInt(directions.length)];
     }
 
-    public void setDead(){
+    public void setDead(int dayOfDeath){
         alive = false;
+        this.dayOfDeath=dayOfDeath;
         notifyObserver("isDead");
+    }
+    public Integer getDayOfDeath(){
+        if(!alive){
+            return dayOfDeath;
+        }
+        return -1;
     }
     public void increaseAge(){
         age++;

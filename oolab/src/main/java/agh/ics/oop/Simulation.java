@@ -6,9 +6,11 @@ import agh.ics.oop.model.*;
 import agh.ics.oop.model.animal_life.AgingAnimal;
 import agh.ics.oop.model.animal_life.Animal;
 import agh.ics.oop.model.util.Boundary;
+import lombok.Getter;
 
 import java.util.*;
 
+import static agh.ics.oop.util.CSVWriter.*;
 import static java.lang.Math.max;
 
 public class Simulation implements Runnable {
@@ -16,7 +18,9 @@ public class Simulation implements Runnable {
     private final List<Animal> animals;
     private final Map<List<Integer>, Integer> allGenotypes = new HashMap<>();
     private final WorldMap map;
+    @Getter
     private final Statistics statistics;
+    private final Boolean writeToFileStats;
     private final Integer genotypeLength;
     private int daysCount;
     private boolean running = true;
@@ -24,10 +28,11 @@ public class Simulation implements Runnable {
     private int numberOfDeadAnimals = 0;
     private int totalAgeForDeadAnimals = 0;
 
-    public Simulation(WorldMap map, Configuration config, Statistics statistics) {
+    public Simulation(WorldMap map, Configuration config, Statistics statistics,Boolean writeToFileStats) {
 
         this.map = map;
         this.statistics = statistics;
+        this.writeToFileStats = writeToFileStats;
 
         this.animals = new ArrayList<>();
         this.daysCount = 0;
@@ -108,17 +113,18 @@ public class Simulation implements Runnable {
     }
 
     public void run() {
-
+        //StatisticsFileWriter statisticsFileWriter=null;
         //System.out.println("Simulation started as: ");
         //System.out.println(map);
         if (animals.isEmpty()) return;
-
         // print genotypów
         //for (int i = 0; i < animals.size(); i++) {
         //    System.out.printf("Zwierze %s: %s, start with: %s %s\n", i, Arrays.toString(animals.get(i).getGenotype()), animals.get(i).getCurrentGene(), animals.get(i).getDirection());
         //}
 
         //System.out.println();
+        if(writeToFileStats)
+            writeStatisticsHeader(statistics,"stats.csv");
 
         while (this.running) {
 
@@ -161,20 +167,21 @@ public class Simulation implements Runnable {
 
             sleep();
             growPlants();
-
+            statistics.updateNumberOfDay(daysCount);
+            if(writeToFileStats)
+                writeStatisticsLine(statistics,"stats.csv");
             daysCount += 1;
         }
 
 
     }
-
     // SIMULATIONS STEPS
     private void removeDeadAnimals() {
         ArrayList<Animal> deadAnimals = new ArrayList<>();
         for (Animal animal : animals) {
             if (animal.getEnergy() == 0) {
                 deadAnimals.add(animal);
-                animal.setDead();
+                animal.setDead(daysCount);
             }
             animal.increaseAge();
         }
@@ -192,7 +199,7 @@ public class Simulation implements Runnable {
         statistics.updateNumberOfAllAnimals(getNumberOfAllAnimals());
         statistics.updateAverageLifespan(getAverageLifeSpan());
         statistics.updateAverageEnergy(getAverageEnergy());
-        statistics.updateAverageNUmberOfChildren(getAverageNumberOfChildren());
+        statistics.updateAverageNumberOfChildren(getAverageNumberOfChildren());
         statistics.updateMostPopularGenotypes(getMostCommonGenotypes());
     }
 
@@ -241,7 +248,7 @@ public class Simulation implements Runnable {
 
         statistics.updateNumberOfAllAnimals(getNumberOfAllAnimals());
         statistics.updateAverageEnergy(getAverageEnergy());
-        statistics.updateAverageNUmberOfChildren(getAverageNumberOfChildren());
+        statistics.updateAverageNumberOfChildren(getAverageNumberOfChildren());
         statistics.updateMostPopularGenotypes(getMostCommonGenotypes());
     }
 
