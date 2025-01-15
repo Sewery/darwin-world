@@ -31,7 +31,9 @@ import javafx.scene.shape.Rectangle;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
 
@@ -84,6 +86,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     @FXML
     private Button startButton;
     private Image animalImage;
+    private Image animalDominatingImage;
     private Image plantImage;
     private WorldMap worldMap;
     private Simulation simulation;
@@ -135,7 +138,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         } catch (IOException e) {
             System.err.println("Could not load image of grass: " + e.getMessage());
         }
-
         try (InputStream input = getClass().getResourceAsStream("/assets/sheep.jpg")) { // Corrected path
             if (input == null) {
                 throw new IOException("Resource not found: sheep.jpg");
@@ -143,6 +145,14 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             animalImage = new Image(input, width, height, true, true);
         } catch (IOException e) {
             System.err.println("Could not load image of animal: " + e.getMessage());
+        }
+        try (InputStream input = getClass().getResourceAsStream("/assets/sheep_crown.png")) { // Corrected path
+            if (input == null) {
+                throw new IOException("Resource not found: sheep.jpg");
+            }
+            animalDominatingImage = new Image(input, width, height, true, true);
+        } catch (IOException e) {
+            System.err.println("Could not load image of dominating animal: " + e.getMessage());
         }
     }
 
@@ -262,17 +272,20 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
         ColorAdjust colorAdjust = new ColorAdjust();
 
-        //Dodaj zolta poswiate
+        //Dodaj niebiesla poswiate
         if (animal == highlightedAnimal) {
-            colorAdjust.setHue(0.9);       // Red tint
+            colorAdjust.setHue(0.3);       // Red tint
             colorAdjust.setSaturation(0.8);
-            colorAdjust.setBrightness(0.1);
             //Dodaj bronzowa poswiate
         } else {
             colorAdjust.setHue(-0.05);
             colorAdjust.setSaturation(0.3);
         }
+        String animalGenotype = Arrays.stream(animal.getGenotype()).boxed().toList().toString();
         ImageView animalView = new ImageView(animalImage);
+        if(simulation.getMostCommonGenotypes().contains(animalGenotype)) {
+            animalView = new ImageView(animalDominatingImage);
+        }
         animalView.setEffect(colorAdjust);
         animalView.setOnMouseClicked(event -> {
             if (simulation.isPaused()) {

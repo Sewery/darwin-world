@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 //        writer.close();
 //    }
 
-public  class CSVWriter{
+public class CSVWriter{
     private static void writeConfigurationHeader(PrintWriter writer) {
         writer.println("width,height,initialNumberOfGrasses,numberOfNewGrassesEachDay,energyPerGrass," +
                 "initialNumberOfAnimals,initialEnergyOfAnimals,energyToReproduce,minNumberOfMutations," +
