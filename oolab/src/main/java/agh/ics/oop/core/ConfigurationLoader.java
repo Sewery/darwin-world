@@ -1,6 +1,6 @@
 package agh.ics.oop.core;
 
-public interface ConfigurationManager {
+public interface ConfigurationLoader {
     default void validate( Configuration config) throws ConfigurationInvalidException {
         if (config.initialNumberOfAnimals() > config.width() * config.height()) {
             throw new ConfigurationInvalidException("Initial number of animals must be smaller than value width x height");

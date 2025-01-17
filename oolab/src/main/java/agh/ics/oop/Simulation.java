@@ -19,32 +19,34 @@ public class Simulation implements Runnable {
     private final Map<List<Integer>, Integer> allGenotypes = new HashMap<>();
     private final WorldMap map;
     @Getter
-    private final Statistics statistics;
+    private final Statistics stats;
+    @Getter
+    private final Configuration config;
     private final Boolean writeToFileStats;
     private final Integer genotypeLength;
     private int daysCount;
     private boolean running = true;
+    @Getter
     private boolean paused = false;
     private int numberOfDeadAnimals = 0;
     private int totalAgeForDeadAnimals = 0;
 
-    public Simulation(WorldMap map, Configuration config, Statistics statistics,Boolean writeToFileStats) {
+    public Simulation(WorldMap map, Configuration config, Statistics stats, Boolean writeToFileStats) {
 
         this.map = map;
-        this.statistics = statistics;
+        this.stats = stats;
+        this.config = config;
         this.writeToFileStats = writeToFileStats;
-
         this.animals = new ArrayList<>();
         this.daysCount = 0;
         this.genotypeLength = config.genotypeLength();
         Boundary boundary = map.getCurrentBounds();
         int width = boundary.upperRight().getX() - boundary.lowerLeft().getX() + 1;
         int height = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
-
-        //System.out.println(height);
-        //System.out.println(width);
-//        System.out.println(initialNumberOfAnimals);
-
+        generateRandomPositionsForAnimals(width, height);
+        this.running = true;
+    }
+    private void generateRandomPositionsForAnimals(int width, int height) {
         RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, config.initialNumberOfAnimals());
 
         for (Vector2d animalPosition : randomPositionGenerator) {
@@ -70,10 +72,7 @@ public class Simulation implements Runnable {
                 System.out.println(e.getMessage());
             }
         }
-
-        this.running = true;
     }
-
     private static List<Integer> toList(int[] array) {
         List<Integer> list = new ArrayList<>();
         for (int num : array) {
@@ -102,10 +101,6 @@ public class Simulation implements Runnable {
 
     }
 
-    public boolean isPaused() {
-        return this.paused;
-    }
-
     public synchronized void resumeSimulation() {
         this.paused = false;
         map.notifyObservers("Simulation resumed");
@@ -124,7 +119,7 @@ public class Simulation implements Runnable {
 
         //System.out.println();
         if(writeToFileStats)
-            writeStatisticsHeader(statistics,"stats.csv");
+            writeStatisticsHeader(stats,"stats.csv");
 
         while (this.running) {
 
@@ -167,9 +162,9 @@ public class Simulation implements Runnable {
 
             sleep();
             growPlants();
-            statistics.updateNumberOfDay(daysCount);
+            stats.updateNumberOfDay(daysCount);
             if(writeToFileStats)
-                writeStatisticsLine(statistics,"stats.csv");
+                writeStatisticsLine(stats,"stats.csv");
             daysCount += 1;
         }
 
@@ -196,11 +191,11 @@ public class Simulation implements Runnable {
         }
         map.notifyObservers("Day %s: remove dead animals".formatted(daysCount));
 
-        statistics.updateNumberOfAllAnimals(getNumberOfAllAnimals());
-        statistics.updateAverageLifespan(getAverageLifeSpan());
-        statistics.updateAverageEnergy(getAverageEnergy());
-        statistics.updateAverageNumberOfChildren(getAverageNumberOfChildren());
-        statistics.updateMostPopularGenotypes(getMostCommonGenotypes());
+        stats.updateNumberOfAllAnimals(getNumberOfAllAnimals());
+        stats.updateAverageLifespan(getAverageLifeSpan());
+        stats.updateAverageEnergy(getAverageEnergy());
+        stats.updateAverageNumberOfChildren(getAverageNumberOfChildren());
+        stats.updateMostPopularGenotypes(getMostCommonGenotypes());
     }
 
     private void moveAnimals() {
@@ -208,7 +203,7 @@ public class Simulation implements Runnable {
             map.move(animal);
         }
         map.notifyObservers("Day %s: move animals".formatted(daysCount));
-        statistics.updateAverageEnergy(getAverageEnergy());
+        stats.updateAverageEnergy(getAverageEnergy());
 
     }
 
@@ -216,17 +211,17 @@ public class Simulation implements Runnable {
         map.growPlants(map.getNumberOfNewGrassesEachDay());
         map.notifyObservers("Day %s: grow plants".formatted(daysCount));
 
-        statistics.updateNumberOfAllPlants(getNumberOfAllPlants());
-        statistics.updateEmptySpaces(getNUmberOfEmptySpaces());
+        stats.updateNumberOfAllPlants(getNumberOfAllPlants());
+        stats.updateEmptySpaces(getNUmberOfEmptySpaces());
     }
 
     private void consumePlants() {
         map.consumePlants();
         map.notifyObservers("Day %s: consume plants".formatted(daysCount));
 
-        statistics.updateNumberOfAllPlants(getNumberOfAllPlants());
-        statistics.updateEmptySpaces(getNUmberOfEmptySpaces());
-        statistics.updateAverageEnergy(getAverageEnergy());
+        stats.updateNumberOfAllPlants(getNumberOfAllPlants());
+        stats.updateEmptySpaces(getNUmberOfEmptySpaces());
+        stats.updateAverageEnergy(getAverageEnergy());
 
     }
 
@@ -246,10 +241,10 @@ public class Simulation implements Runnable {
             }
         }
 
-        statistics.updateNumberOfAllAnimals(getNumberOfAllAnimals());
-        statistics.updateAverageEnergy(getAverageEnergy());
-        statistics.updateAverageNumberOfChildren(getAverageNumberOfChildren());
-        statistics.updateMostPopularGenotypes(getMostCommonGenotypes());
+        stats.updateNumberOfAllAnimals(getNumberOfAllAnimals());
+        stats.updateAverageEnergy(getAverageEnergy());
+        stats.updateAverageNumberOfChildren(getAverageNumberOfChildren());
+        stats.updateMostPopularGenotypes(getMostCommonGenotypes());
     }
 
     private void sleep() {

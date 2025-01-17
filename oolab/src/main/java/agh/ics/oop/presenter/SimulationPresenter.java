@@ -28,12 +28,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.val;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
 
@@ -62,8 +64,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     @FXML
     private Label age;
     @FXML
-    private TextField movesList;
-    @FXML
     private Label moveDescription;
     @FXML
     private GridPane mapGrid;
@@ -90,7 +90,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private Image plantImage;
     private WorldMap worldMap;
     private Simulation simulation;
-    private Configuration configuration;
     private boolean isInitialized = false;
     private Animal highlightedAnimal = null;
     private Boundary boundary;
@@ -100,7 +99,8 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private int cellsInAColumn;
     private int cellSize = 20;
     private SimulationEngine engine = null;
-
+    @Setter
+    private Configuration configuration;
     public void setWorldMap(WorldMap worldMap) {
         this.worldMap = worldMap;
         if (!worldMap.getCurrentBounds().equals(boundary)) {
@@ -131,9 +131,8 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private void renderImages(int width, int height) {
         try (InputStream input = getClass().getResourceAsStream("/assets/grass.jpg")) {
             if (input == null) {
-                throw new IOException("Resource not found: grass.png");
+                throw new IOException("Resource not found: grass.jpg");
             }
-//            System.out.println(getClass().getResource("/assets/grass.jpg").getPath());
             plantImage = new Image(input, width, height, true, true);
         } catch (IOException e) {
             System.err.println("Could not load image of grass: " + e.getMessage());
@@ -148,7 +147,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         }
         try (InputStream input = getClass().getResourceAsStream("/assets/sheep_crown.png")) { // Corrected path
             if (input == null) {
-                throw new IOException("Resource not found: sheep.jpg");
+                throw new IOException("Resource not found: sheep_crown.jpg");
             }
             animalDominatingImage = new Image(input, width, height, true, true);
         } catch (IOException e) {
@@ -176,55 +175,95 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
         if (this.configuration.mapStrategy() == Configuration.MapStrategy.POLES) {
             int h = 0;
-            for (int row = 0; row < equatorWidth; row++) {
-                for (int col = 0; col < cellsInARow + 1; col++) {
-                    Rectangle rect = new Rectangle(cellSize, cellSize);
-                    rect.setFill(Color.LIGHTBLUE);
-                    mapGrid.add(rect, col + 1, row + 1);
-                }
-            }
-            for (int row = equatorWidth; row < equatorUpperBound; row++) {
-                for (int col = 0; col < cellsInARow + 1; col++) {
-                    Rectangle rect = new Rectangle(cellSize, cellSize);
-                    rect.setFill(Color.LIGHTGREEN);
-                    mapGrid.add(rect, col + 1, row + 1);
-                }
-            }
-            for (int row = equatorLowerBound + 1; row <= configuration.height() - 1 - equatorWidth; row++) {
-                for (int col = 0; col < cellsInARow + 1; col++) {
-                    Rectangle rect = new Rectangle(cellSize, cellSize);
-                    rect.setFill(Color.LIGHTGREEN);
-                    mapGrid.add(rect, col + 1, row + 1);
-                }
-            }
-            for (int row = configuration.height() - 1; row > configuration.height() - 1 - equatorWidth; row--) {
-                for (int col = 0; col < cellsInARow + 1; col++) {
-                    Rectangle rect = new Rectangle(cellSize, cellSize);
-                    rect.setFill(Color.LIGHTBLUE);
-                    mapGrid.add(rect, col + 1, row + 1);
-                }
-            }
+            addRectsToGrid(
+                    0,
+                    equatorWidth,
+                    Color.LIGHTBLUE
+            );
+            addRectsToGrid(
+                    equatorWidth,
+                    equatorWidth,
+                    Color.LIGHTGREEN
+            );
+            addRectsToGrid(
+                    equatorLowerBound + 1,
+                    configuration.height() - equatorWidth,
+                    Color.LIGHTGREEN
+            );
+            addRectsToGrid(
+                    configuration.height() - equatorWidth,
+                    configuration.height(),
+                    Color.LIGHTBLUE
+            );
+//            for (int row = 0; row < equatorWidth; row++) {
+//                for (int col = 0; col < cellsInARow + 1; col++) {
+//                    Rectangle rect = new Rectangle(cellSize, cellSize);
+//                    rect.setFill(Color.LIGHTBLUE);
+//                    mapGrid.add(rect, col + 1, row + 1);
+//                }
+//            }
+//            for (int row = equatorWidth; row < equatorUpperBound; row++) {
+//                for (int col = 0; col < cellsInARow + 1; col++) {
+//                    Rectangle rect = new Rectangle(cellSize, cellSize);
+//                    rect.setFill(Color.LIGHTGREEN);
+//                    mapGrid.add(rect, col + 1, row + 1);
+//                }
+//            }
+//            for (int row = equatorLowerBound + 1; row <= configuration.height() - 1 - equatorWidth; row++) {
+//                for (int col = 0; col < cellsInARow + 1; col++) {
+//                    Rectangle rect = new Rectangle(cellSize, cellSize);
+//                    rect.setFill(Color.LIGHTGREEN);
+//                    mapGrid.add(rect, col + 1, row + 1);
+//                }
+//            }
+//            for (int row = configuration.height() - 1; row > configuration.height() - 1 - equatorWidth; row--) {
+//                for (int col = 0; col < cellsInARow + 1; col++) {
+//                    Rectangle rect = new Rectangle(cellSize, cellSize);
+//                    rect.setFill(Color.LIGHTBLUE);
+//                    mapGrid.add(rect, col + 1, row + 1);
+//                }
+//            }
         } else {
+            addRectsToGrid(
+                    0,
+                    equatorUpperBound,
+                    Color.LIGHTGREEN
+            );
+            addRectsToGrid(
+                    equatorLowerBound + 1,
+                    configuration.height(),
+                    Color.LIGHTGREEN
+            );
 
-            for (int row = 0; row < equatorUpperBound; row++) {
-                for (int col = 0; col < cellsInARow + 1; col++) {
-                    Rectangle rect = new Rectangle(cellSize, cellSize);
-                    rect.setFill(Color.LIGHTGREEN);
-                    mapGrid.add(rect, col + 1, row + 1);
-                }
-            }
-
-            for (int row = equatorLowerBound + 1; row < configuration.height(); row++) {
-                for (int col = 0; col < cellsInARow + 1; col++) {
-                    Rectangle rect = new Rectangle(cellSize, cellSize);
-                    rect.setFill(Color.LIGHTGREEN);
-                    mapGrid.add(rect, col + 1, row + 1);
-                }
-            }
+//            for (int row = 0; row < equatorUpperBound; row++) {
+//                for (int col = 0; col < cellsInARow + 1; col++) {
+//                    Rectangle rect = new Rectangle(cellSize, cellSize);
+//                    rect.setFill(Color.LIGHTGREEN);
+//                    mapGrid.add(rect, col + 1, row + 1);
+//                }
+//            }
+//
+//            for (int row = equatorLowerBound + 1; row < configuration.height(); row++) {
+//                for (int col = 0; col < cellsInARow + 1; col++) {
+//                    Rectangle rect = new Rectangle(cellSize, cellSize);
+//                    rect.setFill(Color.LIGHTGREEN);
+//                    mapGrid.add(rect, col + 1, row + 1);
+//                }
+//            }
 
 
         }
     }
+    private void addRectsToGrid(int rowStart,int rowEnd,Color color){
+        for (int row = rowStart; row < rowEnd; row++) {
+            for (int col = 0; col < cellsInARow + 1; col++) {
+                Rectangle rect = new Rectangle(cellSize, cellSize);
+                rect.setFill(color);
+                mapGrid.add(rect, col + 1, row + 1);
+            }
+        }
+    }
+
 
     private void drawMap() {
 
@@ -293,7 +332,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 animal.addObserver(this);
                 highlightedAnimalVBox.setVisible(true);
                 highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(true));
-                simulation.getStatistics().updateHighlightedAnimal(
+                simulation.getStats().updateHighlightedAnimal(
                         animal.getGenotype(),
                         animal.getCurrentGene(),
                         animal.getEnergy(),
@@ -387,11 +426,8 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     @Override
     public void mapChanged(WorldMap worldMap, String message) {
         setWorldMap(worldMap);
-        switch (message){
-            case "Simulation paused" : {
-
-
-            }
+        if (message.equals("Simulation paused")) {
+            //todo
         }
         Platform.runLater(() -> {
             clearGrid();
@@ -413,7 +449,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             if (!this.isInitialized) {
 
                 WorldMap map = (configuration.mapStrategy() == Configuration.MapStrategy.POLES) ? new GrassFieldWithPoles(configuration) : new GrassField(configuration);
-
                 Statistics statistics = new Statistics(configuration);
                 Simulation simulation = new Simulation(map, configuration, statistics,savingStatsToFile.isSelected());
                 this.simulation = simulation;
@@ -455,56 +490,48 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     }
 
 
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
-
     private void displayStatistics() {
-
-        numberOfAnimals.setText(simulation.getStatistics().getNumberOfAllAnimals().getLast().toString());
-        numberOfPlants.setText(simulation.getStatistics().getNumberOfAllPlants().getLast().toString());
-        numberOfEmptySpaces.setText(simulation.getStatistics().getEmptySpaces().getLast().toString());
-        mostCommonGenotypes.setText(simulation.getStatistics().getMostPopularGenotypes().toString());
-        averageEnergy.setText(simulation.getStatistics().getAverageEnergy().getLast().toString());
-        averageLifespan.setText(simulation.getStatistics().getAverageLifespan().getLast().toString());
-        averageNumberOfChildren.setText(simulation.getStatistics().getAverageNumberOfChildren().getLast().toString());
+        val stats = simulation.getStats();
+        numberOfAnimals.setText(stats.getNumberOfAllAnimals().getLast().toString());
+        numberOfPlants.setText(stats.getNumberOfAllPlants().getLast().toString());
+        numberOfEmptySpaces.setText(stats.getEmptySpaces().getLast().toString());
+        mostCommonGenotypes.setText(stats.getMostPopularGenotypes().toString());
+        averageEnergy.setText(stats.getAverageEnergy().getLast().toString());
+        averageLifespan.setText(stats.getAverageLifespan().getLast().toString());
+        averageNumberOfChildren.setText(simulation.getStats().getAverageNumberOfChildren().getLast().toString());
         if(highlightedAnimal!=null){
-            genome.setText(simulation.getStatistics().getGenome().toString());
-            plantsEaten.setText(simulation.getStatistics().getPlantsEaten().toString());
-            currentGene.setText(simulation.getStatistics().getCurrentGene().toString());
-            currentEnergy.setText(simulation.getStatistics().getCurrentEnergy().toString());
-            numberOfChildren.setText(simulation.getStatistics().getNumberOfChildren().toString());
-            numberOfDescendants.setText(simulation.getStatistics().getNumberOfDescendants().toString());
-            age.setText(simulation.getStatistics().getAge().toString());
-            dayOfDeath.setText(simulation.getStatistics().getDayOfDeath().toString());
+            genome.setText(stats.getGenome().toString());
+            plantsEaten.setText(stats.getPlantsEaten().toString());
+            currentGene.setText(stats.getCurrentGene().toString());
+            currentEnergy.setText(stats.getCurrentEnergy().toString());
+            numberOfChildren.setText(stats.getNumberOfChildren().toString());
+            numberOfDescendants.setText(stats.getNumberOfDescendants().toString());
+            age.setText(stats.getAge().toString());
+            dayOfDeath.setText(stats.getDayOfDeath().toString());
         }
 
     }
 
     @Override
     public void animalChanged(Animal animal,String message) {
+        val stats = simulation.getStats();
         if(animal==highlightedAnimal){
             switch (message){
-                case "numberOfDescendants"->simulation.getStatistics().updateNumberOfDescendants(highlightedAnimal.getNumberOfDescendants());
-                case "numberOfChildren"->simulation.getStatistics().updateNumberOfChildren(highlightedAnimal.getNumberOfChildren());
-                case "plantsEaten"->simulation.getStatistics().updatePlantsEaten(highlightedAnimal.getPlantsEaten());
-                case "currentGene"->simulation.getStatistics().updateCurrentGene(highlightedAnimal.getNumberOfDescendants());
-                case "age"->simulation.getStatistics().updateAge(highlightedAnimal.getAge());
+                case "numberOfDescendants"->stats.updateNumberOfDescendants(highlightedAnimal.getNumberOfDescendants());
+                case "numberOfChildren"->stats.updateNumberOfChildren(highlightedAnimal.getNumberOfChildren());
+                case "plantsEaten"->stats.updatePlantsEaten(highlightedAnimal.getPlantsEaten());
+                case "currentGene"->stats.updateCurrentGene(highlightedAnimal.getNumberOfDescendants());
+                case "age"->stats.updateAge(highlightedAnimal.getAge());
                 case "isDead"->{
                     //Stop simulation
                     simulation.pauseSimulation();
                     isStartEnabled.set(false);
-                    simulation.getStatistics().updateDayOfDeath(highlightedAnimal.getDayOfDeath());
+                    stats.updateDayOfDeath(highlightedAnimal.getDayOfDeath());
                     Platform.runLater(() -> {    new Alert(Alert.AlertType.INFORMATION, "Observed animal died", ButtonType.OK).show();});
 
                 }
             }
-            simulation.getStatistics().updateCurrentEnergy(animal.getEnergy());
+            simulation.getStats().updateCurrentEnergy(animal.getEnergy());
         }
     }
     @FXML
@@ -513,7 +540,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(false));
             highlightedAnimalVBox.setVisible(false);
             highlightedAnimal.removeObserver(this);
-            simulation.getStatistics().resetHighlightedAnimal();
+            simulation.getStats().resetHighlightedAnimal();
             this.highlightedAnimal = null;
         }
     }

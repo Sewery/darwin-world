@@ -10,26 +10,41 @@ import java.util.stream.Collectors;
 
 public class Statistics {
 
-    protected final List<StatisticsChangeListener> observers = new ArrayList<>();
+    private final List<StatisticsChangeListener> observers = new ArrayList<>();
     @Getter
     @Setter
     private int numberOfDay;
     // statistics for the whole simulation
+    @Getter
     private final List<Integer> numberOfAllAnimals;
+    @Getter
     private final List<Integer> numberOfAllPlants;
+    @Getter
     private final List<Integer> emptySpaces;
+    @Getter
     private final List<Integer> averageEnergy;
+    @Getter
     private final List<Integer> averageLifespan;
+    @Getter
     private final List<Integer> averageNumberOfChildren;
+    @Getter
     private List<String> mostPopularGenotypes = new ArrayList<>();
     // statistics for chosen animal
+    @Getter
     private List<Integer> genome;
+    @Getter
     private Integer currentGene;
+    @Getter
     private Integer currentEnergy;
+    @Getter
     private Integer plantsEaten;
+    @Getter
     private Integer numberOfChildren;
+    @Getter
     private Integer numberOfDescendants;
+    @Getter
     private Integer age;
+    @Getter
     private Integer dayOfDeath;
 
     public Statistics(Configuration configuration) {
@@ -168,60 +183,5 @@ public class Statistics {
     public void updateDayOfDeath(Integer dayOfDeath) {
         this.dayOfDeath = dayOfDeath;
     }
-    public List<Integer> getNumberOfAllAnimals() {
-        return numberOfAllAnimals;
-    }
 
-    public List<Integer> getNumberOfAllPlants() {
-        return numberOfAllPlants;
-    }
-
-    public List<Integer> getEmptySpaces() {
-        return emptySpaces;
-    }
-
-    public List<String> getMostPopularGenotypes() {
-        return mostPopularGenotypes;
-    }
-
-    public List<Integer> getAverageEnergy() {
-        return averageEnergy;
-    }
-
-    public List<Integer> getAverageLifespan() {
-        return averageLifespan;
-    }
-
-    public List<Integer> getAverageNumberOfChildren() {
-        return averageNumberOfChildren;
-    }
-    public Integer getPlantsEaten() {
-        return plantsEaten;
-    }
-
-    public Integer getNumberOfChildren() {
-        return numberOfChildren;
-    }
-
-    public Integer getNumberOfDescendants() {
-        return numberOfDescendants;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public Integer getCurrentGene() {
-        return currentGene;
-    }
-
-    public List<Integer> getGenome() {
-        return genome;
-    }
-    public Integer getCurrentEnergy() {
-        return currentEnergy;
-    }
-    public Integer getDayOfDeath() {
-        return dayOfDeath;
-    }
 }

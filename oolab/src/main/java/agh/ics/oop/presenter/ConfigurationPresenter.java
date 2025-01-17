@@ -2,7 +2,7 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.core.AppState;
 import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.ConfigurationManager;
+import agh.ics.oop.core.ConfigurationLoader;
 import agh.ics.oop.util.CSVWriter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,7 +17,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class ConfigurationPresenter extends AppPresenter implements ConfigurationManager {
+public class ConfigurationPresenter extends AppPresenter implements ConfigurationLoader {
     private static Integer counter = 0;
     @FXML
     private final ToggleGroup animalsBehaviourGroup = new ToggleGroup(), mapEdgesGroup = new ToggleGroup();

@@ -4,25 +4,33 @@ import agh.ics.oop.model.MapDirection;
 import agh.ics.oop.model.MoveValidator;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.WorldElement;
+import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 public class Animal implements WorldElement {
 
     protected AnimalChangeListener observer;
+    @Getter
     protected Vector2d position;
     protected MapDirection direction;
+    @Getter
     protected int energy;
+    @Getter
     protected final int[] genotype;
+    @Getter
     protected int currentGene;
+    @Getter
     private int numberOfChildren;
+    @Getter
     protected int age;
+    @Getter
     private boolean alive = true;
+    @Getter
     private int plantsEaten = 0;
     private final Set<Animal> ancestors;
+    @Getter
     private int numberOfDescendants = 0;
     private Integer dayOfDeath;
     private final int energyGivenByOneGrass;
@@ -84,13 +92,7 @@ public class Animal implements WorldElement {
         age++;
         notifyObserver("age");
     }
-    public boolean isAlive() {
-        return alive;
-    }
 
-    public Vector2d getPosition() {
-        return position;
-    }
     @Override
     public String toString(){return "A";};
     public boolean isAt(Vector2d position) {
@@ -112,13 +114,7 @@ public class Animal implements WorldElement {
         notifyObserver("currentGene");
     }
 
-    public int[] getGenotype() {return genotype;}
-    public int getCurrentGene() {return currentGene;}
     public Vector2d getDirection() {return this.direction.toUnitVector();}
-    public int getEnergy(){return energy;}
-    public int getAge(){return age;}
-    public int getNumberOfChildren() {return numberOfChildren;}
-    public int getPlantsEaten() {return plantsEaten;}
 
     public void eat(){
         this.plantsEaten++;
@@ -137,10 +133,6 @@ public class Animal implements WorldElement {
     void increaseNumberOfDescendants(){
         this.numberOfDescendants++;
         notifyObserver("numberOfDescendants");
-    }
-
-    public int getNumberOfDescendants() {
-        return numberOfDescendants;
     }
 
 }
