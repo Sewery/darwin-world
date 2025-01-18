@@ -8,6 +8,7 @@ import agh.ics.oop.model.util.StatisticsChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class Statistics {
 
@@ -21,6 +22,7 @@ public class Statistics {
     private final List<Integer> averageEnergy;
     private final List<Integer> averageLifespan;
     private final List<Integer> averageNUmberOfChildren;
+
 
     // statistics for chosen animal
     private int[] genome;
@@ -43,6 +45,8 @@ public class Statistics {
         this.averageNUmberOfChildren.add(0);
         this.emptySpaces = new ArrayList<>();
         this.emptySpaces.add(configuration.height()*configuration.width()- configuration.initialNumberOfGrasses());
+
+
 
     }
 
@@ -110,8 +114,9 @@ public class Statistics {
         return emptySpaces;
     }
 
-    public List<String> getMostPopularGenotypes() {
-        return mostPopularGenotypes;
+    public String getMostPopularGenotypes() {
+        if (mostPopularGenotypes.isEmpty()) {return "no animals on map";}
+        return mostPopularGenotypes.get(new Random().nextInt(mostPopularGenotypes.size()));
     }
 
     public List<Integer> getAverageEnergy() {

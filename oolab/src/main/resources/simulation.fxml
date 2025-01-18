@@ -39,7 +39,7 @@
                 <Label fx:id="numberOfEmptySpaces"/>
             </HBox>
             <HBox>
-                <Label fx:id="mostCommonGenotypesDescription" text="Most common genotypes:" styleClass="subtitle"/>
+                <Label fx:id="mostCommonGenotypesDescription" text="Most common genotype:" styleClass="subtitle"/>
                 <Label fx:id="mostCommonGenotypes"/>
             </HBox>
             <HBox>

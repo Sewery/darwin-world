@@ -73,7 +73,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private int cellsInARow;
     private int cellsInAColumn;
 
-    private final int maxMapSize = 300;
+    private final int maxMapSize = 350;
     private int cellSize = 20;
     private SimulationEngine engine=null;
 
@@ -164,7 +164,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         cellsInARow = subtracted.getX();
         cellsInAColumn = subtracted.getY();
 
-        cellSize = max(maxMapSize/(max(cellsInAColumn, cellsInARow)+1), cellSize);
+        cellSize = maxMapSize/(max(cellsInAColumn, cellsInARow)+1);
 
         colourMap(cellSize);
 
@@ -174,6 +174,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         for (int col = 0; col < cellsInARow+1; col++) {
             mapGrid.getColumnConstraints().add(new ColumnConstraints(cellSize));
             Label label = new Label(Integer.toString(col+minX));
+            label.setStyle("-fx-font-size: " + cellSize/3 + "px;");
             GridPane.setHalignment(label, HPos.CENTER);
             mapGrid.add(label, col+1, 0);
         }
@@ -181,10 +182,12 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         for (int row = 0; row < cellsInAColumn+1; row++) {
             mapGrid.getRowConstraints().add(new RowConstraints(cellSize));
             Label label = new Label(Integer.toString(cellsInAColumn-row+minY));
+            label.setStyle("-fx-font-size: " + cellSize/3 + "px;");
             GridPane.setHalignment(label, HPos.CENTER);
             mapGrid.add(label, 0, row+1);
         }
         Label label = new Label("y/x");
+        label.setStyle("-fx-font-size: " + cellSize/3 + "px;");
         mapGrid.add(label, 0, 0);
         GridPane.setHalignment(label, HPos.CENTER);
 
@@ -379,10 +382,14 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         numberOfAnimals.setText(statistics.getNumberOfAllAnimals().getLast().toString());
         numberOfPlants.setText(statistics.getNumberOfAllPlants().getLast().toString());
         numberOfEmptySpaces.setText(statistics.getEmptySpaces().getLast().toString());
-        mostCommonGenotypes.setText(statistics.getMostPopularGenotypes().toString());
+        mostCommonGenotypes.setText(statistics.getMostPopularGenotypes());
         averageEnergy.setText(statistics.getAverageEnergy().getLast().toString());
         averageLifespan.setText(statistics.getAverageLifespan().getLast().toString());
         averageNumberOfChildren.setText(statistics.getAverageNUmberOfChildren().getLast().toString());
     }
+
+
+
+
 
 }

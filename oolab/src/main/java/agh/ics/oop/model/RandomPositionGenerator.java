@@ -9,10 +9,8 @@ import java.util.Random;
 public class RandomPositionGenerator implements Iterable<Vector2d> {
 
     private final List<Vector2d> possible_positions;
-    private final int grassCount;
 
     public RandomPositionGenerator(int maxWidth, int maxHeight, int grassCount) {
-        this.grassCount = grassCount;
 
         List<Vector2d> all_possible_positions = new ArrayList<>();
         for (int x = 0; x < maxWidth; x++) {
@@ -27,7 +25,5 @@ public class RandomPositionGenerator implements Iterable<Vector2d> {
     @Override
     public Iterator<Vector2d> iterator() {
         return possible_positions.iterator();
-
-        // losowanie wewnątrz next
     }
 }

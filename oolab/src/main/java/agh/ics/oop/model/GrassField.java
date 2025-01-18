@@ -136,6 +136,7 @@ public class GrassField implements WorldMap {
             return true;
         }
         throw new IncorrectPositionException(animal.getPosition());
+
     }
 
     @Override
@@ -155,7 +156,6 @@ public class GrassField implements WorldMap {
     @Override
     public void move(Animal animal) {
 
-        Vector2d oldPosition = animal.getPosition();
         List<Animal> oldList = animalsAt(animal.getPosition());
         if (oldList != null){
             if (oldList.contains(animal)) {

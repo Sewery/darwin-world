@@ -3,6 +3,11 @@
     -fx-background-color: #F8F9E8; /* Light background for the grid */
 }
 
+.map-label {
+    -fx-font-size: 14px;
+}
+
+
 /* Styles for the statistics description */
 #statisticsDescription {
     -fx-font-family: sans-serif;
