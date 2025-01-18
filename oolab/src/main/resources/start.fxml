@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            minHeight="550.0" minWidth="850.0"
+            minHeight="550.0" minWidth="1200.0"
             fx:controller="agh.ics.oop.presenter.StartPresenter"
             stylesheets="@start.css">
     <top>
@@ -22,7 +22,10 @@
                 <Button fx:id="createConfig" text="Create new configuration" textAlignment="CENTER" styleClass="config-button" onAction="#onCreateNewSimulationClicked"/>
             </VBox>
             <VBox alignment="CENTER" spacing="20">
-                <Button fx:id="loadConfig" text="Load configuration" textAlignment="CENTER" styleClass="config-button"/>
+                <Button fx:id="loadConfig" text="Load configuration" textAlignment="CENTER" styleClass="config-button" onAction="#onLoadSimulationClicked"/>
+            </VBox>
+            <VBox alignment="CENTER" spacing="20">
+                <Button fx:id="start" text="Start" textAlignment="CENTER" styleClass="config-button" onAction="#onStartClicked"/>
             </VBox>
         </HBox>
     </center>

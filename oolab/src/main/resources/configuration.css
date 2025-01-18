@@ -1,3 +1,9 @@
+
+*{
+    -fx-font-family: sans-serif;
+    -fx-font-size: 14px;
+}
+
 .border-pane {
     -fx-background-color: #E8ECD7;
     -fx-padding: 20;
@@ -14,10 +20,9 @@
 
 .text {
     -fx-font-family: sans-serif;
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
     -fx-text-fill: #88591e;
     -fx-alignment: center-left;
-    -fx-padding: 10 0 0 10;
 }
 
 .textField {
@@ -26,14 +31,18 @@
     -fx-text-fill: #1F4529;
     -fx-alignment: center;
 }
-
+.spinner{
+}
+.box-property{
+    -fx-padding: 10 10 0 10;
+}
 .config-button {
     -fx-font-family: sans-serif;
-    -fx-font-size: 18px;
+    -fx-font-size: 22px;
     -fx-text-fill: #EED3B1;
     -fx-background-color: #1F4529;
     -fx-background-radius: 10;
-    -fx-padding: 190 10;
+    -fx-padding: 10 20;
     -fx-border-color: #47663B;
     -fx-border-width: 2;
     -fx-border-radius: 10;

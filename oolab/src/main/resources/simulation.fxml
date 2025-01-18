@@ -6,18 +6,101 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.CheckBox?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            minHeight="550.0" minWidth="850.0"
-            fx:controller="agh.ics.oop.presenter.SimulationPresenter">
+            minHeight="550.0" minWidth="1200.0"
+            fx:controller="agh.ics.oop.presenter.SimulationPresenter"
+            styleClass="border-pane"
+            stylesheets="@simulation.css">
     <top>
-        <VBox spacing="10" alignment="CENTER">
-            <TextField fx:id="movesList" promptText="Enter moves"/>
+        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10;">
             <Label fx:id="moveDescription"/>
-            <Button text="Start" onAction="#onSimulationStartClicked"/>
-        </VBox>
+            <Button fx:id="startButton" text="Start" onAction="#onSimulationStartClicked" styleClass="config-button"/>
+            <Button fx:id="stopButton" text="Stop" onAction="#onSimulationStopClicked" styleClass="config-button" disable="true"/>
+            <HBox>
+                <Label  text="Saving statistics to file:" styleClass="subtitle"/>
+                <CheckBox fx:id="savingStatsToFile"/>
+            </HBox>
+        </HBox>
     </top>
     <center>
         <GridPane fx:id="mapGrid" alignment="CENTER" gridLinesVisible="true"/>
     </center>
+    <left>
+        <VBox prefWidth="500">
+            <VBox styleClass="left" prefWidth="500">
+                <Label fx:id="statisticsDescription" text="Statistics" styleClass="title-stats "/>
+                <HBox>
+                    <Label fx:id="numberOfAnimalsDescription" text="Number of animals:" styleClass="subtitle"/>
+                    <Label fx:id="numberOfAnimals"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="numberOfPlantsDescription" text="Number of plants:" styleClass="subtitle"/>
+                    <Label fx:id="numberOfPlants"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="numberOfEmptySpacesDescription" text="Number of empty spaces on the map:" styleClass="subtitle"/>
+                    <Label fx:id="numberOfEmptySpaces"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="mostCommonGenotypesDescription" text="Most common genotypes:" styleClass="subtitle"/>
+                    <Label fx:id="mostCommonGenotypes"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="averageEnergyDescription" text="Average energy:" styleClass="subtitle"/>
+                    <Label fx:id="averageEnergy"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="averageLifespanDescription" text="Average lifespan:" styleClass="subtitle"/>
+                    <Label fx:id="averageLifespan"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="averageNumberOfChildrenDescription" text="Average number of children:" styleClass="subtitle"/>
+                    <Label fx:id="averageNumberOfChildren"/>
+                </HBox>
+            </VBox>
+            <VBox fx:id="highlightedAnimalVBox" styleClass="left" prefWidth="500" visible="false">
+                <Label fx:id="animalStatisticsDescription" text="Highlighted Animal Statistics" styleClass="title-stats"  />
+                <HBox>
+                    <Label fx:id="genomeDescription" text="Genome:" styleClass="subtitle"/>
+                    <Label fx:id="genome"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="currentGeneDescription" text="Current gene:" styleClass="subtitle"/>
+                    <Label fx:id="currentGene"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="currentEnergyDescription" text="Current energy:" styleClass="subtitle"/>
+                    <Label fx:id="currentEnergy"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="plantsEatenDescription" text="Number of plants eaten:" styleClass="subtitle"/>
+                    <Label fx:id="plantsEaten"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="numberOfChildrenDescription" text="Number of children:" styleClass="subtitle"/>
+                    <Label fx:id="numberOfChildren"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="numberOfDescendantsDescription" text="Number of descendants:" styleClass="subtitle"/>
+                    <Label fx:id="numberOfDescendants"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="ageDescription" text="Age:" styleClass="subtitle"/>
+                    <Label fx:id="age"/>
+                </HBox>
+                <HBox>
+                    <Label fx:id="dayOfDeathDescription" text="Day of death description:" styleClass="subtitle"/>
+                    <Label fx:id="dayOfDeath"/>
+                </HBox>
+                <HBox>
+                    <Button fx:id="stopObserving" text="Stop observing animal" textAlignment="CENTER" styleClass="config-button"
+                            onAction="#onStopObservingButtonClicked"/>
+                </HBox>
+            </VBox>
+        </VBox>
+
+    </left>
 </BorderPane>

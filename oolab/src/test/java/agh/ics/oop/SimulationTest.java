@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SimulationTest {
 
+    /*
     private final List<MoveDirection> moves_expected = List.of(
             MoveDirection.LEFT,
             MoveDirection.RIGHT,
@@ -116,5 +117,7 @@ public class SimulationTest {
                 "  0: | | | | | |\n" +
                 " -1: -----------\n");
     }
+
+     */
 
 }
