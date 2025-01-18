@@ -1,6 +1,6 @@
 package agh.ics.oop.core;
 
-public interface ConfigurationManager {
+public interface ConfigurationLoader {
     default void validate( Configuration config) throws ConfigurationInvalidException {
         if (config.initialNumberOfAnimals() > config.width() * config.height()) {
             throw new ConfigurationInvalidException("Initial number of animals must be smaller than value width x height");
@@ -16,6 +16,9 @@ public interface ConfigurationManager {
         }
         if (config.maxNumberOfMutations() > config.genotypeLength()) {
             throw new ConfigurationInvalidException("Max number of mutations must be equal or lower than min number of genotype length");
+        }
+        if (2*config.energyToReproduce() < config.initialEnergyOfAnimals()) {
+            throw new ConfigurationInvalidException("Energy to reproduce should be at least the half of initial animal energy");
         }
     }
     Configuration loadConfiguration();

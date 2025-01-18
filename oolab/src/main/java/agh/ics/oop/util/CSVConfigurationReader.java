@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
-public class CSVReader {
+public class CSVConfigurationReader {
     private static final String HEADER="width,height,initialNumberOfGrasses,numberOfNewGrassesEachDay,energyPerGrass," +
             "initialNumberOfAnimals,initialEnergyOfAnimals,energyToReproduce,minNumberOfMutations," +
             "maxNumberOfMutations,genotypeLength,mapStrategy,animalsBehaviourStrategy";

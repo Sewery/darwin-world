@@ -164,7 +164,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         cellsInARow = subtracted.getX();
         cellsInAColumn = subtracted.getY();
 
-        cellSize = maxMapSize/(max(cellsInAColumn, cellsInARow)+1);
+        cellSize = max(maxMapSize/(max(cellsInAColumn, cellsInARow)+1), cellSize);
 
         colourMap(cellSize);
 
@@ -382,14 +382,10 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         numberOfAnimals.setText(statistics.getNumberOfAllAnimals().getLast().toString());
         numberOfPlants.setText(statistics.getNumberOfAllPlants().getLast().toString());
         numberOfEmptySpaces.setText(statistics.getEmptySpaces().getLast().toString());
-        mostCommonGenotypes.setText(statistics.getMostPopularGenotypes());
+        mostCommonGenotypes.setText(statistics.getMostPopularGenotypes().toString());
         averageEnergy.setText(statistics.getAverageEnergy().getLast().toString());
         averageLifespan.setText(statistics.getAverageLifespan().getLast().toString());
         averageNumberOfChildren.setText(statistics.getAverageNUmberOfChildren().getLast().toString());
     }
-
-
-
-
 
 }

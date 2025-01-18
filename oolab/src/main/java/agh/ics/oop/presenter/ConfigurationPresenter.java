@@ -2,7 +2,7 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.core.AppState;
 import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.ConfigurationManager;
+import agh.ics.oop.core.ConfigurationLoader;
 import agh.ics.oop.util.CSVWriter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,7 +17,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class ConfigurationPresenter extends AppPresenter implements ConfigurationManager {
+public class ConfigurationPresenter extends AppPresenter implements ConfigurationLoader {
     private static Integer counter = 0;
     @FXML
     private final ToggleGroup animalsBehaviourGroup = new ToggleGroup(), mapEdgesGroup = new ToggleGroup();
@@ -50,14 +50,14 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
 
     @FXML
     private void initialize() {
-        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 100, 3));
-        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 100, 3));
+        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 20, 3));
+        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 20, 3));
         initialNumberOfGrasses.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 2));
         energyPerOneGrass.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
         initialNumberOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3));
         numberOfNewGrassesEachDay.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
         initialEnergyOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 6));
-        energyToReproduce.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
+        energyToReproduce.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3));
         minNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 1));
         maxNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 1));
         genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 5));
@@ -95,6 +95,12 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
 
         if (AppState.getInstance().getConfig() == null) {
             Configuration config = loadConfiguration();
+            try {
+                validate(config);
+            } catch (Exception e) {
+                alertError(e);
+                return;
+            }
             AppState.getInstance().setConfig(config);
         }
         if(AppState.getInstance().getConfig() != null){
@@ -103,7 +109,7 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
 //            alertError(new ConfigurationInvalidException("No configuration found"));
     }
 
-
+    @Override
     public Configuration loadConfiguration() {
        return new Configuration(
                 height.getValue(),

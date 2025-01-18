@@ -35,5 +35,6 @@ public class AgingAnimal extends Animal {
             }
         }
         currentGene = (currentGene + 1)%genotype.length;
+        notifyObserver("currentGene");
     }
 }

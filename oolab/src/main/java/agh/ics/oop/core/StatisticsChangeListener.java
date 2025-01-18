@@ -1,6 +1,4 @@
-package agh.ics.oop.model.util;
-
-import agh.ics.oop.core.Statistics;
+package agh.ics.oop.core;
 
 public interface StatisticsChangeListener {
 

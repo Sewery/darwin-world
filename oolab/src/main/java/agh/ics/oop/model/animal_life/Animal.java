@@ -4,29 +4,36 @@ import agh.ics.oop.model.MapDirection;
 import agh.ics.oop.model.MoveValidator;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.WorldElement;
-import agh.ics.oop.core.Configuration;
+import lombok.Getter;
 
 import java.util.Random;
 import java.util.Set;
 
 public class Animal implements WorldElement {
 
-
+    protected AnimalChangeListener observer;
+    @Getter
     protected Vector2d position;
     protected MapDirection direction;
+    @Getter
     protected int energy;
+    @Getter
     protected final int[] genotype;
+    @Getter
     protected int currentGene;
+    @Getter
     private int numberOfChildren;
+    @Getter
     protected int age;
+    @Getter
     private boolean alive = true;
+    @Getter
     private int plantsEaten = 0;
     private final Set<Animal> ancestors;
+    @Getter
     private int numberOfDescendants = 0;
-
+    private Integer dayOfDeath;
     private final int energyGivenByOneGrass;
-
-
 
     public Animal(
             Vector2d position,
@@ -49,7 +56,19 @@ public class Animal implements WorldElement {
         this.ancestors = ancestors;
 
     }
+    public void addObserver(AnimalChangeListener statisticsChangeListener) {
+        observer = statisticsChangeListener;
+    }
 
+    public void removeObserver(AnimalChangeListener statisticsChangeListener) {
+        observer = null;
+    }
+
+    public void notifyObserver(String message) {
+        if(observer != null) {
+            observer.animalChanged(this,message);
+        }
+    }
     private int randomGene(){
         return new Random().nextInt(genotype.length);
     }
@@ -58,19 +77,22 @@ public class Animal implements WorldElement {
         return directions[new Random().nextInt(directions.length)];
     }
 
-    public void setDead(){
+    public void setDead(int dayOfDeath){
         alive = false;
+        this.dayOfDeath=dayOfDeath;
+        notifyObserver("isDead");
+    }
+    public Integer getDayOfDeath(){
+        if(!alive){
+            return dayOfDeath;
+        }
+        return -1;
     }
     public void increaseAge(){
         age++;
-    }
-    public boolean isAlive() {
-        return alive;
+        notifyObserver("age");
     }
 
-    public Vector2d getPosition() {
-        return position;
-    }
     @Override
     public String toString(){return "A";};
     public boolean isAt(Vector2d position) {
@@ -89,29 +111,28 @@ public class Animal implements WorldElement {
 
         }
         currentGene = (currentGene + 1)%genotype.length;
+        notifyObserver("currentGene");
     }
 
-    public int[] getGenotype() {return genotype;}
-    public int getCurrentGene() {return currentGene;}
     public Vector2d getDirection() {return this.direction.toUnitVector();}
-    public int getEnergy(){return energy;}
-    public int getAge(){return age;}
-    public int getNumberOfChildren() {return numberOfChildren;}
-    public int getPlantsEaten() {return plantsEaten;}
 
     public void eat(){
         this.plantsEaten++;
         this.energy += energyGivenByOneGrass;
+        notifyObserver("plantsEaten");
     }
 
     public void reproduce(int energyLost){
         this.energy -= energyLost;
         this.numberOfChildren += 1;
+        notifyObserver("numberOfChildren");
     }
 
     Set<Animal> getAncestors() {return ancestors;}
 
     void increaseNumberOfDescendants(){
         this.numberOfDescendants++;
+        notifyObserver("numberOfDescendants");
     }
+
 }
