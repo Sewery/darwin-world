@@ -140,6 +140,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         startButton.disableProperty().bind(isStartEnabled);
 
         highlightedAnimalVBox.getChildren().forEach(child->child.setVisible(false));
+        onBackButtonClicked();
     }
 
     private void setMapProperties(Boundary currentBounds) {
