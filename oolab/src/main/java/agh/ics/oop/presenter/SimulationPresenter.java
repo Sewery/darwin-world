@@ -537,7 +537,15 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         mostCommonGenotypes.setText(stats.getMostPopularGenotypes().toString());
         List<String> currentMostPopularGenotypes = stats.getMostPopularGenotypes();
         if (currentMostPopularGenotypes.isEmpty()) {mostCommonGenotypes.setText("no animals on the map");}
-        else {mostCommonGenotypes.setText(currentMostPopularGenotypes.get(new Random().nextInt(currentMostPopularGenotypes.size())));}
+        else {
+            if (currentMostPopularGenotypes.size() > 1) {
+                mostCommonGenotypes.setText("%s (%d more)".formatted(
+                        currentMostPopularGenotypes.get(new Random().nextInt(currentMostPopularGenotypes.size())),
+                        currentMostPopularGenotypes.size() - 1
+                ));
+            }
+            else {mostCommonGenotypes.setText(currentMostPopularGenotypes.get(new Random().nextInt(currentMostPopularGenotypes.size())));}
+        }
         averageEnergy.setText(stats.getAverageEnergy().getLast().toString());
         averageLifespan.setText(stats.getAverageLifespan().getLast().toString());
         averageNumberOfChildren.setText(simulation.getStats().getAverageNumberOfChildren().getLast().toString());
