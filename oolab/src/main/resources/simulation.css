@@ -14,7 +14,6 @@
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: #47663B; /* Dark green text */
-    -fx-padding: 10 10 10 10;
 }
 
 /* General styles for labels in the statistics section */
@@ -73,3 +72,21 @@
 #stopButton:pressed {
     -fx-background-color: #88591e; /* Brown on click */
 }
+
+#highlightedAnimalVBox {
+    -fx-padding: 20;
+}
+
+#generalStatisticsVBox {
+    -fx-padding: 20;
+}
+
+.chartButton{
+    -fx-font-family: sans-serif;
+    -fx-font-size: 10px;
+    -fx-text-fill: #EED3B1; /* Light text */
+    -fx-background-color: #88591e; /* Brown on click */
+    -fx-background-radius: 5;
+    -fx-alignment: center;
+}
+

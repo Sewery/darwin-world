@@ -4,6 +4,7 @@ import agh.ics.oop.core.AppState;
 import agh.ics.oop.core.Configuration;
 import agh.ics.oop.core.ConfigurationLoader;
 import agh.ics.oop.util.CSVWriter;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -148,6 +149,10 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
         stage.setTitle("Simulation runner");
         stage.minWidthProperty().bind(viewRoot.minWidthProperty());
         stage.minHeightProperty().bind(viewRoot.minHeightProperty());
+
+        stage.setOnCloseRequest(event -> {
+            Platform.exit();
+        });
         stage.show();
     }
 }
