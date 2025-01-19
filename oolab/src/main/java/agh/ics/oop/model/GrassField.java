@@ -42,7 +42,7 @@ public class GrassField implements WorldMap {
         synchronized (this) {this.mapID = mapsCount++;}
 
         this.config = config;
-        int equatorWidth = config.height()/5;
+        int equatorWidth = max(config.height()/5,1);
         this.equatorLowerBound = config.height()/2-equatorWidth+1;
         this.equatorUpperBound = config.height()/2+equatorWidth;
         this.emptyEquatorGrassPositions = generateEmptyEquatorGrassPositions(config.width());
@@ -84,15 +84,17 @@ public class GrassField implements WorldMap {
 
         grassCount = min(grassCount, emptyOtherGrassPositions.size() + emptyEquatorGrassPositions.size());
 
+        Random random = new Random();
+
         for (int i = 0; i < grassCount; i++){
 
             ArrayList<Vector2d> selectedArea = randomSelect(emptyEquatorGrassPositions, emptyOtherGrassPositions);
 
-            Random random = new Random();
             Vector2d randomGrassPosition = selectedArea.get(random.nextInt(selectedArea.size()));
             grasses.put(randomGrassPosition, new Grass(randomGrassPosition));
             selectedArea.remove(randomGrassPosition);
         }
+
 
     }
 
@@ -271,9 +273,11 @@ public class GrassField implements WorldMap {
 
         List<Animal> newAnimals = new ArrayList<>();
 
+
         for (Vector2d position : animals.keySet()) {
 
             List<Animal> parents = filterReproductiveAnimals(animalsAt(position));
+            //System.out.println("%s %s".formatted(animals, parents));
 
             if (parents == null) {
                 continue;
@@ -282,6 +286,8 @@ public class GrassField implements WorldMap {
             if (parents.size() > 2) {
                 parents = resolveReproductionConflict(parents);
             }
+
+            //System.out.println("%s, %s".formatted(animals, parents));
 
             Reproduction reproduction = new Reproduction(
                     parents.getFirst(),
@@ -298,7 +304,6 @@ public class GrassField implements WorldMap {
             newAnimals.add(reproduction.createAChild());
 
         }
-
         return newAnimals;
     }
 
