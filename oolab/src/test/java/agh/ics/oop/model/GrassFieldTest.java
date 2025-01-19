@@ -165,6 +165,7 @@ public class GrassFieldTest {
 
     @Test
     void consumePlants(){
+        final GrassField map4 = new GrassField(configuration1);
         final GrassField map1 = new GrassField(configuration4);
         assertEquals(9, map1.getNumberOfGrasses());
         try { assertTrue(map1.place(animal8));}

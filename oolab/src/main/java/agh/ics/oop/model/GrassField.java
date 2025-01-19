@@ -42,9 +42,9 @@ public class GrassField implements WorldMap {
         synchronized (this) {this.mapID = mapsCount++;}
 
         this.config = config;
-        int equatorWidth = max(config.height()/5,1);
-        this.equatorLowerBound = config.height()/2-equatorWidth+1;
-        this.equatorUpperBound = config.height()/2+equatorWidth;
+        int equatorWidth = max(config.height() / 5, 1);
+        this.equatorLowerBound = (equatorWidth % 2 == 0 && config.height() % 2 == 0) ? (config.height() - 1) / 2 - (equatorWidth) / 2 + 1 : (config.height() - 1) / 2 - (equatorWidth) / 2 ;
+        this.equatorUpperBound = equatorLowerBound + equatorWidth - 1;
         this.emptyEquatorGrassPositions = generateEmptyEquatorGrassPositions(config.width());
         this.emptyOtherGrassPositions = generateOtherEmptyGrassPositions(config.width(), config.height());
         growPlants(config.initialNumberOfGrasses());
@@ -57,7 +57,7 @@ public class GrassField implements WorldMap {
             for (int y = 0; y < equatorLowerBound; y++) all_possible_positions.add(new Vector2d(x, y));
         }
         for (int x = 0; x < width; x++) {
-            for (int y = equatorUpperBound; y < height; y++) all_possible_positions.add(new Vector2d(x, y));
+            for (int y = equatorUpperBound+1; y < height; y++) all_possible_positions.add(new Vector2d(x, y));
         }
 
         Collections.shuffle(all_possible_positions, new Random());
@@ -67,7 +67,7 @@ public class GrassField implements WorldMap {
     private ArrayList<Vector2d> generateEmptyEquatorGrassPositions(int width) {
         ArrayList<Vector2d> all_possible_positions = new ArrayList<>();
         for (int x = 0; x < width; x++) {
-            for (int y = equatorLowerBound; y < equatorUpperBound; y++) all_possible_positions.add(new Vector2d(x, y));
+            for (int y = equatorLowerBound; y <= equatorUpperBound; y++) all_possible_positions.add(new Vector2d(x, y));
         }
 
         Collections.shuffle(all_possible_positions, new Random());
