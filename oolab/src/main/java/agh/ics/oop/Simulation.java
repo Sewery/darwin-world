@@ -166,6 +166,7 @@ public class Simulation implements Runnable {
             if(writeToFileStats)
                 writeStatisticsLine(stats,"stats.csv");
             daysCount += 1;
+            stats.updateDailyStatistics(getNumberOfAllAnimals(), getNumberOfAllPlants(), getNUmberOfEmptySpaces(), getAverageEnergy(), getAverageLifeSpan(), getAverageNumberOfChildren());
         }
 
 

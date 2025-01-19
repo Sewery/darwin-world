@@ -531,12 +531,12 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
 
     private void displayStatistics() {
         val stats = simulation.getStats();
-        numberOfAnimals.setText(stats.getNumberOfAllAnimals().getLast().toString());
-        numberOfPlants.setText(stats.getNumberOfAllPlants().getLast().toString());
-        numberOfEmptySpaces.setText(stats.getEmptySpaces().getLast().toString());
+        numberOfAnimals.setText(String.valueOf(stats.getNumberOfAllAnimals()));
+        numberOfPlants.setText(String.valueOf(stats.getNumberOfAllPlants()));
+        numberOfEmptySpaces.setText(String.valueOf(stats.getEmptySpaces()));
         mostCommonGenotypes.setText(stats.getMostPopularGenotypes().toString());
         List<String> currentMostPopularGenotypes = stats.getMostPopularGenotypes();
-        if (currentMostPopularGenotypes.isEmpty()) {mostCommonGenotypes.setText("no animals on the map");}
+        if (currentMostPopularGenotypes.isEmpty()) {mostCommonGenotypes.setText("no animals on map");}
         else {
             if (currentMostPopularGenotypes.size() > 1) {
                 mostCommonGenotypes.setText("%s (%d more)".formatted(
@@ -546,9 +546,10 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             }
             else {mostCommonGenotypes.setText(currentMostPopularGenotypes.get(new Random().nextInt(currentMostPopularGenotypes.size())));}
         }
-        averageEnergy.setText(stats.getAverageEnergy().getLast().toString());
-        averageLifespan.setText(stats.getAverageLifespan().getLast().toString());
-        averageNumberOfChildren.setText(simulation.getStats().getAverageNumberOfChildren().getLast().toString());
+        averageEnergy.setText(String.valueOf(stats.getAverageEnergy()));
+        averageLifespan.setText(String.valueOf(stats.getAverageLifespan()));
+        averageNumberOfChildren.setText(String.valueOf(simulation.getStats().getAverageNumberOfChildren()));
+
         if(highlightedAnimal!=null){
             genome.setText(stats.getGenome().toString());
             plantsEaten.setText(stats.getPlantsEaten().toString());
@@ -563,22 +564,22 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     }
 
     public void onNumberOfAnimalsChartButtonClicked() {
-        showChart("Number of animals chart", simulation.getStats().getNumberOfAllAnimals());
+        showChart("Number of animals chart", simulation.getStats().getDailyNumberOfAllAnimals());
     }
     public void onNumberOfPlantsChartButtonClicked() {
-        showChart("Number of plants chart", simulation.getStats().getNumberOfAllPlants());
+        showChart("Number of plants chart", simulation.getStats().getDailyNumberOfAllPlants());
     }
     public void onNumberOfEmptySpacesChartButtonClicked() {
-        showChart("Number of empty spaces chart", simulation.getStats().getEmptySpaces());
+        showChart("Number of empty spaces chart", simulation.getStats().getDailyEmptySpaces());
     }
     public void onAverageEnergyChartButtonClicked() {
-        showChart("Average energy chart", simulation.getStats().getAverageEnergy());
+        showChart("Average energy chart", simulation.getStats().getDailyAverageEnergy());
     }
     public void onAverageLifespanChartButtonClicked() {
-        showChart("Average lifespan chart", simulation.getStats().getAverageLifespan());
+        showChart("Average lifespan chart", simulation.getStats().getDailyAverageLifespan());
     }
     public void onAverageNumberOfChildrenChartButtonClicked() {
-        showChart("Average number of children chart", simulation.getStats().getAverageNumberOfChildren());
+        showChart("Average number of children chart", simulation.getStats().getDailyAverageNumberOfChildren());
     }
 
     private void showChart(String title, List<Integer> data){
