@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class ConfigurationPresenter extends AppPresenter implements ConfigurationLoader {
-    private static Integer counter = 0;
+    private static Integer fileCounter = 0;
     @FXML
     private final ToggleGroup animalsBehaviourGroup = new ToggleGroup(), mapEdgesGroup = new ToggleGroup();
     @FXML
@@ -91,8 +91,8 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
             return;
         }
         this.config = config;
-        CSVWriter.writeConfiguration(config, "config-" + counter + ".csv", this::infoAlert);
-        counter++;
+        CSVWriter.writeConfiguration(config, "config-" + fileCounter + ".csv", this::infoAlert);
+        fileCounter++;
 
     }
 

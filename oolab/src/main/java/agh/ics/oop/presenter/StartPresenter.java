@@ -1,16 +1,7 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.core.AppState;
-import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.ConfigurationInvalidException;
-import agh.ics.oop.core.ConfigurationLoader;
-import agh.ics.oop.util.CSVConfigurationReader;
+
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
