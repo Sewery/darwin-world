@@ -123,7 +123,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private int cellsInAColumn;
     private int cellSize = 20;
     private SimulationEngine engine = null;
-    HealthBarView healthBarView = new HealthBarView();
+    private final HealthBarView healthBarView = new HealthBarView();
 
     @Setter
     private Configuration configuration;
@@ -323,6 +323,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                         animal.getNumberOfDescendants(),
                         animal.getAge()
                 );
+                worldMap.notifyObservers("Animal highlighted");
             }
         });
 
@@ -530,6 +531,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             highlightedAnimal.removeObserver(this);
             simulation.getStats().resetHighlightedAnimal();
             this.highlightedAnimal = null;
+            worldMap.notifyObservers("Animal unhighlighted");
         }
     }
 }
