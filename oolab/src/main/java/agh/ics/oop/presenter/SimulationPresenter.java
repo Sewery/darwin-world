@@ -14,6 +14,7 @@ import agh.ics.oop.model.animal_life.AnimalChangeListener;
 import agh.ics.oop.model.animal_life.AnimalComparator;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
+import agh.ics.oop.presenter.components.HealthBarView;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -122,6 +123,8 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private int cellsInAColumn;
     private int cellSize = 20;
     private SimulationEngine engine = null;
+    HealthBarView healthBarView = new HealthBarView();
+
     @Setter
     private Configuration configuration;
     public void setWorldMap(WorldMap worldMap) {
@@ -219,34 +222,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                     configuration.height(),
                     Color.LIGHTBLUE
             );
-//            for (int row = 0; row < equatorWidth; row++) {
-//                for (int col = 0; col < cellsInARow + 1; col++) {
-//                    Rectangle rect = new Rectangle(cellSize, cellSize);
-//                    rect.setFill(Color.LIGHTBLUE);
-//                    mapGrid.add(rect, col + 1, row + 1);
-//                }
-//            }
-//            for (int row = equatorWidth; row < equatorUpperBound; row++) {
-//                for (int col = 0; col < cellsInARow + 1; col++) {
-//                    Rectangle rect = new Rectangle(cellSize, cellSize);
-//                    rect.setFill(Color.LIGHTGREEN);
-//                    mapGrid.add(rect, col + 1, row + 1);
-//                }
-//            }
-//            for (int row = equatorLowerBound + 1; row <= configuration.height() - 1 - equatorWidth; row++) {
-//                for (int col = 0; col < cellsInARow + 1; col++) {
-//                    Rectangle rect = new Rectangle(cellSize, cellSize);
-//                    rect.setFill(Color.LIGHTGREEN);
-//                    mapGrid.add(rect, col + 1, row + 1);
-//                }
-//            }
-//            for (int row = configuration.height() - 1; row > configuration.height() - 1 - equatorWidth; row--) {
-//                for (int col = 0; col < cellsInARow + 1; col++) {
-//                    Rectangle rect = new Rectangle(cellSize, cellSize);
-//                    rect.setFill(Color.LIGHTBLUE);
-//                    mapGrid.add(rect, col + 1, row + 1);
-//                }
-//            }
+
         } else {
             addRectsToGrid(
                     0,
@@ -258,24 +234,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                     configuration.height(),
                     Color.LIGHTGREEN
             );
-
-//            for (int row = 0; row < equatorUpperBound; row++) {
-//                for (int col = 0; col < cellsInARow + 1; col++) {
-//                    Rectangle rect = new Rectangle(cellSize, cellSize);
-//                    rect.setFill(Color.LIGHTGREEN);
-//                    mapGrid.add(rect, col + 1, row + 1);
-//                }
-//            }
-//
-//            for (int row = equatorLowerBound + 1; row < configuration.height(); row++) {
-//                for (int col = 0; col < cellsInARow + 1; col++) {
-//                    Rectangle rect = new Rectangle(cellSize, cellSize);
-//                    rect.setFill(Color.LIGHTGREEN);
-//                    mapGrid.add(rect, col + 1, row + 1);
-//                }
-//            }
-
-
         }
     }
     private void addRectsToGrid(int rowStart,int rowEnd,Color color){
@@ -339,7 +297,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         if (animal == highlightedAnimal) {
             colorAdjust.setHue(0.3);       // Red tint
             colorAdjust.setSaturation(0.8);
-            //Dodaj bronzowa poswiate
+            //Dodaj brazowa poswiate
         } else {
             colorAdjust.setHue(-0.05);
             colorAdjust.setSaturation(0.3);
@@ -368,7 +326,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             }
         });
 
-        AnchorPane healthBar = createHealthBar(animal.getEnergy(), simulation.getMaxEnergy());
+        AnchorPane healthBar = healthBarView.createHealthBar(animal.getEnergy(), simulation.getMaxEnergy(), cellSize);
 
         VBox mapElement = new VBox(animalView, healthBar);
         mapElement.setAlignment(Pos.CENTER);
@@ -378,67 +336,19 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     }
 
     private void drawGrass(int x, int y) {
-        //Label mapElement = new Label("*");
         ImageView plantView = new ImageView(plantImage);
         VBox mapElement = new VBox(plantView);
         mapElement.setAlignment(Pos.CENTER);
         mapGrid.add(mapElement, x, y + 1);
         GridPane.setHalignment(mapElement, HPos.CENTER);
-
     }
 
     private Animal getStrongestAnimalOnPosition(List<Animal> animals) {
         if (highlightedAnimal != null) {
             if (animals.contains(highlightedAnimal)) {
-                return highlightedAnimal;
-            }
-        }
+                return highlightedAnimal;}}
         animals.sort(new AnimalComparator());
         return animals.getFirst();
-    }
-
-    private AnchorPane createHealthBar(int currentEnergy, int maxEnergy) {
-        int width = cellSize * 7 / 10;
-        int height = cellSize / 10;
-
-        Rectangle background = new Rectangle(width, height);
-        background.setFill(Color.DARKGRAY);
-        background.setArcWidth(height);
-        background.setArcHeight(height);
-
-        double healthPercentage = (double) currentEnergy / maxEnergy;
-        Rectangle health = new Rectangle(width * healthPercentage, height);
-        if (healthPercentage > 0.5) {
-            health.setFill(Color.GREEN);
-        } else if (healthPercentage > 0.1) {
-            health.setFill(Color.ORANGE);
-        } else {
-            health.setFill(Color.RED);
-        }
-        health.setArcWidth(height);
-        health.setArcHeight(height);
-
-        Rectangle border = new Rectangle(width, height);
-        border.setFill(Color.TRANSPARENT);
-        border.setStroke(Color.BLACK);
-        border.setStrokeWidth(height / 5);
-        border.setArcWidth(height);
-        border.setArcHeight(height);
-
-
-        AnchorPane healthBar = new AnchorPane();
-        healthBar.setPrefSize(width, height);
-        healthBar.getChildren().add(background);
-        AnchorPane.setTopAnchor(background, 0.0);
-        AnchorPane.setLeftAnchor(background, 0.0);
-        healthBar.getChildren().add(health);
-        AnchorPane.setTopAnchor(health, 0.0);
-        AnchorPane.setLeftAnchor(health, 0.0);
-        healthBar.getChildren().add(border);
-        AnchorPane.setTopAnchor(border, 0.0);
-        AnchorPane.setLeftAnchor(border, 0.0);
-
-        return healthBar;
     }
 
     private void clearGrid() {
@@ -450,9 +360,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     @Override
     public void mapChanged(WorldMap worldMap, String message) {
         setWorldMap(worldMap);
-        if (message.equals("Simulation paused")) {
-            //todo
-        }
         Platform.runLater(() -> {
             clearGrid();
             drawMap();
@@ -469,9 +376,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     public void onSimulationStartClicked() throws IllegalArgumentException {
         savingStatsToFile.disableProperty().set(true);
         if (configuration != null) {
-
             if (!this.isInitialized) {
-
                 WorldMap map = (configuration.mapStrategy() == Configuration.MapStrategy.POLES) ? new GrassFieldWithPoles(configuration) : new GrassField(configuration);
                 Statistics statistics = new Statistics(configuration);
                 Simulation simulation = new Simulation(map, configuration, statistics,savingStatsToFile.isSelected());
@@ -525,7 +430,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         }
     }
 
-
     private void displayStatistics() {
         val stats = simulation.getStats();
         numberOfAnimals.setText(String.valueOf(stats.getNumberOfAllAnimals()));
@@ -557,32 +461,23 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             age.setText(stats.getAge().toString());
             dayOfDeath.setText(stats.getDayOfDeath().toString());
         }
-
     }
 
     public void onNumberOfAnimalsChartButtonClicked() {
-        showChart("Number of animals chart", simulation.getStats().getDailyNumberOfAllAnimals());
-    }
+        showChart("Number of animals chart", simulation.getStats().getDailyNumberOfAllAnimals());}
     public void onNumberOfPlantsChartButtonClicked() {
-        showChart("Number of plants chart", simulation.getStats().getDailyNumberOfAllPlants());
-    }
+        showChart("Number of plants chart", simulation.getStats().getDailyNumberOfAllPlants());}
     public void onNumberOfEmptySpacesChartButtonClicked() {
-        showChart("Number of empty spaces chart", simulation.getStats().getDailyEmptySpaces());
-    }
+        showChart("Number of empty spaces chart", simulation.getStats().getDailyEmptySpaces());}
     public void onAverageEnergyChartButtonClicked() {
-        showChart("Average energy chart", simulation.getStats().getDailyAverageEnergy());
-    }
+        showChart("Average energy chart", simulation.getStats().getDailyAverageEnergy());}
     public void onAverageLifespanChartButtonClicked() {
-        showChart("Average lifespan chart", simulation.getStats().getDailyAverageLifespan());
-    }
+        showChart("Average lifespan chart", simulation.getStats().getDailyAverageLifespan());}
     public void onAverageNumberOfChildrenChartButtonClicked() {
-        showChart("Average number of children chart", simulation.getStats().getDailyAverageNumberOfChildren());
-    }
+        showChart("Average number of children chart", simulation.getStats().getDailyAverageNumberOfChildren());}
 
     private void showChart(String title, List<Integer> data){
-
         lineChart.getData().clear();
-
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName(title);
 
@@ -592,7 +487,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         }
 
         lineChart.getData().add(series);
-
         generalStatisticsVBox.setVisible(false);
         generalStatisticsVBox.setManaged(false);
         chartContainer.setVisible(true);
@@ -622,12 +516,12 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                     isStartEnabled.set(false);
                     stats.updateDayOfDeath(highlightedAnimal.getDayOfDeath());
                     Platform.runLater(() -> new Alert(Alert.AlertType.INFORMATION, "Observed animal died", ButtonType.OK).show());
-
                 }
             }
             simulation.getStats().updateCurrentEnergy(animal.getEnergy());
         }
     }
+
     @FXML
     public void onStopObservingButtonClicked(ActionEvent actionEvent) {
         if(highlightedAnimal != null) {
