@@ -1,7 +1,7 @@
 package agh.ics.oop.presenter;
 
 import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.ConfigurationLoader;
+import agh.ics.oop.core.ConfigurationValidator;
 import agh.ics.oop.util.CSVConfigurationReader;
 import agh.ics.oop.util.CSVWriter;
 import javafx.application.Platform;
@@ -20,7 +20,9 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 
-public class ConfigurationPresenter extends AppPresenter implements ConfigurationLoader {
+import static agh.ics.oop.core.ConfigurationValidator.validate;
+
+public class ConfigurationPresenter extends AppPresenter {
     private static Integer fileCounter = 0;
     @FXML
     private final ToggleGroup animalsBehaviourGroup = new ToggleGroup(), mapEdgesGroup = new ToggleGroup();
@@ -109,7 +111,6 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
 
     }
 
-    @Override
     public Configuration loadConfiguration() {
        return new Configuration(
                 height.getValue(),

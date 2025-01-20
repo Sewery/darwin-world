@@ -76,6 +76,8 @@ public class Simulation implements Runnable {
             }
         }
     }
+    //todo
+    // delete it
     private static List<Integer> toList(int[] array) {
         List<Integer> list = new ArrayList<>();
         for (int num : array) {
@@ -83,7 +85,9 @@ public class Simulation implements Runnable {
         }
         return list;
     }
-
+     List<Animal> getAnimals() {
+        return Collections.unmodifiableList(animals);
+    }
     private int[] getRandomGenotype() {
         Random random = new Random();
         int[] genotype = new int[genotypeLength];
@@ -124,6 +128,7 @@ public class Simulation implements Runnable {
 
         while (this.running) {
 
+            //Stop optimization
             synchronized (this) {
                 while (this.running && this.paused) {
                     try {
@@ -173,7 +178,7 @@ public class Simulation implements Runnable {
 
     }
     // SIMULATIONS STEPS
-    private void removeDeadAnimals() {
+    void removeDeadAnimals() {
         ArrayList<Animal> deadAnimals = new ArrayList<>();
         for (Animal animal : animals) {
             if (animal.getEnergy() == 0) {
@@ -200,7 +205,7 @@ public class Simulation implements Runnable {
         stats.updateMostPopularGenotypes(getMostCommonGenotypes());
     }
 
-    private void moveAnimals() {
+    void moveAnimals() {
         for (Animal animal : animals) {
             map.move(animal);
         }
@@ -209,7 +214,7 @@ public class Simulation implements Runnable {
 
     }
 
-    private void growPlants() {
+    void growPlants() {
         map.growPlants(map.getNumberOfNewGrassesEachDay());
         map.notifyObservers("Day %s: grow plants".formatted(daysCount));
 
@@ -217,7 +222,7 @@ public class Simulation implements Runnable {
         stats.updateEmptySpaces(getNUmberOfEmptySpaces());
     }
 
-    private void consumePlants() {
+    void consumePlants() {
         map.consumePlants();
         map.notifyObservers("Day %s: consume plants".formatted(daysCount));
 
@@ -227,7 +232,7 @@ public class Simulation implements Runnable {
 
     }
 
-    private void reproduce() {
+     void reproduce() {
         List<Animal> createdAnimals = map.reproduce();
 
         for (Animal animal : createdAnimals) {
@@ -279,8 +284,6 @@ public class Simulation implements Runnable {
         }
 
         final int maxCount = findMaxCount;
-
-        //System.out.println(allGenotypes.keySet());
 
         return allGenotypes.entrySet()
                 .stream()
