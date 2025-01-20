@@ -11,6 +11,19 @@ import java.util.stream.Collectors;
 public class Statistics {
 
     private final List<StatisticsChangeListener> observers = new ArrayList<>();
+    // daily statistics for charts
+    @Getter
+    private final List<Integer> dailyNumberOfAllAnimals;
+    @Getter
+    private final List<Integer> dailyNumberOfAllPlants;
+    @Getter
+    private final List<Integer> dailyEmptySpaces;
+    @Getter
+    private final List<Integer> dailyAverageEnergy;
+    @Getter
+    private final List<Integer> dailyAverageLifespan;
+    @Getter
+    private final List<Integer> dailyAverageNumberOfChildren;
     @Getter
     @Setter
     private int numberOfDay;
@@ -29,21 +42,6 @@ public class Statistics {
     private int averageNumberOfChildren;
     @Getter
     private List<String> mostPopularGenotypes = new ArrayList<>();
-
-    // daily statistics for charts
-    @Getter
-    private final List<Integer> dailyNumberOfAllAnimals;
-    @Getter
-    private final List<Integer> dailyNumberOfAllPlants;
-    @Getter
-    private final List<Integer> dailyEmptySpaces;
-    @Getter
-    private final List<Integer> dailyAverageEnergy;
-    @Getter
-    private final List<Integer> dailyAverageLifespan;
-    @Getter
-    private final List<Integer> dailyAverageNumberOfChildren;
-
     // statistics for chosen animal
     @Getter
     private List<Integer> genome;
@@ -98,10 +96,12 @@ public class Statistics {
             observer.statisticsChanged(this);
         }
     }
+
     public void updateNumberOfDay(int numberOfDay) {
         this.numberOfDay = numberOfDay;
         notifyObservers();
     }
+
     public void updateDailyStatistics(int numberOfAllAnimals, int numberOfAllPlants, int emptySpaces, int averageEnergy, int averageLifespan, int averageNUmberOfChildren) {
         this.dailyNumberOfAllAnimals.add(numberOfAllAnimals);
         this.dailyNumberOfAllPlants.add(numberOfAllPlants);
@@ -113,27 +113,27 @@ public class Statistics {
     }
 
     public void updateNumberOfAllAnimals(int numberOfAllAnimals) {
-        this.numberOfAllAnimals=numberOfAllAnimals;
+        this.numberOfAllAnimals = numberOfAllAnimals;
         notifyObservers();
     }
 
     public void updateNumberOfAllPlants(int numberOfAllPlants) {
-        this.numberOfAllPlants=numberOfAllPlants;
+        this.numberOfAllPlants = numberOfAllPlants;
         notifyObservers();
     }
 
     public void updateAverageEnergy(int averageEnergy) {
-        this.averageEnergy=averageEnergy;
+        this.averageEnergy = averageEnergy;
         notifyObservers();
     }
 
     public void updateAverageLifespan(int averageLifespan) {
-        this.averageLifespan=averageLifespan;
+        this.averageLifespan = averageLifespan;
         notifyObservers();
     }
 
     public void updateAverageNumberOfChildren(int averageNUmberOfChildren) {
-        this.averageNumberOfChildren=averageNUmberOfChildren;
+        this.averageNumberOfChildren = averageNUmberOfChildren;
         notifyObservers();
     }
 
@@ -143,7 +143,7 @@ public class Statistics {
     }
 
     public void updateEmptySpaces(int emptySpaces) {
-        this.emptySpaces=emptySpaces;
+        this.emptySpaces = emptySpaces;
         notifyObservers();
     }
 
@@ -164,16 +164,18 @@ public class Statistics {
         this.dayOfDeath = -1;
         notifyObservers();
     }
+
     public void resetHighlightedAnimal() {
-        this.genome =  null;
-        this.currentGene =  null;
-        this.currentEnergy =  null;
+        this.genome = null;
+        this.currentGene = null;
+        this.currentEnergy = null;
         this.plantsEaten = null;
         this.numberOfChildren = null;
-        this.numberOfDescendants =  null;
+        this.numberOfDescendants = null;
         this.age = null;
         this.dayOfDeath = -1;
     }
+
     public void updateNumberOfDescendants(int numberOfDescendants) {
         this.numberOfDescendants = numberOfDescendants;
         notifyObservers();
@@ -188,6 +190,7 @@ public class Statistics {
         this.currentGene = gene;
         notifyObservers();
     }
+
     public void updateCurrentEnergy(int currentEnergy) {
         this.currentEnergy = currentEnergy;
         notifyObservers();
@@ -201,6 +204,7 @@ public class Statistics {
     public void updatePlantsEaten(int plantEaten) {
         this.plantsEaten = plantEaten;
     }
+
     public void updateDayOfDeath(Integer dayOfDeath) {
         this.dayOfDeath = dayOfDeath;
     }

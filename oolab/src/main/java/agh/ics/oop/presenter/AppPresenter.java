@@ -20,7 +20,7 @@ public class AppPresenter {
             new Alert(Alert.AlertType.ERROR, err.getMessage(), ButtonType.OK).show();
     }
     protected void infoAlert(String message) {
-        System.err.println(message);
+        System.out.println(message);
         new Alert(Alert.AlertType.INFORMATION, message, ButtonType.OK).show();
     }
     public void changeScene(String newScene, ActionEvent actionEvent, AppPresenter presenter) throws IOException {
