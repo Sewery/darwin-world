@@ -88,6 +88,7 @@ public class Reproduction {
     }
 
     public Animal createAChild(){
+        int[] createdGenotype = createGenotype();
         parentOne.reproduce(animalLife.initialEnergyOfAnimals()/2);
         parentTwo.reproduce(animalLife.initialEnergyOfAnimals()-animalLife.initialEnergyOfAnimals()/2);
 
@@ -102,7 +103,7 @@ public class Reproduction {
 
         return new Animal(
                 this.position,
-                createGenotype(),
+                createdGenotype,
                 unionedAncestors,
                 animalLife.energyPerGrass(),
                 animalLife.initialEnergyOfAnimals()

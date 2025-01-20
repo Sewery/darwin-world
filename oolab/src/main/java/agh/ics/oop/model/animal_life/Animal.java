@@ -29,6 +29,7 @@ public class Animal implements WorldElement, AnimalInterface {
     private boolean alive = true;
     @Getter
     private int plantsEaten = 0;
+    @Getter
     private final Set<Animal> ancestors;
     @Getter
     private int numberOfDescendants = 0;
@@ -128,11 +129,10 @@ public class Animal implements WorldElement, AnimalInterface {
         notifyObserver("numberOfChildren");
     }
 
-    Set<Animal> getAncestors() {return ancestors;}
-
     void increaseNumberOfDescendants(){
         this.numberOfDescendants++;
         notifyObserver("numberOfDescendants");
     }
+
 
 }
