@@ -13,22 +13,5 @@ public class AnimalComparator implements Comparator<Animal> {
             return o1.getAge() - o2.getAge();
         }
         return Integer.compare(o1.getNumberOfChildren(), o2.getNumberOfChildren());
-//        if (o1.getEnergy() > o2.getEnergy()){
-//            return 1;
-//        }
-//        else if (o1.getEnergy() < o2.getEnergy()){
-//            return -1;
-//        }
-//        else{
-//            if (o1.getAge() > o2.getAge()){
-//                return 1;
-//            }
-//            else if (o1.getAge() < o2.getAge()){
-//                return -1;
-//            }
-//            else{
-//                return Integer.compare(o1.getNumberOfChildren(), o2.getNumberOfChildren());
-//            }
-//        }
     }
 }

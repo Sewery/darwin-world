@@ -26,14 +26,14 @@ public interface WorldMap extends MoveValidator {
 
     void addObserver(MapChangeListener mapChangeListener);
     void removeObserver(MapChangeListener mapChangeListener);
-    public void notifyObservers(String message);
+    void notifyObservers(String message);
     int getID();
 
-    public void growPlants(int grassCount);
-    public int getNumberOfNewGrassesEachDay();
-    public void consumePlants();
+    void growPlants(int grassCount);
+    int getNumberOfNewGrassesEachDay();
+    void consumePlants();
 
-    public List<Animal> reproduce();
-    public int getNumberOfGrasses();
-    public int getNumberOfEmptySpaces();
+    List<Animal> reproduce();
+    int getNumberOfGrasses();
+    int getNumberOfEmptySpaces();
 }

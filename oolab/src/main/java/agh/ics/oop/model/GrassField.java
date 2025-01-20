@@ -95,7 +95,6 @@ public class GrassField implements WorldMap {
             selectedArea.remove(randomGrassPosition);
         }
 
-
     }
 
     private ArrayList<Vector2d> randomSelect(ArrayList<Vector2d> areaOne, ArrayList<Vector2d> areaTwo) {
@@ -171,7 +170,6 @@ public class GrassField implements WorldMap {
 
     @Override
     public Vector2d canMoveTo(Vector2d position) {
-
 
         if (position.follows(lowerLeft) && position.precedes(upperRight)) {
             return position;
@@ -277,17 +275,12 @@ public class GrassField implements WorldMap {
         for (Vector2d position : animals.keySet()) {
 
             List<Animal> parents = filterReproductiveAnimals(animalsAt(position));
-            //System.out.println("%s %s".formatted(animals, parents));
 
             if (parents == null) {
-                continue;
-            }
+                continue; }
 
             if (parents.size() > 2) {
-                parents = resolveReproductionConflict(parents);
-            }
-
-            //System.out.println("%s, %s".formatted(animals, parents));
+                parents = resolveReproductionConflict(parents); }
 
             Reproduction reproduction = new Reproduction(
                     parents.getFirst(),

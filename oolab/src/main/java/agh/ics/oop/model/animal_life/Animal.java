@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.util.Random;
 import java.util.Set;
 
-public class Animal implements WorldElement {
+public class Animal implements WorldElement, AnimalInterface {
 
     protected AnimalChangeListener observer;
     @Getter

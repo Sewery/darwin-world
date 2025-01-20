@@ -1,7 +1,5 @@
 package agh.ics.oop.model;
 
-import java.util.Arrays;
-
 public enum MapDirection {
     NORTH,
     NORTHEAST,
@@ -22,7 +20,6 @@ public enum MapDirection {
             new Vector2d(-1,0),
             new Vector2d(-1,1),
     };
-
 
     public String toString() {
         return switch (this) {
