@@ -206,7 +206,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             );
             addRectsToGrid(
                     equatorWidth,
-                    equatorWidth,
+                    equatorUpperBound,
                     Color.LIGHTGREEN
             );
             addRectsToGrid(
