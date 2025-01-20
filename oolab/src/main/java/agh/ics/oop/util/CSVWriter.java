@@ -9,26 +9,6 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.function.Consumer;
 
-//public abstract class CSVWriter<T> {
-//    protected String filePath;
-//    protected PrintWriter writer;
-//    protected T data;
-//    protected CSVWriter(String filename, T data) {
-//        String DOCUMENTS_PATH = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
-//        this.data = data;
-//        try {
-//            filePath=DOCUMENTS_PATH+'/'+filename+".csv";
-//            this.writer = new PrintWriter(filePath);
-//        } catch (FileNotFoundException e) {
-//            System.err.println(e.getMessage());
-//        }
-//    }
-//    public abstract void writeHeader();
-//    public abstract void writeRow();
-//    public void close() {
-//        writer.close();
-//    }
-
 public class CSVWriter{
     private static void writeConfigurationHeader(PrintWriter writer) {
         writer.println("width,height,initialNumberOfGrasses,numberOfNewGrassesEachDay,energyPerGrass," +

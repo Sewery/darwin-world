@@ -13,19 +13,19 @@
     <top>
         <VBox alignment="CENTER">
             <Label fx:id="title" text="Welcome to Darwin World!" textAlignment="CENTER" styleClass="title"/>
-            <Label fx:id="subtitle" text="Choose your configuration:" textAlignment="CENTER" styleClass="subtitle"/>
+            <Label fx:id="subtitle" text="Let's begin your journey" textAlignment="CENTER" styleClass="subtitle"/>
         </VBox>
     </top>
     <center>
         <HBox alignment="CENTER" spacing="40">
+<!--            <VBox alignment="CENTER" spacing="20">-->
+<!--                <Button fx:id="createConfig" text="Create new configuration" textAlignment="CENTER" styleClass="config-button" onAction="#onCreateNewSimulationClicked"/>-->
+<!--            </VBox>-->
+<!--            <VBox alignment="CENTER" spacing="20">-->
+<!--                <Button fx:id="loadConfig" text="Load configuration" textAlignment="CENTER" styleClass="config-button" onAction="#onLoadSimulationClicked"/>-->
+<!--            </VBox>-->
             <VBox alignment="CENTER" spacing="20">
-                <Button fx:id="createConfig" text="Create new configuration" textAlignment="CENTER" styleClass="config-button" onAction="#onCreateNewSimulationClicked"/>
-            </VBox>
-            <VBox alignment="CENTER" spacing="20">
-                <Button fx:id="loadConfig" text="Load configuration" textAlignment="CENTER" styleClass="config-button" onAction="#onLoadSimulationClicked"/>
-            </VBox>
-            <VBox alignment="CENTER" spacing="20">
-                <Button fx:id="start" text="Start" textAlignment="CENTER" styleClass="config-button" onAction="#onStartClicked"/>
+                <Button fx:id="start" text="Start" textAlignment="CENTER" styleClass="config-button" onAction="#onCreateNewSimulationClicked"/>
             </VBox>
         </HBox>
     </center>

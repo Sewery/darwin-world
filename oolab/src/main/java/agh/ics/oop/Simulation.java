@@ -15,6 +15,7 @@ import static java.lang.Math.max;
 
 public class Simulation implements Runnable {
 
+    private static Integer fileCounter = 0;
     private final List<Animal> animals;
     private final Map<List<Integer>, Integer> allGenotypes = new HashMap<>();
     private final WorldMap map;
@@ -45,6 +46,8 @@ public class Simulation implements Runnable {
         int height = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
         generateRandomPositionsForAnimals(width, height);
         this.running = true;
+        if(writeToFileStats)
+            fileCounter++;
     }
     private void generateRandomPositionsForAnimals(int width, int height) {
         RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, config.initialNumberOfAnimals());
@@ -108,9 +111,6 @@ public class Simulation implements Runnable {
     }
 
     public void run() {
-        //StatisticsFileWriter statisticsFileWriter=null;
-        //System.out.println("Simulation started as: ");
-        //System.out.println(map);
         if (animals.isEmpty()) return;
         // print genotypów
         //for (int i = 0; i < animals.size(); i++) {
@@ -118,8 +118,9 @@ public class Simulation implements Runnable {
         //}
 
         //System.out.println();
-        if(writeToFileStats)
-            writeStatisticsHeader(stats,"stats.csv");
+        if(writeToFileStats){
+            writeStatisticsHeader(stats,"stats-"+fileCounter+".csv");
+        }
 
         while (this.running) {
 
@@ -164,7 +165,7 @@ public class Simulation implements Runnable {
             growPlants();
             stats.updateNumberOfDay(daysCount);
             if(writeToFileStats)
-                writeStatisticsLine(stats,"stats.csv");
+                writeStatisticsLine(stats,"stats-"+fileCounter+".csv");
             daysCount += 1;
             stats.updateDailyStatistics(getNumberOfAllAnimals(), getNumberOfAllPlants(), getNUmberOfEmptySpaces(), getAverageEnergy(), getAverageLifeSpan(), getAverageNumberOfChildren());
         }
@@ -228,8 +229,6 @@ public class Simulation implements Runnable {
 
     private void reproduce() {
         List<Animal> createdAnimals = map.reproduce();
-
-        //System.out.println(createdAnimals);
 
         for (Animal animal : createdAnimals) {
             //System.out.printf("Nowe zwierze: %s %s\n", animal.getEnergy(), animal.getPosition().toString());

@@ -4,26 +4,24 @@ import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.core.Configuration;
 import agh.ics.oop.core.Statistics;
+import agh.ics.oop.core.StatisticsChangeListener;
 import agh.ics.oop.model.GrassField;
 import agh.ics.oop.model.GrassFieldWithPoles;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.WorldMap;
 import agh.ics.oop.model.animal_life.Animal;
-import agh.ics.oop.model.animal_life.AnimalComparator;
 import agh.ics.oop.model.animal_life.AnimalChangeListener;
+import agh.ics.oop.model.animal_life.AnimalComparator;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
-import agh.ics.oop.core.StatisticsChangeListener;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.effect.ColorAdjust;
@@ -32,7 +30,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
 
@@ -624,7 +621,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                     simulation.pauseSimulation();
                     isStartEnabled.set(false);
                     stats.updateDayOfDeath(highlightedAnimal.getDayOfDeath());
-                    Platform.runLater(() -> {    new Alert(Alert.AlertType.INFORMATION, "Observed animal died", ButtonType.OK).show();});
+                    Platform.runLater(() -> new Alert(Alert.AlertType.INFORMATION, "Observed animal died", ButtonType.OK).show());
 
                 }
             }
