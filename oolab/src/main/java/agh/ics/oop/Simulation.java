@@ -1,7 +1,7 @@
 package agh.ics.oop;
 
-import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.Statistics;
+import agh.ics.oop.model.core.Configuration;
+import agh.ics.oop.model.core.Statistics;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.animal_life.AgingAnimal;
 import agh.ics.oop.model.animal_life.Animal;
@@ -10,7 +10,7 @@ import lombok.Getter;
 
 import java.util.*;
 
-import static agh.ics.oop.util.CSVWriter.*;
+import static agh.ics.oop.tools.CSVWriter.*;
 import static java.lang.Math.max;
 
 public class Simulation implements Runnable {

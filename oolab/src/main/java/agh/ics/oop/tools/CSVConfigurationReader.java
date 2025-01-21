@@ -1,7 +1,7 @@
-package agh.ics.oop.util;
+package agh.ics.oop.tools;
 
-import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.ConfigurationInvalidException;
+import agh.ics.oop.model.core.Configuration;
+import agh.ics.oop.model.core.ConfigurationInvalidException;
 
 import java.io.File;
 import java.util.Scanner;

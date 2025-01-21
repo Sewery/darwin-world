@@ -1,10 +1,9 @@
-package agh.ics.oop.util;
+package agh.ics.oop.tools;
 
-import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.Statistics;
+import agh.ics.oop.model.core.Configuration;
+import agh.ics.oop.model.core.Statistics;
 
 import javax.swing.filechooser.FileSystemView;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.function.Consumer;

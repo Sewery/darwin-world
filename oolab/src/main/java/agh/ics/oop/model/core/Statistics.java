@@ -1,4 +1,4 @@
-package agh.ics.oop.core;
+package agh.ics.oop.model.core;
 
 import lombok.Getter;
 import lombok.Setter;

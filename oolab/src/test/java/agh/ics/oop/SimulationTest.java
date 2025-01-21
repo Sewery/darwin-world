@@ -1,11 +1,10 @@
 package agh.ics.oop;
 
-import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.Statistics;
+import agh.ics.oop.model.core.Configuration;
+import agh.ics.oop.model.core.Statistics;
 import agh.ics.oop.model.GrassField;
 import agh.ics.oop.model.WorldMap;
 import agh.ics.oop.model.animal_life.Animal;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

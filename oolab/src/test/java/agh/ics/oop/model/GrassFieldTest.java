@@ -1,16 +1,12 @@
 package agh.ics.oop.model;
 
-import agh.ics.oop.core.Configuration;
+import agh.ics.oop.model.core.Configuration;
 import agh.ics.oop.model.animal_life.Animal;
-import agh.ics.oop.model.util.Boundary;
-import javafx.scene.control.RadioButton;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import static java.lang.Math.sqrt;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GrassFieldTest {

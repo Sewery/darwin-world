@@ -1,4 +1,4 @@
-package agh.ics.oop.core;
+package agh.ics.oop.model.core;
 
 public class ConfigurationValidator {
     public static void validate( Configuration config) throws ConfigurationInvalidException {

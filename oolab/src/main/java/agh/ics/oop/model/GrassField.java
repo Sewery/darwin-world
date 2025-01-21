@@ -1,6 +1,6 @@
 package agh.ics.oop.model;
 
-import agh.ics.oop.core.Configuration;
+import agh.ics.oop.model.core.Configuration;
 import agh.ics.oop.model.animal_life.Animal;
 import agh.ics.oop.model.animal_life.AnimalComparator;
 import agh.ics.oop.model.animal_life.AnimalLife;

@@ -1,9 +1,8 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.ConfigurationValidator;
-import agh.ics.oop.util.CSVConfigurationReader;
-import agh.ics.oop.util.CSVWriter;
+import agh.ics.oop.model.core.Configuration;
+import agh.ics.oop.tools.CSVConfigurationReader;
+import agh.ics.oop.tools.CSVWriter;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,7 +19,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 
-import static agh.ics.oop.core.ConfigurationValidator.validate;
+import static agh.ics.oop.model.core.ConfigurationValidator.validate;
 
 public class ConfigurationPresenter extends AppPresenter {
     private static Integer fileCounter = 0;

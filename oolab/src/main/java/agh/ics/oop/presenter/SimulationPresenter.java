@@ -2,9 +2,9 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
-import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.Statistics;
-import agh.ics.oop.core.StatisticsChangeListener;
+import agh.ics.oop.model.core.Configuration;
+import agh.ics.oop.model.core.Statistics;
+import agh.ics.oop.model.core.StatisticsChangeListener;
 import agh.ics.oop.model.GrassField;
 import agh.ics.oop.model.GrassFieldWithPoles;
 import agh.ics.oop.model.Vector2d;
