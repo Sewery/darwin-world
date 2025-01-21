@@ -34,7 +34,7 @@
 .spinner{
 }
 .box-property{
-    -fx-padding: 10 10 0 10;
+    -fx-padding: 10 10 0 20;
 }
 .config-button {
     -fx-font-family: sans-serif;

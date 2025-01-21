@@ -52,7 +52,7 @@ public class ConfigurationPresenter extends AppPresenter {
     private RadioButton forestedEquator, ageOfBurden;
     @FXML
     private RadioButton poles, globe;
-    private  Configuration config;
+    private Configuration config;
 
     @FXML
     private void initialize() {

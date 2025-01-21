@@ -42,7 +42,6 @@ import static java.lang.Math.max;
 
 
 public class SimulationPresenter extends AppPresenter implements MapChangeListener, StatisticsChangeListener, AnimalChangeListener {
-    private final BooleanProperty isStartEnabled = new SimpleBooleanProperty(false);
     @FXML
     private  Label currentEnergy;
     @FXML
@@ -105,6 +104,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     private VBox generalStatisticsVBox;
     @FXML
     private LineChart<Number, Number> lineChart;
+    private final BooleanProperty isStartEnabled = new SimpleBooleanProperty(false);
 
     private Image animalImage;
     private Image animalDominatingImage;
@@ -177,41 +177,41 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         }
 
         if (this.configuration.mapStrategy() == Configuration.MapStrategy.POLES) {
-            addRectsToGrid(
+            addRectsToMapGrid(
                     0,
                     equatorWidth,
                     Color.LIGHTBLUE
             );
-            addRectsToGrid(
+            addRectsToMapGrid(
                     equatorWidth,
                     equatorUpperBound,
                     Color.LIGHTGREEN
             );
-            addRectsToGrid(
+            addRectsToMapGrid(
                     equatorLowerBound + 1,
                     configuration.height() - equatorWidth,
                     Color.LIGHTGREEN
             );
-            addRectsToGrid(
+            addRectsToMapGrid(
                     configuration.height() - equatorWidth,
                     configuration.height(),
                     Color.LIGHTBLUE
             );
 
         } else {
-            addRectsToGrid(
+            addRectsToMapGrid(
                     0,
                     equatorUpperBound,
                     Color.LIGHTGREEN
             );
-            addRectsToGrid(
+            addRectsToMapGrid(
                     equatorLowerBound + 1,
                     configuration.height(),
                     Color.LIGHTGREEN
             );
         }
     }
-    private void addRectsToGrid(int rowStart,int rowEnd,Color color){
+    private void addRectsToMapGrid(int rowStart,int rowEnd,Color color){
         for (int row = rowStart; row < rowEnd; row++) {
             for (int col = 0; col < cellsInARow + 1; col++) {
                 Rectangle rect = new Rectangle(cellSize, cellSize);
@@ -253,7 +253,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 if (animals != null) {
                     Animal animalToDraw = getStrongestAnimalOnPosition(animals);
                     drawAnimal(x, y, animalToDraw);
-
                 }
                 // trawa, jeśli nie ma zwierzęcia
                 else if (worldMap.grassAt(currentPosition) != null) {
@@ -277,6 +276,18 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             colorAdjust.setSaturation(0.3);
         }
         String animalGenotype = Arrays.stream(animal.getGenotype()).boxed().toList().toString();
+        ImageView animalView = drawAnimalImage(animal, animalGenotype, colorAdjust);
+
+        AnchorPane healthBar = healthBarView.createHealthBar(animal.getEnergy(), simulation.getMaxEnergy(), cellSize);
+
+        VBox mapElement = new VBox(animalView, healthBar);
+        mapElement.setAlignment(Pos.CENTER);
+        mapGrid.add(mapElement, x, y + 1);
+        GridPane.setHalignment(mapElement, HPos.CENTER);
+
+    }
+
+    private ImageView drawAnimalImage(Animal animal, String animalGenotype, ColorAdjust colorAdjust) {
         ImageView animalView = new ImageView(animalImage);
         if(simulation.getMostCommonGenotypes().contains(animalGenotype)) {
             animalView = new ImageView(animalDominatingImage);
@@ -300,14 +311,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 worldMap.notifyObservers("Animal highlighted");
             }
         });
-
-        AnchorPane healthBar = healthBarView.createHealthBar(animal.getEnergy(), simulation.getMaxEnergy(), cellSize);
-
-        VBox mapElement = new VBox(animalView, healthBar);
-        mapElement.setAlignment(Pos.CENTER);
-        mapGrid.add(mapElement, x, y + 1);
-        GridPane.setHalignment(mapElement, HPos.CENTER);
-
+        return animalView;
     }
 
     private void drawGrass(int x, int y) {

@@ -42,10 +42,9 @@ public class Animal implements WorldElement, AnimalInterface {
             Set<Animal> ancestors,
             int energyPerGrass,
             int initialEnergyOfAnimals
-            ) {
+    ) {
 
         this.energyGivenByOneGrass=energyPerGrass;
-
         this.position = position;
         this.direction = randomDirection();
         this.energy = initialEnergyOfAnimals;
@@ -53,7 +52,6 @@ public class Animal implements WorldElement, AnimalInterface {
         this.currentGene = randomGene();
         this.numberOfChildren = 0;
         this.age = -1;
-
         this.ancestors = ancestors;
 
     }
