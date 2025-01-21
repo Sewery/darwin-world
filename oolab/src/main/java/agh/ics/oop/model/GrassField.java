@@ -1,6 +1,6 @@
 package agh.ics.oop.model;
 
-import agh.ics.oop.core.Configuration;
+import agh.ics.oop.model.core.Configuration;
 import agh.ics.oop.model.animal_life.Animal;
 import agh.ics.oop.model.animal_life.AnimalComparator;
 import agh.ics.oop.model.animal_life.AnimalLife;
@@ -42,9 +42,9 @@ public class GrassField implements WorldMap {
         synchronized (this) {this.mapID = mapsCount++;}
 
         this.config = config;
-        int equatorWidth = config.height()/5;
-        this.equatorLowerBound = config.height()/2-equatorWidth+1;
-        this.equatorUpperBound = config.height()/2+equatorWidth;
+        int equatorWidth = max(config.height() / 5, 1);
+        this.equatorLowerBound = (equatorWidth % 2 == 0 && config.height() % 2 == 0) ? (config.height() - 1) / 2 - (equatorWidth) / 2 + 1 : (config.height() - 1) / 2 - (equatorWidth) / 2 ;
+        this.equatorUpperBound = equatorLowerBound + equatorWidth - 1;
         this.emptyEquatorGrassPositions = generateEmptyEquatorGrassPositions(config.width());
         this.emptyOtherGrassPositions = generateOtherEmptyGrassPositions(config.width(), config.height());
         growPlants(config.initialNumberOfGrasses());
@@ -57,7 +57,7 @@ public class GrassField implements WorldMap {
             for (int y = 0; y < equatorLowerBound; y++) all_possible_positions.add(new Vector2d(x, y));
         }
         for (int x = 0; x < width; x++) {
-            for (int y = equatorUpperBound; y < height; y++) all_possible_positions.add(new Vector2d(x, y));
+            for (int y = equatorUpperBound+1; y < height; y++) all_possible_positions.add(new Vector2d(x, y));
         }
 
         Collections.shuffle(all_possible_positions, new Random());
@@ -67,7 +67,7 @@ public class GrassField implements WorldMap {
     private ArrayList<Vector2d> generateEmptyEquatorGrassPositions(int width) {
         ArrayList<Vector2d> all_possible_positions = new ArrayList<>();
         for (int x = 0; x < width; x++) {
-            for (int y = equatorLowerBound; y < equatorUpperBound; y++) all_possible_positions.add(new Vector2d(x, y));
+            for (int y = equatorLowerBound; y <= equatorUpperBound; y++) all_possible_positions.add(new Vector2d(x, y));
         }
 
         Collections.shuffle(all_possible_positions, new Random());
@@ -84,11 +84,12 @@ public class GrassField implements WorldMap {
 
         grassCount = min(grassCount, emptyOtherGrassPositions.size() + emptyEquatorGrassPositions.size());
 
+        Random random = new Random();
+
         for (int i = 0; i < grassCount; i++){
 
             ArrayList<Vector2d> selectedArea = randomSelect(emptyEquatorGrassPositions, emptyOtherGrassPositions);
 
-            Random random = new Random();
             Vector2d randomGrassPosition = selectedArea.get(random.nextInt(selectedArea.size()));
             grasses.put(randomGrassPosition, new Grass(randomGrassPosition));
             selectedArea.remove(randomGrassPosition);
@@ -169,7 +170,6 @@ public class GrassField implements WorldMap {
 
     @Override
     public Vector2d canMoveTo(Vector2d position) {
-
 
         if (position.follows(lowerLeft) && position.precedes(upperRight)) {
             return position;
@@ -271,17 +271,16 @@ public class GrassField implements WorldMap {
 
         List<Animal> newAnimals = new ArrayList<>();
 
+
         for (Vector2d position : animals.keySet()) {
 
             List<Animal> parents = filterReproductiveAnimals(animalsAt(position));
 
             if (parents == null) {
-                continue;
-            }
+                continue; }
 
             if (parents.size() > 2) {
-                parents = resolveReproductionConflict(parents);
-            }
+                parents = resolveReproductionConflict(parents); }
 
             Reproduction reproduction = new Reproduction(
                     parents.getFirst(),
@@ -298,7 +297,6 @@ public class GrassField implements WorldMap {
             newAnimals.add(reproduction.createAChild());
 
         }
-
         return newAnimals;
     }
 

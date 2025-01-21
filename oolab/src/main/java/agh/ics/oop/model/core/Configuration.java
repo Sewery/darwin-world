@@ -1,4 +1,4 @@
-package agh.ics.oop.core;
+package agh.ics.oop.model.core;
 
 public record Configuration(
         Integer height,

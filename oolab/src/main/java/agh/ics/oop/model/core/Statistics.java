@@ -1,4 +1,4 @@
-package agh.ics.oop.core;
+package agh.ics.oop.model.core;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,22 +11,35 @@ import java.util.stream.Collectors;
 public class Statistics {
 
     private final List<StatisticsChangeListener> observers = new ArrayList<>();
+    // daily statistics for charts
+    @Getter
+    private final List<Integer> dailyNumberOfAllAnimals;
+    @Getter
+    private final List<Integer> dailyNumberOfAllPlants;
+    @Getter
+    private final List<Integer> dailyEmptySpaces;
+    @Getter
+    private final List<Integer> dailyAverageEnergy;
+    @Getter
+    private final List<Integer> dailyAverageLifespan;
+    @Getter
+    private final List<Integer> dailyAverageNumberOfChildren;
     @Getter
     @Setter
     private int numberOfDay;
     // statistics for the whole simulation
     @Getter
-    private final List<Integer> numberOfAllAnimals;
+    private int numberOfAllAnimals;
     @Getter
-    private final List<Integer> numberOfAllPlants;
+    private int numberOfAllPlants;
     @Getter
-    private final List<Integer> emptySpaces;
+    private int emptySpaces;
     @Getter
-    private final List<Integer> averageEnergy;
+    private int averageEnergy;
     @Getter
-    private final List<Integer> averageLifespan;
+    private int averageLifespan;
     @Getter
-    private final List<Integer> averageNumberOfChildren;
+    private int averageNumberOfChildren;
     @Getter
     private List<String> mostPopularGenotypes = new ArrayList<>();
     // statistics for chosen animal
@@ -48,18 +61,25 @@ public class Statistics {
     private Integer dayOfDeath;
 
     public Statistics(Configuration configuration) {
-        this.numberOfAllAnimals = new ArrayList<>();
-        this.numberOfAllAnimals.add(configuration.initialNumberOfAnimals());
-        this.numberOfAllPlants = new ArrayList<>();
-        this.numberOfAllPlants.add(configuration.initialNumberOfGrasses());
-        this.averageEnergy = new ArrayList<>();
-        this.averageEnergy.add(configuration.initialEnergyOfAnimals());
-        this.averageLifespan = new ArrayList<>();
-        this.averageLifespan.add(0);
-        this.averageNumberOfChildren = new ArrayList<>();
-        this.averageNumberOfChildren.add(0);
-        this.emptySpaces = new ArrayList<>();
-        this.emptySpaces.add(configuration.height() * configuration.width() - configuration.initialNumberOfGrasses());
+        this.numberOfAllAnimals = configuration.initialNumberOfAnimals();
+        this.numberOfAllPlants = configuration.initialNumberOfGrasses();
+        this.averageEnergy = configuration.initialEnergyOfAnimals();
+        this.averageLifespan = 0;
+        this.averageNumberOfChildren = 0;
+        this.emptySpaces = configuration.height() * configuration.width() - configuration.initialNumberOfGrasses();
+
+        this.dailyNumberOfAllAnimals = new ArrayList<>();
+        this.dailyNumberOfAllAnimals.add(configuration.initialNumberOfAnimals());
+        this.dailyNumberOfAllPlants = new ArrayList<>();
+        this.dailyNumberOfAllPlants.add(configuration.initialNumberOfGrasses());
+        this.dailyAverageEnergy = new ArrayList<>();
+        this.dailyAverageEnergy.add(configuration.initialEnergyOfAnimals());
+        this.dailyAverageLifespan = new ArrayList<>();
+        this.dailyAverageLifespan.add(0);
+        this.dailyAverageNumberOfChildren = new ArrayList<>();
+        this.dailyAverageNumberOfChildren.add(0);
+        this.dailyEmptySpaces = new ArrayList<>();
+        this.dailyEmptySpaces.add(configuration.height() * configuration.width() - configuration.initialNumberOfGrasses());
 
     }
 
@@ -76,43 +96,44 @@ public class Statistics {
             observer.statisticsChanged(this);
         }
     }
+
     public void updateNumberOfDay(int numberOfDay) {
         this.numberOfDay = numberOfDay;
         notifyObservers();
     }
-    public void updateStatistics(int numberOfAllAnimals, int numberOfAllPlants, int emptySpaces, List<String> mostPopularGenotypes, int averageEnergy, int averageLifespan, int averageNUmberOfChildren) {
-        this.numberOfAllAnimals.add(numberOfAllAnimals);
-        this.numberOfAllPlants.add(numberOfAllPlants);
-        this.emptySpaces.add(emptySpaces);
-        this.mostPopularGenotypes = mostPopularGenotypes;
-        this.averageEnergy.add(averageEnergy);
-        this.averageLifespan.add(averageLifespan);
-        this.averageNumberOfChildren.add(averageNUmberOfChildren);
+
+    public void updateDailyStatistics(int numberOfAllAnimals, int numberOfAllPlants, int emptySpaces, int averageEnergy, int averageLifespan, int averageNUmberOfChildren) {
+        this.dailyNumberOfAllAnimals.add(numberOfAllAnimals);
+        this.dailyNumberOfAllPlants.add(numberOfAllPlants);
+        this.dailyEmptySpaces.add(emptySpaces);
+        this.dailyAverageEnergy.add(averageEnergy);
+        this.dailyAverageLifespan.add(averageLifespan);
+        this.dailyAverageNumberOfChildren.add(averageNUmberOfChildren);
         notifyObservers();
     }
 
     public void updateNumberOfAllAnimals(int numberOfAllAnimals) {
-        this.numberOfAllAnimals.add(numberOfAllAnimals);
+        this.numberOfAllAnimals = numberOfAllAnimals;
         notifyObservers();
     }
 
     public void updateNumberOfAllPlants(int numberOfAllPlants) {
-        this.numberOfAllPlants.add(numberOfAllPlants);
+        this.numberOfAllPlants = numberOfAllPlants;
         notifyObservers();
     }
 
     public void updateAverageEnergy(int averageEnergy) {
-        this.averageEnergy.add(averageEnergy);
+        this.averageEnergy = averageEnergy;
         notifyObservers();
     }
 
     public void updateAverageLifespan(int averageLifespan) {
-        this.averageLifespan.add(averageLifespan);
+        this.averageLifespan = averageLifespan;
         notifyObservers();
     }
 
     public void updateAverageNumberOfChildren(int averageNUmberOfChildren) {
-        this.averageNumberOfChildren.add(averageNUmberOfChildren);
+        this.averageNumberOfChildren = averageNUmberOfChildren;
         notifyObservers();
     }
 
@@ -122,7 +143,7 @@ public class Statistics {
     }
 
     public void updateEmptySpaces(int emptySpaces) {
-        this.emptySpaces.add(emptySpaces);
+        this.emptySpaces = emptySpaces;
         notifyObservers();
     }
 
@@ -143,16 +164,18 @@ public class Statistics {
         this.dayOfDeath = -1;
         notifyObservers();
     }
+
     public void resetHighlightedAnimal() {
-        this.genome =  null;
-        this.currentGene =  null;
-        this.currentEnergy =  null;
+        this.genome = null;
+        this.currentGene = null;
+        this.currentEnergy = null;
         this.plantsEaten = null;
         this.numberOfChildren = null;
-        this.numberOfDescendants =  null;
+        this.numberOfDescendants = null;
         this.age = null;
         this.dayOfDeath = -1;
     }
+
     public void updateNumberOfDescendants(int numberOfDescendants) {
         this.numberOfDescendants = numberOfDescendants;
         notifyObservers();
@@ -167,6 +190,7 @@ public class Statistics {
         this.currentGene = gene;
         notifyObservers();
     }
+
     public void updateCurrentEnergy(int currentEnergy) {
         this.currentEnergy = currentEnergy;
         notifyObservers();
@@ -180,6 +204,7 @@ public class Statistics {
     public void updatePlantsEaten(int plantEaten) {
         this.plantsEaten = plantEaten;
     }
+
     public void updateDayOfDeath(Integer dayOfDeath) {
         this.dayOfDeath = dayOfDeath;
     }

@@ -1,6 +1,4 @@
 package agh.ics.oop.model.animal_life;
-
-import agh.ics.oop.core.AppState;
 import agh.ics.oop.model.Vector2d;
 
 import java.util.*;
@@ -31,8 +29,6 @@ public class Reproduction {
 
         int numberOfGenesFromParentOne = (animalLife.genotypeLength() * energyOne)/totalEnergy;
         int numberOfGenesFromParentTwo = animalLife.genotypeLength() - numberOfGenesFromParentOne;
-        //System.out.println(numberOfGenesFromParentOne);
-        //System.out.println(numberOfGenesFromParentTwo);
 
         int chooseSideForParentOne = new Random().nextInt(2);
 
@@ -66,15 +62,13 @@ public class Reproduction {
 
     private int[] mutateGenotype(int[] genotype) {
         int numberOfMutations = new Random().nextInt(animalLife.maxNumberOfMutations() - animalLife.minNumberOfMutations() + 1) + animalLife.minNumberOfMutations();
-        //System.out.println(Arrays.toString(genotype));
-        //System.out.println(numberOfMutations);
+
         switch (numberOfMutations){
             case 0: return genotype;
             case 1: {
                 int chosenGene = new Random().nextInt(animalLife.genotypeLength());
                 genotype[chosenGene] = randomGeneValue(genotype[chosenGene]);
                 genotype[chosenGene] += 1;
-                //System.out.println(Arrays.toString(genotype));
                 return genotype;
             }
             default: {
@@ -88,19 +82,17 @@ public class Reproduction {
                 for (int i: indicesToMutate) {
                     genotype[i] = randomGeneValue(genotype[i]);
                 }
-                //System.out.println(Arrays.toString(genotype));
                 return genotype;
             }
         }
     }
 
     public Animal createAChild(){
-        //System.out.println(Arrays.toString(parentOne.getGenotype()) );
-        //System.out.println(Arrays.toString(parentTwo.getGenotype()));
+        int[] createdGenotype = createGenotype();
         parentOne.reproduce(animalLife.initialEnergyOfAnimals()/2);
         parentTwo.reproduce(animalLife.initialEnergyOfAnimals()-animalLife.initialEnergyOfAnimals()/2);
 
-        Set<Animal> unionedAncestors = new HashSet<>(parentOne.getAncestors()); // Kopiujemy elementy z set1
+        Set<Animal> unionedAncestors = new HashSet<>(parentOne.getAncestors());
         unionedAncestors.addAll(parentTwo.getAncestors());
         unionedAncestors.add(parentOne);
         unionedAncestors.add(parentTwo);
@@ -111,7 +103,7 @@ public class Reproduction {
 
         return new Animal(
                 this.position,
-                createGenotype(),
+                createdGenotype,
                 unionedAncestors,
                 animalLife.energyPerGrass(),
                 animalLife.initialEnergyOfAnimals()

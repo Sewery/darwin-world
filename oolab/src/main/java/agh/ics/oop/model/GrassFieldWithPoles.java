@@ -1,6 +1,6 @@
 package agh.ics.oop.model;
 
-import agh.ics.oop.core.Configuration;
+import agh.ics.oop.model.core.Configuration;
 import agh.ics.oop.model.animal_life.Animal;
 
 import java.util.ArrayList;
@@ -17,7 +17,6 @@ public class GrassFieldWithPoles extends GrassField {
     @Override
     public void move(Animal animal) {
 
-        Vector2d oldPosition = animal.getPosition();
         List<Animal> oldList = animalsAt(animal.getPosition());
         if (oldList != null){
             if (oldList.contains(animal)) {
@@ -31,11 +30,11 @@ public class GrassFieldWithPoles extends GrassField {
 
     public int getPoleEffect(Vector2d position) {
 
-        int max_pole_effect = equatorUpperBound-equatorLowerBound + 1;
+        int max_pole_effect = equatorUpperBound-equatorLowerBound + 2;
 
         if (position.getY() < equatorLowerBound) {
             return max(max_pole_effect - position.getY(), 1);}
-        else if (position.getY() >= equatorUpperBound) {
+        else if (position.getY() > equatorUpperBound) {
             return max(max_pole_effect - (config.height()-1 - position.getY()), 1);}
 
 

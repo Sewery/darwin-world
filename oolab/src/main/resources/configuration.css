@@ -5,7 +5,7 @@
 }
 
 .border-pane {
-    -fx-background-color: #E8ECD7;
+    -fx-background-color: linear-gradient(to bottom, #E8ECD7, #D0D8B8);
     -fx-padding: 20;
 }
 
@@ -34,7 +34,7 @@
 .spinner{
 }
 .box-property{
-    -fx-padding: 10 10 0 10;
+    -fx-padding: 10 10 0 20;
 }
 .config-button {
     -fx-font-family: sans-serif;
@@ -43,6 +43,7 @@
     -fx-background-color: #1F4529;
     -fx-background-radius: 10;
     -fx-padding: 10 20;
+    -fx-margin: 10 10;
     -fx-border-color: #47663B;
     -fx-border-width: 2;
     -fx-border-radius: 10;
@@ -97,3 +98,6 @@
     -fx-background-color: #88591e;
 }
 
+.wrapper-buttons {
+    -fx-padding: 20;
+}

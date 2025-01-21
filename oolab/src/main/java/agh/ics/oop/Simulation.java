@@ -1,7 +1,7 @@
 package agh.ics.oop;
 
-import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.Statistics;
+import agh.ics.oop.model.core.Configuration;
+import agh.ics.oop.model.core.Statistics;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.animal_life.AgingAnimal;
 import agh.ics.oop.model.animal_life.Animal;
@@ -10,11 +10,12 @@ import lombok.Getter;
 
 import java.util.*;
 
-import static agh.ics.oop.util.CSVWriter.*;
+import static agh.ics.oop.tools.CSVWriter.*;
 import static java.lang.Math.max;
 
 public class Simulation implements Runnable {
 
+    private static Integer fileCounter = 0;
     private final List<Animal> animals;
     private final Map<List<Integer>, Integer> allGenotypes = new HashMap<>();
     private final WorldMap map;
@@ -45,7 +46,10 @@ public class Simulation implements Runnable {
         int height = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
         generateRandomPositionsForAnimals(width, height);
         this.running = true;
+        if (writeToFileStats)
+            fileCounter++;
     }
+
     private void generateRandomPositionsForAnimals(int width, int height) {
         RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, config.initialNumberOfAnimals());
 
@@ -73,12 +77,17 @@ public class Simulation implements Runnable {
             }
         }
     }
+
     private static List<Integer> toList(int[] array) {
         List<Integer> list = new ArrayList<>();
         for (int num : array) {
             list.add(num);
         }
         return list;
+    }
+
+    List<Animal> getAnimals() {
+        return Collections.unmodifiableList(animals);
     }
 
     private int[] getRandomGenotype() {
@@ -108,30 +117,14 @@ public class Simulation implements Runnable {
     }
 
     public void run() {
-        //StatisticsFileWriter statisticsFileWriter=null;
-        //System.out.println("Simulation started as: ");
-        //System.out.println(map);
-        if (animals.isEmpty()) return;
-        // print genotypów
-        //for (int i = 0; i < animals.size(); i++) {
-        //    System.out.printf("Zwierze %s: %s, start with: %s %s\n", i, Arrays.toString(animals.get(i).getGenotype()), animals.get(i).getCurrentGene(), animals.get(i).getDirection());
-        //}
-
-        //System.out.println();
-        if(writeToFileStats)
-            writeStatisticsHeader(stats,"stats.csv");
+        if (animals.isEmpty())
+            return;
+        if (writeToFileStats)
+            writeStatisticsHeader( "stats-" + fileCounter + ".csv");
 
         while (this.running) {
-
-            synchronized (this) {
-                while (this.running && this.paused) {
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        System.out.println("Exception: " + e.getMessage());
-                    }
-                }
-            }
+            //Stop optimization
+            stopOptimization();
 
             sleep();
             removeDeadAnimals();
@@ -139,39 +132,39 @@ public class Simulation implements Runnable {
             sleep();
             moveAnimals();
 
-            //System.out.printf("\nDay %s%n", daysCount);
-            //System.out.println("After move: ");
-            //for (int i = 0; i < animals.size(); i++) {
-            //    System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
-            //}
-
             sleep();
             consumePlants();
-            //System.out.println("After consume: ");
-            //for (int i = 0; i < animals.size(); i++) {
-            //    System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
-            //}
-
 
             sleep();
             reproduce();
-            //System.out.println("After reproduce: ");
-            //for (int i = 0; i < animals.size(); i++) {
-            //    System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
-            //}
 
             sleep();
             growPlants();
-            stats.updateNumberOfDay(daysCount);
-            if(writeToFileStats)
-                writeStatisticsLine(stats,"stats.csv");
-            daysCount += 1;
+
+            statsEndingDayUpdate();
         }
 
-
+    }
+    private void stopOptimization() {
+        synchronized (this) {
+            while (this.running && this.paused) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    System.out.println("Exception: " + e.getMessage());
+                }
+            }
+        }
+    }
+    private void statsEndingDayUpdate(){
+        stats.updateNumberOfDay(daysCount);
+        if (writeToFileStats)
+            writeStatisticsLine(stats, "stats-" + fileCounter + ".csv");
+        daysCount += 1;
+        stats.updateDailyStatistics(getNumberOfAllAnimals(), getNumberOfAllPlants(), getNUmberOfEmptySpaces(), getAverageEnergy(), getAverageLifeSpan(), getAverageNumberOfChildren());
     }
     // SIMULATIONS STEPS
-    private void removeDeadAnimals() {
+    void removeDeadAnimals() {
         ArrayList<Animal> deadAnimals = new ArrayList<>();
         for (Animal animal : animals) {
             if (animal.getEnergy() == 0) {
@@ -198,7 +191,7 @@ public class Simulation implements Runnable {
         stats.updateMostPopularGenotypes(getMostCommonGenotypes());
     }
 
-    private void moveAnimals() {
+    void moveAnimals() {
         for (Animal animal : animals) {
             map.move(animal);
         }
@@ -207,7 +200,7 @@ public class Simulation implements Runnable {
 
     }
 
-    private void growPlants() {
+    void growPlants() {
         map.growPlants(map.getNumberOfNewGrassesEachDay());
         map.notifyObservers("Day %s: grow plants".formatted(daysCount));
 
@@ -215,7 +208,7 @@ public class Simulation implements Runnable {
         stats.updateEmptySpaces(getNUmberOfEmptySpaces());
     }
 
-    private void consumePlants() {
+    void consumePlants() {
         map.consumePlants();
         map.notifyObservers("Day %s: consume plants".formatted(daysCount));
 
@@ -225,10 +218,8 @@ public class Simulation implements Runnable {
 
     }
 
-    private void reproduce() {
+     void reproduce() {
         List<Animal> createdAnimals = map.reproduce();
-
-        //System.out.println(createdAnimals);
 
         for (Animal animal : createdAnimals) {
             //System.out.printf("Nowe zwierze: %s %s\n", animal.getEnergy(), animal.getPosition().toString());
@@ -279,8 +270,6 @@ public class Simulation implements Runnable {
         }
 
         final int maxCount = findMaxCount;
-
-        //System.out.println(allGenotypes.keySet());
 
         return allGenotypes.entrySet()
                 .stream()

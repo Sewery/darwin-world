@@ -7,10 +7,12 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class AppPresenter {
     protected Scene scene;
@@ -20,7 +22,7 @@ public class AppPresenter {
             new Alert(Alert.AlertType.ERROR, err.getMessage(), ButtonType.OK).show();
     }
     protected void infoAlert(String message) {
-        System.err.println(message);
+        System.out.println(message);
         new Alert(Alert.AlertType.INFORMATION, message, ButtonType.OK).show();
     }
     public void changeScene(String newScene, ActionEvent actionEvent, AppPresenter presenter) throws IOException {
@@ -36,5 +38,17 @@ public class AppPresenter {
         stage.minWidthProperty().bind(viewRoot.minWidthProperty());
         stage.minHeightProperty().bind(viewRoot.minHeightProperty());
         stage.show();
+    }
+    protected Image loadImageFromAssets(int width, int height, String fileName){
+        Image image = null;
+        try (InputStream input = getClass().getResourceAsStream("/assets/"+fileName)) {
+            if (input == null) {
+                throw new IOException("Resource not found: "+fileName);
+            }
+            image = new Image(input, width, height, true, true);
+        } catch (IOException e) {
+            System.err.println("Could not load image "+fileName+": " + e.getMessage());
+        }
+        return image;
     }
 }

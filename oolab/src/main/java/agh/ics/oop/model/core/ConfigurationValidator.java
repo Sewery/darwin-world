@@ -1,7 +1,7 @@
-package agh.ics.oop.core;
+package agh.ics.oop.model.core;
 
-public interface ConfigurationLoader {
-    default void validate( Configuration config) throws ConfigurationInvalidException {
+public class ConfigurationValidator {
+    public static void validate( Configuration config) throws ConfigurationInvalidException {
         if (config.initialNumberOfAnimals() > config.width() * config.height()) {
             throw new ConfigurationInvalidException("Initial number of animals must be smaller than value width x height");
         }
@@ -21,5 +21,4 @@ public interface ConfigurationLoader {
             throw new ConfigurationInvalidException("Energy to reproduce should be at least the half of initial animal energy");
         }
     }
-    Configuration loadConfiguration();
 }

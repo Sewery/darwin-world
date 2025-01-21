@@ -1,6 +1,10 @@
 package agh.ics.oop;
 
-import agh.ics.oop.model.*;
+import agh.ics.oop.model.core.Configuration;
+import agh.ics.oop.model.core.Statistics;
+import agh.ics.oop.model.GrassField;
+import agh.ics.oop.model.WorldMap;
+import agh.ics.oop.model.animal_life.Animal;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -8,115 +12,141 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SimulationTest {
+    //Config full of animals
+    private final Configuration configuration1 = new Configuration(10, 10, 0, 1, 5, 100, 5, 1, 1, 1, 3, Configuration.MapStrategy.GLOBE , Configuration.AnimalsBehaviourStrategy.FORESTED_EQUATOR);
+    //Normal config
+    private final Configuration configuration2 = new Configuration(4, 7, 5, 1, 5, 8, 5, 1, 1, 1, 3, Configuration.MapStrategy.GLOBE , Configuration.AnimalsBehaviourStrategy.FORESTED_EQUATOR);
+    //Normal config with long genotype
+    private final Configuration configuration3 = new Configuration(5, 5, 9, 1, 5, 5, 5, 1, 1, 5, 7, Configuration.MapStrategy.GLOBE , Configuration.AnimalsBehaviourStrategy.FORESTED_EQUATOR);
+    //Normal config with fast dying animals
+    private final Configuration configuration5 = new Configuration(5, 5, 0, 0, 5, 4, 6, 5, 1, 1, 3, Configuration.MapStrategy.GLOBE , Configuration.AnimalsBehaviourStrategy.FORESTED_EQUATOR);
+    //Normal config full of grass
+    private final Configuration configuration6 = new Configuration(5, 5, 25, 2, 5, 2, 5, 1, 1, 1, 3, Configuration.MapStrategy.GLOBE , Configuration.AnimalsBehaviourStrategy.FORESTED_EQUATOR);
 
-    /*
-    private final List<MoveDirection> moves_expected = List.of(
-            MoveDirection.LEFT,
-            MoveDirection.RIGHT,
-            MoveDirection.BACKWARD,
-            MoveDirection.RIGHT,
-            MoveDirection.FORWARD
-    );
-    private final String[] args = {"l", "r", "x", "x", "b", "r", "f"};
-    private final String[] argsValid = {"l", "r", "b", "r", "f"};
-
-    private final List<Vector2d> positions = List.of(   new Vector2d(2,1),
-            new Vector2d(3,3),
-            new Vector2d(0,4)
-    );
-    private final List<Vector2d> positions2 = List.of(      new Vector2d(0,0),
-            new Vector2d(4,4),
-            new Vector2d(0,4),
-            new Vector2d(4,0)
-    );
-
-    private final List<Vector2d> outOfBoundsPositions = List.of(
-            new Vector2d(-1,-1),
-            new Vector2d(5,5),
-            new Vector2d(-2,5),
-            new Vector2d(6,2)
-    );
-
-    private final String[] args2 = {"b", "f", "l", "r", "b", "f", "f", "f"};
-    private final String[] args3 = {"f", "b", "l", "l", "f", "f", "r", "r", "l", "f", "f", "f", "f", "f", "f", "f"};
-
-    private final List<MoveDirection> change_orient = List.of(
-            MoveDirection.LEFT,
-            MoveDirection.RIGHT
-    );
-
-    private final RectangularMap map = new RectangularMap(5,5);
 
     @Test
-    void testCreateAnimals() {
-        Simulation simulation = new Simulation(positions, moves_expected, map);
-        assertEquals(simulation.getAnimal(0).toStringFull(), "(2,1) Północ");
-        assertEquals(simulation.getAnimal(1).toStringFull(), "(3,3) Północ");
-        assertEquals(simulation.getAnimal(2).toStringFull(), "(0,4) Północ");
+    void removeDeadAnimals() {
+
+        //Set up
+        Configuration baseConfig = configuration5;
+        WorldMap map = new GrassField(baseConfig);
+        Statistics statistics = new Statistics(baseConfig);
+        Simulation simulation = new Simulation(map, baseConfig, statistics, false);
+
+        //Make animals move to death
+        int animalMaxEnergy = simulation.getMaxEnergy();
+        for(int i = 0; i < 2*animalMaxEnergy; i++) {
+            simulation.moveAnimals();
+        }
+        simulation.removeDeadAnimals();
+        // All animals should be removed when dead
+        assertEquals(0, simulation.getNumberOfAllAnimals(), "All animals should be removed when dead");
     }
 
     @Test
-    void testCreateMoves() {
-        assertThrows(IllegalArgumentException.class, () -> new Simulation(positions, parse(args), map));
-        Simulation simulation = new Simulation(positions, parse(argsValid), map);
-        assertEquals(moves_expected, simulation.getMoves());
+    void moveAnimals() {
+        //Set up
+        Configuration baseConfig = configuration3;
+        WorldMap map = new GrassField(baseConfig);
+        Statistics statistics = new Statistics(baseConfig);
+        Simulation simulation = new Simulation(map, baseConfig, statistics, false);
+        List<Animal> animals = simulation.getAnimals();
 
+        //move every animal
+        simulation.moveAnimals();
 
+        // Ensure all animals have moved to valid positions
+        animals.forEach(animal -> {
+            assertNotNull(animal.getPosition(), "Animal position should not be null after movement");
+        });
     }
 
     @Test
-    void testChangeOrientation() {
-        Simulation simulation = new Simulation(positions, change_orient, map);
+    void consumePlants() {
+        //Set up
+        Configuration baseConfig = configuration6;
+        WorldMap map = new GrassField(baseConfig);
+        Statistics statistics = new Statistics(baseConfig);
+        Simulation simulation = new Simulation(map, baseConfig, statistics, false);
 
-        simulation.run();
-        assertEquals(simulation.getAnimal(0).toStringFull(), "(2,1) Zachód");
-        assertEquals(simulation.getAnimal(1).toStringFull(), "(3,3) Wschód");
+        int initialPlants = simulation.getNumberOfAllPlants();
 
-        simulation.run();
-        assertEquals(simulation.getAnimal(0).toStringFull(), "(2,1) Południe");
-        assertEquals(simulation.getAnimal(1).toStringFull(), "(3,3) Południe");
-
-        simulation.run();
-        assertEquals(simulation.getAnimal(0).toStringFull(), "(2,1) Wschód");
-        assertEquals(simulation.getAnimal(1).toStringFull(), "(3,3) Zachód");
-
-        simulation.run();
-        assertEquals(simulation.getAnimal(0).toStringFull(), "(2,1) Północ");
-        assertEquals(simulation.getAnimal(1).toStringFull(), "(3,3) Północ");
-
+        // Simulate a day when animals consume plants
+        simulation.consumePlants();
+        int remainingPlants = simulation.getNumberOfAllPlants();
+        //Number of plants should not increase after consumption
+        assertTrue(remainingPlants <= initialPlants);
     }
 
     @Test
-    void testMoveOutOfBounds() {
-        Simulation simulation = new Simulation(positions2, parse(args2), map);
-        simulation.run();
+    void reproduce() {
+        //Set up
+        Configuration baseConfig = configuration1;
+        WorldMap map = new GrassField(baseConfig);
+        Statistics statistics = new Statistics(baseConfig);
+        Simulation simulation = new Simulation(map, baseConfig, statistics, false);
 
-        assertEquals(simulation.getAnimal(0).toStringFull(), "(0,0) Północ");
-        assertEquals(simulation.getAnimal(1).toStringFull(), "(4,4) Północ");
-        assertEquals(simulation.getAnimal(2).toStringFull(), "(0,4) Zachód");
-        assertEquals(simulation.getAnimal(3).toStringFull(), "(4,0) Wschód");
+        int initialAnimalCount = simulation.getNumberOfAllAnimals();
+        simulation.moveAnimals();
+        simulation.reproduce();
+        int newAnimalCount = simulation.getNumberOfAllAnimals();
 
+        assertTrue(newAnimalCount > initialAnimalCount, "Animal count should increase after reproduction");
     }
 
     @Test
-    void testRun(){
-        Simulation simulation = new Simulation(positions, parse(args3), map);
-        simulation.run();
+    void growPlants() {
+        Configuration baseConfig = configuration2;
+        WorldMap map = new GrassField(baseConfig);
+        Statistics statistics = new Statistics(baseConfig);
+        Simulation simulation = new Simulation(map, baseConfig, statistics, false);
 
-        assertEquals(simulation.getAnimal(0).toStringFull(), "(2,4) Północ");
-        assertEquals(simulation.getAnimal(1).toStringFull(), "(4,3) Wschód");
-        assertEquals(simulation.getAnimal(2).toStringFull(), "(0,2) Południe");
+        int initialPlants = simulation.getNumberOfAllPlants();
 
-        assertEquals(map.toString(), " y\\x  0 1 2 3 4\n" +
-                "  5: -----------\n" +
-                "  4: | | |^| | |\n" +
-                "  3: | | | | |>|\n" +
-                "  2: |v| | | | |\n" +
-                "  1: | | | | | |\n" +
-                "  0: | | | | | |\n" +
-                " -1: -----------\n");
+        // Simulate plant growth
+        simulation.growPlants();
+        int newPlantCount = simulation.getNumberOfAllPlants();
+
+        assertTrue(newPlantCount > initialPlants, "Number of plants should grow the same");
     }
 
-     */
+    @Test
+    void averageEnergy() {
+        Configuration baseConfig = configuration2;
+        WorldMap map = new GrassField(baseConfig);
+        Statistics statistics = new Statistics(baseConfig);
+        Simulation simulation = new Simulation(map, baseConfig, statistics, false);
 
+        int averageEnergy = simulation.getAverageEnergy();
+
+        //Average energy at start
+        assertEquals(averageEnergy, (int) baseConfig.initialEnergyOfAnimals());
+
+        //Moving and trying to reproduce animals
+        moveAnimals();
+        reproduce();
+
+        averageEnergy = simulation.getAverageEnergy();
+        assertTrue(averageEnergy >= 0 && averageEnergy<=baseConfig.initialEnergyOfAnimals(), "Average energy should be non-negative");
+    }
+
+    @Test
+    void mostCommonGenotypes() {
+        Configuration baseConfig = configuration2;
+        WorldMap map = new GrassField(baseConfig);
+        Statistics statistics = new Statistics(baseConfig);
+        Simulation simulation = new Simulation(map, baseConfig, statistics, false);
+
+        var genotypes = simulation.getMostCommonGenotypes();
+        assertFalse(genotypes.isEmpty(), "There is always at least one most common genotype");
+
+        //Run day
+        removeDeadAnimals();
+        moveAnimals();
+        consumePlants();
+        reproduce();
+        growPlants();
+
+        assertFalse(genotypes.isEmpty(), "There is always at least one most common genotype");
+    }
 }

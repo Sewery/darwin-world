@@ -1,9 +1,9 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.core.AppState;
-import agh.ics.oop.core.Configuration;
-import agh.ics.oop.core.ConfigurationLoader;
-import agh.ics.oop.util.CSVWriter;
+import agh.ics.oop.model.core.Configuration;
+import agh.ics.oop.tools.CSVConfigurationReader;
+import agh.ics.oop.tools.CSVWriter;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,12 +13,16 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 
-public class ConfigurationPresenter extends AppPresenter implements ConfigurationLoader {
-    private static Integer counter = 0;
+import static agh.ics.oop.model.core.ConfigurationValidator.validate;
+
+public class ConfigurationPresenter extends AppPresenter {
+    private static Integer fileCounter = 0;
     @FXML
     private final ToggleGroup animalsBehaviourGroup = new ToggleGroup(), mapEdgesGroup = new ToggleGroup();
     @FXML
@@ -47,20 +51,21 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
     private RadioButton forestedEquator, ageOfBurden;
     @FXML
     private RadioButton poles, globe;
+    private Configuration config;
 
     @FXML
     private void initialize() {
-        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 20, 3));
-        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 20, 3));
-        initialNumberOfGrasses.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 2));
+        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 30, 4));
+        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 30, 4));
+        initialNumberOfGrasses.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 4));
         energyPerOneGrass.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
-        initialNumberOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3));
+        initialNumberOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 5));
         numberOfNewGrassesEachDay.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
         initialEnergyOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 6));
         energyToReproduce.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3));
         minNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 1));
         maxNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 1));
-        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 5));
+        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3));
 
         forestedEquator.fire();
         forestedEquator.setToggleGroup(animalsBehaviourGroup);
@@ -69,7 +74,6 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
         poles.setToggleGroup(mapEdgesGroup);
         globe.setToggleGroup(mapEdgesGroup);
         globe.fire();
-
 
     }
 
@@ -85,31 +89,25 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
             alertError(e);
             return;
         }
-        AppState.getInstance().setConfig(config);
-        CSVWriter.writeConfiguration(config, "config-" + counter + ".csv", this::infoAlert);
-        counter++;
+        this.config = config;
+        CSVWriter.writeConfiguration(config, "config-" + fileCounter + ".csv", this::infoAlert);
+        fileCounter++;
 
     }
 
     public void onStartButtonClicked(ActionEvent actionEvent) throws IOException {
+        Configuration config = loadConfiguration();
+        try {
+            validate(config);
+        } catch (Exception e) {
+            alertError(e);
+            return;
+        }
+        this.config = config;
+        addStageSimulation("simulation.fxml");
 
-        if (AppState.getInstance().getConfig() == null) {
-            Configuration config = loadConfiguration();
-            try {
-                validate(config);
-            } catch (Exception e) {
-                alertError(e);
-                return;
-            }
-            AppState.getInstance().setConfig(config);
-        }
-        if(AppState.getInstance().getConfig() != null){
-            addStageSimulation("simulation.fxml");
-        }
-//            alertError(new ConfigurationInvalidException("No configuration found"));
     }
 
-    @Override
     public Configuration loadConfiguration() {
        return new Configuration(
                 height.getValue(),
@@ -140,7 +138,7 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
         loader.setLocation(getClass().getClassLoader().getResource(newScene));
         BorderPane viewRoot = loader.load();
         SimulationPresenter presenter = loader.getController();
-        presenter.setConfiguration(AppState.getInstance().getConfig());
+        presenter.setConfiguration(this.config);
 
         Stage stage = new Stage();
         Scene scene = new Scene(viewRoot);
@@ -148,7 +146,34 @@ public class ConfigurationPresenter extends AppPresenter implements Configuratio
         stage.setTitle("Simulation runner");
         stage.minWidthProperty().bind(viewRoot.minWidthProperty());
         stage.minHeightProperty().bind(viewRoot.minHeightProperty());
+
+        stage.setOnCloseRequest(event -> Platform.exit());
         stage.show();
+    }
+
+    public void onLoadSimulationClicked(ActionEvent actionEvent) {
+        Configuration config = loadConfigurationFromFile();
+        try {
+            validate(config);
+        } catch (Exception e) {
+            alertError(e);
+            return;
+        }
+        this.config = config;
+        infoAlert("Configuration loaded successfully");
+    }
+    public Configuration loadConfigurationFromFile() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Csv files", "*.csv"));
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        Configuration config =null;
+        if (selectedFile != null) {
+            config = CSVConfigurationReader.readConfiguration(
+                    selectedFile, this::alertError, System.out::println
+            );
+        }
+        return config;
     }
 }
 

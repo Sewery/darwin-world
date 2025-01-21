@@ -29,6 +29,7 @@ public class Animal implements WorldElement {
     private boolean alive = true;
     @Getter
     private int plantsEaten = 0;
+    @Getter
     private final Set<Animal> ancestors;
     @Getter
     private int numberOfDescendants = 0;
@@ -41,10 +42,9 @@ public class Animal implements WorldElement {
             Set<Animal> ancestors,
             int energyPerGrass,
             int initialEnergyOfAnimals
-            ) {
+    ) {
 
         this.energyGivenByOneGrass=energyPerGrass;
-
         this.position = position;
         this.direction = randomDirection();
         this.energy = initialEnergyOfAnimals;
@@ -52,7 +52,6 @@ public class Animal implements WorldElement {
         this.currentGene = randomGene();
         this.numberOfChildren = 0;
         this.age = -1;
-
         this.ancestors = ancestors;
 
     }
@@ -94,7 +93,8 @@ public class Animal implements WorldElement {
     }
 
     @Override
-    public String toString(){return "A";};
+    public String toString(){return "A";}
+
     public boolean isAt(Vector2d position) {
         return this.position.equals(position);
     }
@@ -128,11 +128,10 @@ public class Animal implements WorldElement {
         notifyObserver("numberOfChildren");
     }
 
-    Set<Animal> getAncestors() {return ancestors;}
-
     void increaseNumberOfDescendants(){
         this.numberOfDescendants++;
         notifyObserver("numberOfDescendants");
     }
+
 
 }
