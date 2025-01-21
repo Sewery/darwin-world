@@ -34,8 +34,6 @@ import javafx.scene.shape.Rectangle;
 import lombok.Setter;
 import lombok.val;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -44,7 +42,6 @@ import static java.lang.Math.max;
 
 
 public class SimulationPresenter extends AppPresenter implements MapChangeListener, StatisticsChangeListener, AnimalChangeListener {
-    private final int maxMapSize = 300;
     private final BooleanProperty isStartEnabled = new SimpleBooleanProperty(false);
     @FXML
     private  Label currentEnergy;
@@ -151,35 +148,14 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         cellsInARow = subtracted.getX();
         cellsInAColumn = subtracted.getY();
 
+        int maxMapSize = 300;
         cellSize = max(maxMapSize / (max(cellsInAColumn, cellsInARow) + 1), cellSize);
-        renderImages((int) (cellSize * 0.7), (int) (cellSize * 0.7));
+        loadImages((int) (cellSize * 0.7), (int) (cellSize * 0.7));
     }
-
-    private void renderImages(int width, int height) {
-        try (InputStream input = getClass().getResourceAsStream("/assets/grass.jpg")) {
-            if (input == null) {
-                throw new IOException("Resource not found: grass.jpg");
-            }
-            plantImage = new Image(input, width, height, true, true);
-        } catch (IOException e) {
-            System.err.println("Could not load image of grass: " + e.getMessage());
-        }
-        try (InputStream input = getClass().getResourceAsStream("/assets/sheep.jpg")) { // Corrected path
-            if (input == null) {
-                throw new IOException("Resource not found: sheep.jpg");
-            }
-            animalImage = new Image(input, width, height, true, true);
-        } catch (IOException e) {
-            System.err.println("Could not load image of animal: " + e.getMessage());
-        }
-        try (InputStream input = getClass().getResourceAsStream("/assets/sheep_crown.png")) { // Corrected path
-            if (input == null) {
-                throw new IOException("Resource not found: sheep_crown.jpg");
-            }
-            animalDominatingImage = new Image(input, width, height, true, true);
-        } catch (IOException e) {
-            System.err.println("Could not load image of dominating animal: " + e.getMessage());
-        }
+    private void loadImages(int width, int height) {
+        plantImage = loadImageFromAssets(width,height,"grass.jpg");
+        animalImage =loadImageFromAssets(width,height,"sheep.jpg");
+        animalDominatingImage= loadImageFromAssets(width,height,"sheep_crown.png");
     }
 
     private void colourMap(int cellSize) {
@@ -201,7 +177,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         }
 
         if (this.configuration.mapStrategy() == Configuration.MapStrategy.POLES) {
-            int h = 0;
             addRectsToGrid(
                     0,
                     equatorWidth,
@@ -290,14 +265,13 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     }
 
     private void drawAnimal(int x, int y, Animal animal) {
-
         ColorAdjust colorAdjust = new ColorAdjust();
 
-        //Dodaj niebiesla poswiate
+        //Dodaj zoltawa poswiate
         if (animal == highlightedAnimal) {
             colorAdjust.setHue(0.3);       // Red tint
             colorAdjust.setSaturation(0.8);
-            //Dodaj brazowa poswiate
+        //Dodaj zoltawa rozowa poswiate
         } else {
             colorAdjust.setHue(-0.05);
             colorAdjust.setSaturation(0.3);

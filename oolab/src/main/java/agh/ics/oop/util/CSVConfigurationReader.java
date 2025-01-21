@@ -8,11 +8,12 @@ import java.util.Scanner;
 import java.util.function.Consumer;
 
 public class CSVConfigurationReader {
+    private static final Integer NUMBER_OF_COLUMNS = 13;
     private static final String HEADER="width,height,initialNumberOfGrasses,numberOfNewGrassesEachDay,energyPerGrass," +
             "initialNumberOfAnimals,initialEnergyOfAnimals,energyToReproduce,minNumberOfMutations," +
             "maxNumberOfMutations,genotypeLength,mapStrategy,animalsBehaviourStrategy";
     private static Configuration toConfig(String[] args) {
-        if(args.length != 13) {
+        if(args.length != NUMBER_OF_COLUMNS) {
             throw new ConfigurationInvalidException("Invalid CSV file data");
         }
         return new Configuration(

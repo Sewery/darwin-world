@@ -11,9 +11,9 @@ import java.util.function.Consumer;
 
 public class CSVWriter{
     private static void writeConfigurationHeader(PrintWriter writer) {
-        writer.println("width,height,initialNumberOfGrasses,numberOfNewGrassesEachDay,energyPerGrass," +
-                "initialNumberOfAnimals,initialEnergyOfAnimals,energyToReproduce,minNumberOfMutations," +
-                "maxNumberOfMutations,genotypeLength,mapStrategy,animalsBehaviourStrategy");
+        writer.println("Width, Height, Initial Number Of Grasses, Number Of New Grasses Each Day, Energy Per Grass, " +
+                "Initial Number Of Animals, Initial Energy Of Animals, Energy To Reproduce, Minimum Number Of Mutations, " +
+                "Maximum Number Of Mutations, Genotype Length, Map Strategy, Animals Behaviour Strategy");
     }
     private static void writeConfigurationContent(PrintWriter writer,Configuration config) {
         writer.printf("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%s,%s%n",
@@ -46,9 +46,9 @@ public class CSVWriter{
     public static void writeStatisticsHeader(Statistics statistics, String filename) {
         String DOCUMENTS_PATH = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
         try (PrintWriter writer = new PrintWriter(DOCUMENTS_PATH+'/'+filename)) {
-            writer.println("WorldID,Day number,Number of animals,Number of plants,Number of free fields,Most popular genotypes" +
+            writer.println("Day number,Number of animals,Number of plants,Number of free fields,Most popular genotypes" +
                     ",Average animals energy," +
-                    "Average animals age,Average animals children,AnimalID,Genotype,Current Gene," +
+                    "Average animals age,Average animals children,Genotype,Current Gene," +
                     "Energy,Eaten plants,Children,Descendants,Age,Date of death");
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -59,8 +59,7 @@ public class CSVWriter{
         String DOCUMENTS_PATH = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
         try (PrintWriter writer = new PrintWriter(new FileOutputStream(DOCUMENTS_PATH+'/'+filename,true))) {
             int day = statistics.getNumberOfDay();
-            writer.printf("%d,%d,%d,%d,%d,\"%s\",%d,%d,%d,%s,\"%s\",%s,%s,%s,%s,%s,%s,%s\n",
-                    0,
+            writer.printf("%d,%d,%d,%d,\"%s\",%d,%d,%d,\"%s\",%s,%s,%s,%s,%s,%s,%s\n",
                     day,
                     statistics.getNumberOfAllAnimals(),
                     statistics.getNumberOfAllPlants(),
@@ -69,15 +68,14 @@ public class CSVWriter{
                     statistics.getAverageEnergy(),
                     statistics.getAverageLifespan(),
                     statistics.getAverageNumberOfChildren(),
-                    "N/A",
                     statistics.getGenome()==null?"N/A":statistics.getGenome(),
-                    statistics.getCurrentGene()==null?"":statistics.getCurrentGene(),
-                    statistics.getCurrentEnergy()==null?"":   statistics.getCurrentEnergy(),
-                    statistics.getPlantsEaten()==null?"":statistics.getPlantsEaten(),
-                    statistics.getNumberOfChildren()==null?"":statistics.getNumberOfChildren(),
-                    statistics.getNumberOfDescendants()==null?"":  statistics.getNumberOfDescendants(),
-                    statistics.getAge()==null?"":  statistics.getAge(),
-                    statistics.getDayOfDeath()==null?"":  statistics.getDayOfDeath()
+                    statistics.getCurrentGene()==null?"N/A":statistics.getCurrentGene(),
+                    statistics.getCurrentEnergy()==null?"N/A":   statistics.getCurrentEnergy(),
+                    statistics.getPlantsEaten()==null?"N/A":statistics.getPlantsEaten(),
+                    statistics.getNumberOfChildren()==null?"N/A":statistics.getNumberOfChildren(),
+                    statistics.getNumberOfDescendants()==null?"N/A":  statistics.getNumberOfDescendants(),
+                    statistics.getAge()==null?"N/A":  statistics.getAge(),
+                    statistics.getDayOfDeath()==null?"N/A":  statistics.getDayOfDeath()
             );
         } catch (Exception e) {
             System.err.println(e.getMessage());
