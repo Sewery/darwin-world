@@ -147,9 +147,7 @@ public class ConfigurationPresenter extends AppPresenter {
         stage.minWidthProperty().bind(viewRoot.minWidthProperty());
         stage.minHeightProperty().bind(viewRoot.minHeightProperty());
 
-        stage.setOnCloseRequest(event -> {
-            Platform.exit();
-        });
+        stage.setOnCloseRequest(event -> Platform.exit());
         stage.show();
     }
 

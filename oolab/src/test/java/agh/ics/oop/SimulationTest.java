@@ -18,8 +18,6 @@ public class SimulationTest {
     private final Configuration configuration2 = new Configuration(4, 7, 5, 1, 5, 8, 5, 1, 1, 1, 3, Configuration.MapStrategy.GLOBE , Configuration.AnimalsBehaviourStrategy.FORESTED_EQUATOR);
     //Normal config with long genotype
     private final Configuration configuration3 = new Configuration(5, 5, 9, 1, 5, 5, 5, 1, 1, 5, 7, Configuration.MapStrategy.GLOBE , Configuration.AnimalsBehaviourStrategy.FORESTED_EQUATOR);
-    //Normal config with long genotype
-    private final Configuration configuration4 = new Configuration(5, 5, 3, 1, 5, 5, 10, 3, 1, 1, 3, Configuration.MapStrategy.GLOBE , Configuration.AnimalsBehaviourStrategy.FORESTED_EQUATOR);
     //Normal config with fast dying animals
     private final Configuration configuration5 = new Configuration(5, 5, 0, 0, 5, 4, 6, 5, 1, 1, 3, Configuration.MapStrategy.GLOBE , Configuration.AnimalsBehaviourStrategy.FORESTED_EQUATOR);
     //Normal config full of grass
@@ -34,7 +32,6 @@ public class SimulationTest {
         WorldMap map = new GrassField(baseConfig);
         Statistics statistics = new Statistics(baseConfig);
         Simulation simulation = new Simulation(map, baseConfig, statistics, false);
-        List<Animal> animals = simulation.getAnimals();
 
         //Make animals move to death
         int animalMaxEnergy = simulation.getMaxEnergy();

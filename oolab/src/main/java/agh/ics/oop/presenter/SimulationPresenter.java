@@ -268,7 +268,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             animalView = new ImageView(animalDominatingImage);
         }
         animalView.setEffect(colorAdjust);
-        animalView.setOnMouseClicked(event -> {
+        animalView.setOnMouseClicked(_ -> {
             if (simulation.isPaused()) {
                 this.highlightedAnimal = animal;
                 animal.addObserver(this);
@@ -357,17 +357,15 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             }
         }
 
-        Platform.runLater(() -> {
-            mapGrid.getScene().getWindow().setOnCloseRequest(event -> {
-                simulation.stopSimulation();
-                try {
-                    engine.awaitSimulationsEnd();
-                } catch (InterruptedException e) {
-                    alertError(e);
-                    throw new RuntimeException(e);
-                }
-            });
-        });
+        Platform.runLater(() -> mapGrid.getScene().getWindow().setOnCloseRequest(event -> {
+            simulation.stopSimulation();
+            try {
+                engine.awaitSimulationsEnd();
+            } catch (InterruptedException e) {
+                alertError(e);
+                throw new RuntimeException(e);
+            }
+        }));
 
     }
 

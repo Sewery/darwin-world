@@ -5,10 +5,8 @@ import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.image.ImageView;
-import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
-import java.io.File;
 import java.io.IOException;
 
 public class StartPresenter extends AppPresenter {

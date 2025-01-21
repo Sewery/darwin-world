@@ -120,7 +120,7 @@ public class Simulation implements Runnable {
         if (animals.isEmpty())
             return;
         if (writeToFileStats)
-            writeStatisticsHeader(stats, "stats-" + fileCounter + ".csv");
+            writeStatisticsHeader( "stats-" + fileCounter + ".csv");
 
         while (this.running) {
             //Stop optimization

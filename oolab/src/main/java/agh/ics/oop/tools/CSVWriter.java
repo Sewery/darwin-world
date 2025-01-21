@@ -42,7 +42,7 @@ public class CSVWriter{
         }
 
     }
-    public static void writeStatisticsHeader(Statistics statistics, String filename) {
+    public static void writeStatisticsHeader( String filename) {
         String DOCUMENTS_PATH = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
         try (PrintWriter writer = new PrintWriter(DOCUMENTS_PATH+'/'+filename)) {
             writer.println("Day number,Number of animals,Number of plants,Number of free fields,Most popular genotypes" +

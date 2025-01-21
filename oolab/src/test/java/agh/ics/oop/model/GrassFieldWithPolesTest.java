@@ -1,14 +1,13 @@
 package agh.ics.oop.model;
 
-import agh.ics.oop.model.core.Configuration;
 import agh.ics.oop.model.animal_life.Animal;
+import agh.ics.oop.model.core.Configuration;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class GrassFieldWithPolesTest {
 
@@ -23,12 +22,12 @@ public class GrassFieldWithPolesTest {
 
     int[] genotypeExample = {0, 0, 0};
 
-    private final Animal animal1 = new Animal (positions.get(0), genotypeExample , new HashSet<>(), 5, 5);
-    private final Animal animal4 = new Animal (positions.get(0), genotypeExample , new HashSet<>(), 5, 1);
+    private final Animal animal1 = new Animal (positions.getFirst(), genotypeExample , new HashSet<>(), 5, 5);
+    private final Animal animal4 = new Animal (positions.getFirst(), genotypeExample , new HashSet<>(), 5, 1);
     private final Animal animal2 = new Animal(positions.get(1), genotypeExample , new HashSet<>(), 5, 5);
     private final Animal animal3 = new Animal(positions.get(2), genotypeExample , new HashSet<>(), 5, 5);
 
-    private final Animal animal5 = new Animal (positions.get(0), genotypeExample , new HashSet<>(), 5, 5);
+    private final Animal animal5 = new Animal (positions.getFirst(), genotypeExample , new HashSet<>(), 5, 5);
     private final Animal animal6 = new Animal(positions.get(1), genotypeExample , new HashSet<>(), 5, 1);
 
     @Test

@@ -9,7 +9,7 @@
             stylesheets="@configuration.css">
     <top>
         <VBox alignment="CENTER">
-            <Label fx:id="title" text="Choose simulation parameters:" textAlignment="CENTER" styleClass="title"/>
+            <Label text="Choose simulation parameters:" textAlignment="CENTER" styleClass="title"/>
         </VBox>
     </top>
     <center>
