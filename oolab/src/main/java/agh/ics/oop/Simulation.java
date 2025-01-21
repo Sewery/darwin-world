@@ -46,9 +46,10 @@ public class Simulation implements Runnable {
         int height = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
         generateRandomPositionsForAnimals(width, height);
         this.running = true;
-        if(writeToFileStats)
+        if (writeToFileStats)
             fileCounter++;
     }
+
     private void generateRandomPositionsForAnimals(int width, int height) {
         RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(width, height, config.initialNumberOfAnimals());
 
@@ -76,8 +77,7 @@ public class Simulation implements Runnable {
             }
         }
     }
-    //todo
-    // delete it
+
     private static List<Integer> toList(int[] array) {
         List<Integer> list = new ArrayList<>();
         for (int num : array) {
@@ -85,9 +85,11 @@ public class Simulation implements Runnable {
         }
         return list;
     }
-     List<Animal> getAnimals() {
+
+    List<Animal> getAnimals() {
         return Collections.unmodifiableList(animals);
     }
+
     private int[] getRandomGenotype() {
         Random random = new Random();
         int[] genotype = new int[genotypeLength];
@@ -115,29 +117,14 @@ public class Simulation implements Runnable {
     }
 
     public void run() {
-        if (animals.isEmpty()) return;
-        // print genotypów
-        //for (int i = 0; i < animals.size(); i++) {
-        //    System.out.printf("Zwierze %s: %s, start with: %s %s\n", i, Arrays.toString(animals.get(i).getGenotype()), animals.get(i).getCurrentGene(), animals.get(i).getDirection());
-        //}
-
-        //System.out.println();
-        if(writeToFileStats){
-            writeStatisticsHeader(stats,"stats-"+fileCounter+".csv");
-        }
+        if (animals.isEmpty())
+            return;
+        if (writeToFileStats)
+            writeStatisticsHeader(stats, "stats-" + fileCounter + ".csv");
 
         while (this.running) {
-
             //Stop optimization
-            synchronized (this) {
-                while (this.running && this.paused) {
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        System.out.println("Exception: " + e.getMessage());
-                    }
-                }
-            }
+            stopOptimization();
 
             sleep();
             removeDeadAnimals();
@@ -145,37 +132,36 @@ public class Simulation implements Runnable {
             sleep();
             moveAnimals();
 
-            //System.out.printf("\nDay %s%n", daysCount);
-            //System.out.println("After move: ");
-            //for (int i = 0; i < animals.size(); i++) {
-            //    System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
-            //}
-
             sleep();
             consumePlants();
-            //System.out.println("After consume: ");
-            //for (int i = 0; i < animals.size(); i++) {
-            //    System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
-            //}
-
 
             sleep();
             reproduce();
-            //System.out.println("After reproduce: ");
-            //for (int i = 0; i < animals.size(); i++) {
-            //    System.out.printf("Zwierze %s: %s %s\n", i, animals.get(i).getEnergy(), animals.get(i).getPosition().toString());
-            //}
 
             sleep();
             growPlants();
-            stats.updateNumberOfDay(daysCount);
-            if(writeToFileStats)
-                writeStatisticsLine(stats,"stats-"+fileCounter+".csv");
-            daysCount += 1;
-            stats.updateDailyStatistics(getNumberOfAllAnimals(), getNumberOfAllPlants(), getNUmberOfEmptySpaces(), getAverageEnergy(), getAverageLifeSpan(), getAverageNumberOfChildren());
+
+            statsEndingDayUpdate();
         }
 
-
+    }
+    private void stopOptimization() {
+        synchronized (this) {
+            while (this.running && this.paused) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    System.out.println("Exception: " + e.getMessage());
+                }
+            }
+        }
+    }
+    private void statsEndingDayUpdate(){
+        stats.updateNumberOfDay(daysCount);
+        if (writeToFileStats)
+            writeStatisticsLine(stats, "stats-" + fileCounter + ".csv");
+        daysCount += 1;
+        stats.updateDailyStatistics(getNumberOfAllAnimals(), getNumberOfAllPlants(), getNUmberOfEmptySpaces(), getAverageEnergy(), getAverageLifeSpan(), getAverageNumberOfChildren());
     }
     // SIMULATIONS STEPS
     void removeDeadAnimals() {

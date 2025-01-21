@@ -76,8 +76,6 @@ public class ConfigurationPresenter extends AppPresenter {
         globe.setToggleGroup(mapEdgesGroup);
         globe.fire();
 
-
-
     }
 
     public void onBackButtonClicked(ActionEvent actionEvent) throws IOException {
@@ -165,6 +163,7 @@ public class ConfigurationPresenter extends AppPresenter {
             return;
         }
         this.config = config;
+        infoAlert("Configuration loaded successfully");
     }
     public Configuration loadConfigurationFromFile() {
         FileChooser fileChooser = new FileChooser();
@@ -174,7 +173,7 @@ public class ConfigurationPresenter extends AppPresenter {
         Configuration config =null;
         if (selectedFile != null) {
             config = CSVConfigurationReader.readConfiguration(
-                    selectedFile, this::alertError,this::infoAlert
+                    selectedFile, this::alertError, System.out::println
             );
         }
         return config;

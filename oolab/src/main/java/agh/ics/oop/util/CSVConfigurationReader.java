@@ -9,9 +9,9 @@ import java.util.function.Consumer;
 
 public class CSVConfigurationReader {
     private static final Integer NUMBER_OF_COLUMNS = 13;
-    private static final String HEADER="width,height,initialNumberOfGrasses,numberOfNewGrassesEachDay,energyPerGrass," +
-            "initialNumberOfAnimals,initialEnergyOfAnimals,energyToReproduce,minNumberOfMutations," +
-            "maxNumberOfMutations,genotypeLength,mapStrategy,animalsBehaviourStrategy";
+    private static final String HEADER="Width, Height, Initial Number Of Grasses, Number Of New Grasses Each Day, Energy Per Grass, " +
+            "Initial Number Of Animals, Initial Energy Of Animals, Energy To Reproduce, Minimum Number Of Mutations, " +
+            "Maximum Number Of Mutations, Genotype Length, Map Strategy, Animals Behaviour Strategy";
     private static Configuration toConfig(String[] args) {
         if(args.length != NUMBER_OF_COLUMNS) {
             throw new ConfigurationInvalidException("Invalid CSV file data");
@@ -38,11 +38,10 @@ public class CSVConfigurationReader {
             if (scanner.hasNextLine()
                     && scanner.nextLine().equals(HEADER) && scanner.hasNextLine()) {
                 config = toConfig(scanner.nextLine().split(","));
-                System.out.println(config);
             }else{
                 throw new ConfigurationInvalidException("Invalid CSV file data\\nConfiguration could not be loaded");
             }
-            onSuccess.accept("Configuration was loaded successfully");
+            onSuccess.accept("Configuration has been read successfully");
         }catch (Exception e){
             onError.accept(e);
         }

@@ -41,7 +41,7 @@
                 <Spinner fx:id="initialNumberOfAnimals" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox styleClass="box-property">
-                <Label" text="Initial energy of an animal: " styleClass="text"/>
+                <Label text="Initial energy of an animal: " styleClass="text"/>
                 <Spinner fx:id="initialEnergyOfAnimals" styleClass="spinner" editable="true"/>
             </HBox>
             <HBox styleClass="box-property">

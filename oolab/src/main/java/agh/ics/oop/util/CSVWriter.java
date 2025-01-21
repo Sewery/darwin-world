@@ -34,7 +34,7 @@ public class CSVWriter{
     }
     public static void writeConfiguration(Configuration config , String filename, Consumer<String> onSuccess) {
         String DOCUMENTS_PATH = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
-        try (PrintWriter writer = new PrintWriter(new FileOutputStream(DOCUMENTS_PATH+'/'+filename,true))) {
+        try (PrintWriter writer = new PrintWriter(DOCUMENTS_PATH+'/'+filename)) {
             writeConfigurationHeader(writer);
             writeConfigurationContent(writer, config);
             onSuccess.accept("Configuration was saved successfully in:\n"+DOCUMENTS_PATH+'\\'+filename);

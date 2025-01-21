@@ -93,7 +93,8 @@ public class Animal implements WorldElement, AnimalInterface {
     }
 
     @Override
-    public String toString(){return "A";};
+    public String toString(){return "A";}
+
     public boolean isAt(Vector2d position) {
         return this.position.equals(position);
     }

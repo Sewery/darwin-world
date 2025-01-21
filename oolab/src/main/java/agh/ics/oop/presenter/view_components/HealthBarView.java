@@ -15,8 +15,8 @@ public class HealthBarView extends AnchorPane {
         background.setArcWidth(height);
         background.setArcHeight(height);
 
-        Rectangle health = getHealthRectangle(width,height,currentEnergy, maxEnergy);
-        Rectangle border = getBorderRectangle(width, height);
+        Rectangle health = drawHealthRectangle(width,height,currentEnergy, maxEnergy);
+        Rectangle border = drawBorderRectangle(width, height);
 
         AnchorPane healthBar = new AnchorPane();
         healthBar.setPrefSize(width, height);
@@ -35,7 +35,7 @@ public class HealthBarView extends AnchorPane {
         AnchorPane.setTopAnchor(element, 0.0);
         AnchorPane.setLeftAnchor(element, (cellSize-elementWidth)/2);
     }
-    private Rectangle getBorderRectangle(int width, int height) {
+    private Rectangle drawBorderRectangle(int width, int height) {
         Rectangle border = new Rectangle(width, height);
         border.setFill(Color.TRANSPARENT);
         border.setStroke(Color.BLACK);
@@ -44,7 +44,7 @@ public class HealthBarView extends AnchorPane {
         border.setArcHeight(height);
         return border;
     }
-    private Rectangle getHealthRectangle(int width, int height,int currentEnergy, int maxEnergy) {
+    private Rectangle drawHealthRectangle(int width, int height, int currentEnergy, int maxEnergy) {
         double healthPercentage = (double) currentEnergy / maxEnergy;
         Rectangle health = new Rectangle(width * healthPercentage, height);
         if (healthPercentage > 0.5) {

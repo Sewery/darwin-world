@@ -91,8 +91,8 @@ public class Vector2dTest {
     }
     @Test
     void testEquals() {
-        assertFalse(v1.equals(v2));
-        assertTrue(v1.equals(v1));
+        assertNotEquals(v1, v2);
+        assertEquals(v1, v1);
     }
 }
 

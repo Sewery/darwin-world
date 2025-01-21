@@ -31,12 +31,12 @@ public class StartPresenter extends AppPresenter {
         animatedGrassImage.setVisible(true); // Make the image visible
 
         // Start animations for both images
-        startImageAnimation(animatedGrassImage, 0.8,-1); // Animate first image
-        startImageAnimation(animatedSheepImage, 0.8,1); // Animate second image with different offset
+        startImageAnimation(animatedGrassImage,-1); // Animate first image
+        startImageAnimation(animatedSheepImage,.1); // Animate second image with different offset
     }
 
-    private void startImageAnimation(ImageView imageView, double duration,double dir) {
-        TranslateTransition transition = new TranslateTransition(Duration.seconds(duration), imageView);
+    private void startImageAnimation(ImageView imageView,double dir) {
+        TranslateTransition transition = new TranslateTransition(Duration.seconds(0.8), imageView);
         transition.setByY(30);
         transition.setByX(dir*10);
         transition.setCycleCount(TranslateTransition.INDEFINITE);

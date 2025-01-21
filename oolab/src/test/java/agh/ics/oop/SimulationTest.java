@@ -41,7 +41,7 @@ public class SimulationTest {
         int animalMaxEnergy = simulation.getMaxEnergy();
         for(int i = 0; i < 2*animalMaxEnergy; i++) {
             simulation.moveAnimals();
-        };
+        }
         simulation.removeDeadAnimals();
         // All animals should be removed when dead
         assertEquals(0, simulation.getNumberOfAllAnimals(), "All animals should be removed when dead");

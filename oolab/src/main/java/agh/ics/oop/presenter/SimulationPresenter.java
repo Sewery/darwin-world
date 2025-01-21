@@ -43,7 +43,7 @@ import static java.lang.Math.max;
 
 public class SimulationPresenter extends AppPresenter implements MapChangeListener, StatisticsChangeListener, AnimalChangeListener {
     @FXML
-    private  Label currentEnergy;
+    private Label currentEnergy;
     @FXML
     private Label dayOfDeath;
     @FXML
@@ -177,38 +177,14 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         }
 
         if (this.configuration.mapStrategy() == Configuration.MapStrategy.POLES) {
-            addRectsToMapGrid(
-                    0,
-                    equatorWidth,
-                    Color.LIGHTBLUE
-            );
-            addRectsToMapGrid(
-                    equatorWidth,
-                    equatorUpperBound,
-                    Color.LIGHTGREEN
-            );
-            addRectsToMapGrid(
-                    equatorLowerBound + 1,
-                    configuration.height() - equatorWidth,
-                    Color.LIGHTGREEN
-            );
-            addRectsToMapGrid(
-                    configuration.height() - equatorWidth,
-                    configuration.height(),
-                    Color.LIGHTBLUE
-            );
+            addRectsToMapGrid(0, equatorWidth, Color.LIGHTBLUE);
+            addRectsToMapGrid(equatorWidth, equatorUpperBound, Color.LIGHTGREEN);
+            addRectsToMapGrid(equatorLowerBound + 1, configuration.height() - equatorWidth, Color.LIGHTGREEN);
+            addRectsToMapGrid(configuration.height() - equatorWidth, configuration.height(), Color.LIGHTBLUE);
 
         } else {
-            addRectsToMapGrid(
-                    0,
-                    equatorUpperBound,
-                    Color.LIGHTGREEN
-            );
-            addRectsToMapGrid(
-                    equatorLowerBound + 1,
-                    configuration.height(),
-                    Color.LIGHTGREEN
-            );
+            addRectsToMapGrid(0, equatorUpperBound, Color.LIGHTGREEN);
+            addRectsToMapGrid(equatorLowerBound + 1, configuration.height(), Color.LIGHTGREEN);
         }
     }
     private void addRectsToMapGrid(int rowStart,int rowEnd,Color color){
@@ -220,7 +196,6 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             }
         }
     }
-
 
     private void drawMap() {
 
@@ -248,7 +223,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
             for (int y = cellsInAColumn + 1; y >= 0; y--) {
 
                 Vector2d currentPosition = new Vector2d(x - 1 + minX, cellsInAColumn - y + minY);
-                // zwierzęta
+                // Animals
                 List<Animal> animals = worldMap.animalsAt(currentPosition);
                 if (animals != null) {
                     Animal animalToDraw = getStrongestAnimalOnPosition(animals);
@@ -352,7 +327,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     }
 
     @FXML
-    public void onSimulationStartClicked() throws IllegalArgumentException {
+    public void onSimulationStartClicked() {
         savingStatsToFile.disableProperty().set(true);
         if (configuration != null) {
             if (!this.isInitialized) {
@@ -388,6 +363,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
                 try {
                     engine.awaitSimulationsEnd();
                 } catch (InterruptedException e) {
+                    alertError(e);
                     throw new RuntimeException(e);
                 }
             });
@@ -396,7 +372,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
     }
 
     @FXML
-    public void onSimulationStopClicked(ActionEvent actionEvent) throws InterruptedException {
+    public void onSimulationStopClicked(ActionEvent actionEvent) {
         if (engine != null) {
             simulation.pauseSimulation();
             isStartEnabled.set(false);
@@ -471,7 +447,7 @@ public class SimulationPresenter extends AppPresenter implements MapChangeListen
         chartContainer.setVisible(true);
         chartContainer.setManaged(true);
     }
-
+    @FXML
     public void onBackButtonClicked() {
         chartContainer.setVisible(false);
         chartContainer.setManaged(false);
