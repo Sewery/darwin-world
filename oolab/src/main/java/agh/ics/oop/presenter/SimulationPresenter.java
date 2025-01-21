@@ -14,7 +14,7 @@ import agh.ics.oop.model.animal_life.AnimalChangeListener;
 import agh.ics.oop.model.animal_life.AnimalComparator;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MapChangeListener;
-import agh.ics.oop.presenter.components.HealthBarView;
+import agh.ics.oop.presenter.view_components.HealthBarView;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

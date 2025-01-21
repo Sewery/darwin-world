@@ -56,17 +56,17 @@ public class ConfigurationPresenter extends AppPresenter {
 
     @FXML
     private void initialize() {
-        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 20, 3));
-        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 20, 3));
-        initialNumberOfGrasses.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 2));
+        height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 30, 4));
+        width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 30, 4));
+        initialNumberOfGrasses.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 4));
         energyPerOneGrass.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
-        initialNumberOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3));
+        initialNumberOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 5));
         numberOfNewGrassesEachDay.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
         initialEnergyOfAnimals.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 6));
         energyToReproduce.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3));
         minNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 1));
         maxNumberOfMutations.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 1));
-        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 5));
+        genotypeLength.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3));
 
         forestedEquator.fire();
         forestedEquator.setToggleGroup(animalsBehaviourGroup);
